@@ -102,26 +102,27 @@ export const accountSlide = createSlice({
     extraReducers: (builder) => {
         // Add reducers for additional action types here, and handle loading state as needed
         builder.addCase(fetchAccount.pending, (state, action) => {
-            if (action.payload) {
-                state.isAuthenticated = false;
-                state.isLoading = true;
-            }
+            state.isAuthenticated = false;
+            state.isLoading = true;
         });
 
         builder.addCase(fetchAccount.fulfilled, (state, action: any) => {
-            if (action.payload) {
+            if (action.payload?.isSuccess) {
                 state.isAuthenticated = true;
                 state.isLoading = false;
-                state.user.id = action?.payload?.id;
-                state.user.username = action?.payload?.username;
-                state.user.email = action.payload?.email;
-                state.user.first_name = action.payload?.first_name;
-                state.user.last_name = action.payload?.last_name;
-                state.user.birthDay = action.payload?.birthDay;
-                state.user.phone_number = action.payload?.phone_number;
-                state.user.gender = action.payload?.gender;
-                state.user.avatar = action.payload?.avatar;
-                state.user.role = action?.payload?.role;
+                state.user.id = action.payload.data?.id;
+                state.user.username = action.payload.data?.username;
+                state.user.email = action.payload.data?.email;
+                state.user.first_name = action.payload.data?.first_name;
+                state.user.last_name = action.payload.data?.last_name;
+                state.user.birthDay = action.payload.data?.birthDay;
+                state.user.phone_number = action.payload.data?.phone_number;
+                state.user.gender = action.payload.data?.gender;
+                state.user.avatar = action.payload.data?.avatar;
+                state.user.role = action.payload.data?.role;
+            } else {
+                state.isAuthenticated = false;
+                state.isLoading = false;
             }
         });
 

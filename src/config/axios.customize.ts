@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { callRefreshToken } from "./api";
-import { setRefreshTokenAction } from "../redux/slice/accountSlide";
 import Cookies from "js-cookie";
-import { dispatchRefreshTokenAction } from "../redux/reduxActions";
-import { useAppDispatch } from "../redux/hooks";
-import { store } from "../redux/store";
 import { emitEvent } from "../utils/eventEmitter";
 
 const instance = axios.create({
@@ -43,14 +39,21 @@ instance.interceptors.response.use(
             error.response.status === 401 &&
             error.config.url !== "/api/accounts/login/"
         ) {
-            const refresh_token_agoda = Cookies.get("refresh_token_agoda");
+            const refresh_token_agoda = Cookies.get(
+                "refresh_token_agoda_admin"
+            );
             const res: any = await callRefreshToken({
                 refresh: refresh_token_agoda,
             });
 
             if (res.isSuccess) {
-                error.config.headers["Authorization"] = `Bearer ${res.access}`;
-                localStorage.setItem("access_token_agoda_admin", res.access);
+                error.config.headers[
+                    "Authorization"
+                ] = `Bearer ${res.data.access}`;
+                localStorage.setItem(
+                    "access_token_agoda_admin",
+                    res.data.access
+                );
 
                 return instance.request(error.config);
             }

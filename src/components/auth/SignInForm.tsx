@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
@@ -8,13 +8,14 @@ import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { callGetAccount, callLogin } from "../../config/api";
 import Cookies from "js-cookie";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setUserLoginInfo } from "../../redux/slice/accountSlide";
 import { toast } from "react-toastify";
 
 export default function SignInForm() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const user = useAppSelector((state) => state.account.user);
 
   const [form, setForm] = useState({
     username: '',
@@ -25,6 +26,10 @@ export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
+  if (user?.id) {
+    return <Navigate to={"/"} />
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
@@ -32,10 +37,10 @@ export default function SignInForm() {
       // Simulate API call
       const res: any = await callLogin({ username, password });
       if (res.isSuccess) {
-        localStorage.setItem("access_token_agoda_admin", res.access);
-        Cookies.set('refresh_token_agoda_admin', res.refresh, { expires: 1 })
+        localStorage.setItem("access_token_agoda_admin", res.data.access);
+        Cookies.set('refresh_token_agoda_admin', res.data.refresh, { expires: 1 })
         const resAccount = await callGetAccount();
-        dispatch(setUserLoginInfo(resAccount));
+        dispatch(setUserLoginInfo(resAccount.data));
         toast.success("Đăng nhập thành công!", {
           position: "bottom-right",
         });

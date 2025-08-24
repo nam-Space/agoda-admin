@@ -1,6 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
 import Videos from "./pages/UiElements/Videos";
@@ -17,15 +16,21 @@ import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
-import User from "./pages/Dashboard/User";
-import { useAppDispatch } from "./redux/hooks";
+import HomePage from "./pages/Dashboard/HomePage";
+import UserPage from "./pages/Dashboard/UserPage";
+import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { useEffect } from "react";
 import { fetchAccount, setRefreshTokenAction } from "./redux/slice/accountSlide";
 import { onEvent } from "./utils/eventEmitter";
+import { LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import CountryPage from "./pages/Dashboard/CountryPage";
+import CityPage from "./pages/Dashboard/CityPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
+  const isLoading = useAppSelector((state) => state.account.isLoading);
 
   useEffect(() => {
     dispatch(fetchAccount())
@@ -41,15 +46,24 @@ export default function App() {
     };
   }, []);
 
+  if (isLoading) {
+    return (
+      <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} fullscreen />
+    )
+  }
+
+
   return (
     <Router>
       <ScrollToTop />
 
       <Routes>
         {/* Dashboard Layout */}
-        <Route element={<AppLayout />}>
-          <Route index path="/" element={<Home />} />
-          <Route index path="/user" element={<User />} />
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route index path="/" element={<HomePage />} />
+          <Route index path="/user" element={<UserPage />} />
+          <Route index path="/country" element={<CountryPage />} />
+          <Route index path="/city" element={<CityPage />} />
 
           {/* Others Page */}
           <Route path="/profile" element={<UserProfiles />} />
