@@ -94,3 +94,24 @@ export const callUpdateCity = (id: number, data: any) => {
 export const callDeleteCity = (id: number) => {
     return axios.delete(`/api/cities/${id}/delete/`);
 };
+
+// Hotel
+export const callFetchHotel = (query: string) => {
+    return axios.get(`/api/hotels/hotels/?${query}`);
+};
+
+export const callCreateHotel = (data: any) => {
+    return axios.post("/api/hotels/hotels/create/", { ...data });
+};
+
+export const callUpdateHotel = (id: number, data: any) => {
+    return axios.put(`/api/hotels/hotels/${id}/update/`, { ...data });
+};
+
+export const callDeleteHotel = (id: number) => {
+    return axios.delete(`/api/hotels/hotels/${id}/delete/`);
+};
+
+export const callDeleteHotelImage = (id: number) => {
+    return axios.delete(`/api/hotels/hotel-images/${id}/delete/`);
+};

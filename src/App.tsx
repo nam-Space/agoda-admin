@@ -27,6 +27,7 @@ import { Spin } from 'antd';
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CountryPage from "./pages/Dashboard/CountryPage";
 import CityPage from "./pages/Dashboard/CityPage";
+import HotelPage from "./pages/Dashboard/HotelPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -64,6 +65,7 @@ export default function App() {
           <Route index path="/user" element={<UserPage />} />
           <Route index path="/country" element={<CountryPage />} />
           <Route index path="/city" element={<CityPage />} />
+          <Route index path="/hotel" element={<HotelPage />} />
 
           {/* Others Page */}
           <Route path="/profile" element={<UserProfiles />} />

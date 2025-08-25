@@ -3,6 +3,7 @@ import accountReducer from "./slice/accountSlide";
 import userReducer from "./slice/userSlide";
 import countryReducer from "./slice/countrySlide";
 import cityReducer from "./slice/citySlide";
+import hotelReducer from "./slice/hotelSlide";
 
 export const store = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
         user: userReducer,
         country: countryReducer,
         city: cityReducer,
+        hotel: hotelReducer,
     },
 });
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { callFetchCountry } from "@/config/api";
+import { callFetchHotel } from "@/config/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 interface IState {
     isFetching: boolean;
@@ -13,10 +13,10 @@ interface IState {
     data: any;
 }
 // First, create the thunk
-export const fetchCountry = createAsyncThunk(
-    "country/fetchCountry",
+export const fetchHotel = createAsyncThunk(
+    "hotel/fetchHotel",
     async ({ query }: { query: string }) => {
-        const response = await callFetchCountry(query);
+        const response = await callFetchHotel(query);
         return response;
     }
 );
@@ -32,8 +32,8 @@ const initialState: IState = {
     data: [],
 };
 
-export const countrySlide = createSlice({
-    name: "country",
+export const hotelSlide = createSlice({
+    name: "hotel",
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
@@ -44,19 +44,19 @@ export const countrySlide = createSlice({
     },
     extraReducers: (builder) => {
         // Add reducers for additional action types here, and handle loading state as needed
-        builder.addCase(fetchCountry.pending, (state, action) => {
+        builder.addCase(fetchHotel.pending, (state, action) => {
             state.isFetching = true;
             // Add user to the state array
             // state.courseOrder = action.payload;
         });
 
-        builder.addCase(fetchCountry.rejected, (state, action) => {
+        builder.addCase(fetchHotel.rejected, (state, action) => {
             state.isFetching = false;
             // Add user to the state array
             // state.courseOrder = action.payload;
         });
 
-        builder.addCase(fetchCountry.fulfilled, (state, action: any) => {
+        builder.addCase(fetchHotel.fulfilled, (state, action: any) => {
             if (action.payload?.isSuccess) {
                 state.isFetching = false;
                 state.meta = action.payload.meta;
@@ -69,6 +69,6 @@ export const countrySlide = createSlice({
     },
 });
 
-export const { setActiveMenu } = countrySlide.actions;
+export const { setActiveMenu } = hotelSlide.actions;
 
-export default countrySlide.reducer;
+export default hotelSlide.reducer;

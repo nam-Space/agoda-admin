@@ -33,7 +33,8 @@ const navItems: NavItem[] = [
       { name: "Overview", path: "/", pro: false },
       { name: "User", path: "/user", pro: false },
       { name: "Country", path: "/country", pro: false },
-      { name: "City", path: "/city", pro: false }
+      { name: "City", path: "/city", pro: false },
+      { name: "Hotel", path: "/hotel", pro: false }
     ],
   },
   {

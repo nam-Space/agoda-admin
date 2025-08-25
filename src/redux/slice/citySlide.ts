@@ -14,7 +14,7 @@ interface IState {
 }
 // First, create the thunk
 export const fetchCity = createAsyncThunk(
-    "user/fetchCity",
+    "city/fetchCity",
     async ({ query }: { query: string }) => {
         const response = await callFetchCity(query);
         return response;
