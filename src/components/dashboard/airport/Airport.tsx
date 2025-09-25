@@ -1,35 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useRef, useState } from "react";
-import { Avatar, Button, message, notification, Popconfirm, Space } from "antd";
+import { useRef, useState } from "react";
+import { Button, message, notification, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteUser } from "../../../config/api";
+import { callDeleteAirport } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchUser } from "../../../redux/slice/userSlide";
-import { getUserAvatar } from "@/utils/imageUrl";
-import ModalUser from "./ModalUser";
-import { ROLE } from "@/constants/role";
+import { fetchAirport } from "@/redux/slice/airportSlide";
+import ModalAirport from "./ModalAirport";
 
-export default function User() {
+export default function Airport() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.user.isFetching);
-    const meta = useAppSelector(state => state.user.meta);
-    const users = useAppSelector(state => state.user.data);
+    const isFetching = useAppSelector(state => state.airport.isFetching);
+    const meta = useAppSelector(state => state.airport.meta);
+    const airports = useAppSelector(state => state.airport.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteUser = async (id: number | undefined) => {
+    const handleDeleteAirport = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteUser(id);
+            const res: any = await callDeleteAirport(id);
             if (res?.isSuccess) {
-                message.success('Xóa User thành công');
+                message.success('Xóa airport thành công');
                 reloadTable();
             } else {
                 notification.error({
@@ -51,95 +49,57 @@ export default function User() {
             hideInSearch: true,
         },
         {
-            title: "Tên đăng nhập",
-            dataIndex: 'username',
-            hideInSearch: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <Avatar src={getUserAvatar(record.avatar)} />
-                        <p>{record.username}</p>
-                    </div>
-                )
-            },
+            title: "Tên",
+            dataIndex: 'name',
+            sorter: true,
+        },
+        {
+            title: "Địa điểm",
+            dataIndex: 'location',
+            sorter: true,
         },
 
         {
-            title: "Tên",
-            dataIndex: 'first_name',
+            title: 'Mô tả',
+            dataIndex: 'description',
+            sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <p>{record.first_name}</p>
+                    <div className="line-clamp-6">{record.description}</div>
+                )
+            },
+            width: 400
+        },
+        {
+            title: 'Vị trí',
+            dataIndex: 'google-map',
+            sorter: true,
+            render: (text, record, index, action) => {
+                const mapUrl = `https://maps.google.com/maps?q=${record.lat},${record.lng}&hl=vi&z=18&output=embed`;
+
+                return (
+                    <div>
+                        <iframe
+                            width="250"
+                            height="200"
+                            frameBorder="0"
+                            style={{ border: 0 }}
+                            src={mapUrl}
+                            allowFullScreen
+                            aria-hidden="false"
+                            tabIndex={0}
+                        ></iframe>
                     </div>
                 )
             },
-            sorter: true,
-        },
-        {
-            title: "Họ",
-            dataIndex: 'last_name',
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <p>{record.last_name}</p>
-                    </div>
-                )
-            },
-            sorter: true,
-        },
-        {
-            title: "Email",
-            dataIndex: 'email',
-            sorter: true,
-        },
-        {
-            title: 'Giới tính',
-            dataIndex: 'gender',
-            sorter: true,
-        },
-        {
-            title: "SĐT",
-            dataIndex: 'phone_number',
-            sorter: true,
-        },
-        {
-            title: "Ngày sinh",
-            dataIndex: 'birthDay',
-            render: (text, record, index, action) => {
-                return (
-                    <>{record.birthday}</>
-                )
-            },
-            hideInSearch: true,
-        },
-        {
-            title: "Vai trò",
-            dataIndex: 'role',
-            render: (text, record, index, action) => {
-                return (
-                    <>{(ROLE as any)[record.role.toUpperCase()]}</>
-                )
-            },
-            sorter: true,
-        },
-        {
-            title: "Trạng thái",
-            dataIndex: 'role',
-            render: (text, record, index, action) => {
-                return (
-                    <>{record.is_active ? "Đã kích hoạt" : "Vô hiệu hóa"}</>
-                )
-            },
-            sorter: true,
         },
         {
             title: "Ngày tạo",
-            dataIndex: 'date_joined',
+            dataIndex: 'created_at',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.date_joined).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
             },
             hideInSearch: true,
@@ -165,9 +125,9 @@ export default function User() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận vô hiệu hóa người dùng"}
-                        description={"Bạn chắc chắn muốn vô hiệu hóa người dùng"}
-                        onConfirm={() => handleDeleteUser(entity.id)}
+                        title={"Xác nhận xóa airport"}
+                        description={"Bạn chắc chắn muốn xóa airport"}
+                        onConfirm={() => handleDeleteAirport(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -195,23 +155,14 @@ export default function User() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
-        if (clone.first_name) {
-            temp += `&first_name=${clone.first_name}`
+        if (clone.name) {
+            temp += `&name=${clone.name}`
         }
-        if (clone.last_name) {
-            temp += `&last_name=${clone.last_name}`
+        if (clone.location) {
+            temp += `&location=${clone.location}`
         }
-        if (clone.email) {
-            temp += `&email=${clone.email}`
-        }
-        if (clone.gender) {
-            temp += `&gender=${clone.gender}`
-        }
-        if (clone.phone_number) {
-            temp += `&phone_number=${clone.phone_number}`
-        }
-        if (clone.role) {
-            temp += `&role=${clone.role}`
+        if (clone.description) {
+            temp += `&description=${clone.description}`
         }
 
         return temp;
@@ -221,14 +172,14 @@ export default function User() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách user"}
+                headerTitle={"Danh sách airport"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={users}
+                dataSource={airports}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchUser({ query }))
+                    dispatch(fetchAirport({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -255,7 +206,7 @@ export default function User() {
                     );
                 }}
             />
-            <ModalUser
+            <ModalAirport
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}

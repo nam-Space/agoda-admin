@@ -75,7 +75,7 @@ export const callUpdateCountry = (id: number, data: any) => {
 };
 
 export const callDeleteCountry = (id: number) => {
-    return axios.delete(`/api/countries/${id}/delete/`);
+    return axios.delete(`/api/countries/countries/${id}/delete/`);
 };
 
 // City
@@ -92,7 +92,7 @@ export const callUpdateCity = (id: number, data: any) => {
 };
 
 export const callDeleteCity = (id: number) => {
-    return axios.delete(`/api/cities/${id}/delete/`);
+    return axios.delete(`/api/cities/cities/${id}/delete/`);
 };
 
 // Hotel
@@ -114,4 +114,38 @@ export const callDeleteHotel = (id: number) => {
 
 export const callDeleteHotelImage = (id: number) => {
     return axios.delete(`/api/hotels/hotel-images/${id}/delete/`);
+};
+
+/* Airport */
+export const callFetchAirport = (query: string) => {
+    return axios.get(`/api/airports/airports/?${query}`);
+};
+
+export const callCreateAirport = (data: any) => {
+    return axios.post("/api/airports/airports/create/", { ...data });
+};
+
+export const callUpdateAirport = (id: number, data: any) => {
+    return axios.put(`/api/airports/airports/${id}/update/`, { ...data });
+};
+
+export const callDeleteAirport = (id: number) => {
+    return axios.delete(`/api/airports/airports/${id}/delete/`);
+};
+
+// Car
+export const callFetchCar = (query: string) => {
+    return axios.get(`/api/cars/cars/?${query}`);
+};
+
+export const callCreateCar = (data: any) => {
+    return axios.post("/api/cars/cars/create/", { ...data });
+};
+
+export const callUpdateCar = (id: number, data: any) => {
+    return axios.put(`/api/cars/cars/${id}/update/`, { ...data });
+};
+
+export const callDeleteCar = (id: number) => {
+    return axios.delete(`/api/cars/cars/${id}/delete/`);
 };

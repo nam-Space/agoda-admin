@@ -28,6 +28,8 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CountryPage from "./pages/Dashboard/CountryPage";
 import CityPage from "./pages/Dashboard/CityPage";
 import HotelPage from "./pages/Dashboard/HotelPage";
+import AirportPage from "./pages/Dashboard/AirportPage";
+import CarPage from "./pages/Dashboard/CarPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -66,6 +68,8 @@ export default function App() {
           <Route index path="/country" element={<CountryPage />} />
           <Route index path="/city" element={<CityPage />} />
           <Route index path="/hotel" element={<HotelPage />} />
+          <Route index path="/airport" element={<AirportPage />} />
+          <Route index path="/car" element={<CarPage />} />
 
           {/* Others Page */}
           <Route path="/profile" element={<UserProfiles />} />

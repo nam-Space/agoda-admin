@@ -1,35 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Avatar, Button, message, notification, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteUser } from "../../../config/api";
+import { callDeleteCar } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchUser } from "../../../redux/slice/userSlide";
+import { fetchCity } from "@/redux/slice/citySlide";
 import { getUserAvatar } from "@/utils/imageUrl";
-import ModalUser from "./ModalUser";
-import { ROLE } from "@/constants/role";
-
-export default function User() {
+import { fetchCar } from "@/redux/slice/carSlide";
+import ModalCar from "./ModalCar";
+export default function Car() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.user.isFetching);
-    const meta = useAppSelector(state => state.user.meta);
-    const users = useAppSelector(state => state.user.data);
+    const isFetching = useAppSelector(state => state.car.isFetching);
+    const meta = useAppSelector(state => state.car.meta);
+    const cars = useAppSelector(state => state.car.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteUser = async (id: number | undefined) => {
+    const handleDeleteCar = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteUser(id);
+            const res: any = await callDeleteCar(id);
             if (res?.isSuccess) {
-                message.success('Xóa User thành công');
+                message.success('Xóa car thành công');
                 reloadTable();
             } else {
                 notification.error({
@@ -51,95 +50,84 @@ export default function User() {
             hideInSearch: true,
         },
         {
-            title: "Tên đăng nhập",
-            dataIndex: 'username',
-            hideInSearch: true,
+            title: "Tên xe",
+            dataIndex: 'name',
+            sorter: true,
+
+        },
+        {
+            title: 'Mô tả',
+            dataIndex: 'description',
+            sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <Avatar src={getUserAvatar(record.avatar)} />
-                        <p>{record.username}</p>
-                    </div>
+                    <div className="line-clamp-6">{record.description}</div>
                 )
             },
+            width: 200
+        },
+        {
+            title: "Ảnh",
+            dataIndex: 'image',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
+                )
+            },
+            hideInSearch: true,
+            width: 150
         },
 
         {
-            title: "Tên",
-            dataIndex: 'first_name',
+            title: "Tài xế",
+            dataIndex: 'user',
+            sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <p>{record.first_name}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <Avatar src={getUserAvatar(record.user.avatar)} />
+                        <p>{`${record.user.first_name} ${record.user.last_name}`}</p>
                     </div>
-                )
-            },
-            sorter: true,
-        },
-        {
-            title: "Họ",
-            dataIndex: 'last_name',
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <p>{record.last_name}</p>
-                    </div>
-                )
-            },
-            sorter: true,
-        },
-        {
-            title: "Email",
-            dataIndex: 'email',
-            sorter: true,
-        },
-        {
-            title: 'Giới tính',
-            dataIndex: 'gender',
-            sorter: true,
-        },
-        {
-            title: "SĐT",
-            dataIndex: 'phone_number',
-            sorter: true,
-        },
-        {
-            title: "Ngày sinh",
-            dataIndex: 'birthDay',
-            render: (text, record, index, action) => {
-                return (
-                    <>{record.birthday}</>
                 )
             },
             hideInSearch: true,
+            width: 150
         },
         {
-            title: "Vai trò",
-            dataIndex: 'role',
-            render: (text, record, index, action) => {
-                return (
-                    <>{(ROLE as any)[record.role.toUpperCase()]}</>
-                )
-            },
+            title: 'Điểm',
+            dataIndex: 'point',
             sorter: true,
         },
         {
-            title: "Trạng thái",
-            dataIndex: 'role',
+            title: 'Sao trung bình',
+            dataIndex: 'avg_star',
+            sorter: true,
+        },
+        {
+            title: 'Giá mỗi km',
+            dataIndex: 'price_per_km',
+            sorter: true,
+        },
+        {
+            title: 'Tốc độ trung bình',
+            dataIndex: 'avg_speed',
+            sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{record.is_active ? "Đã kích hoạt" : "Vô hiệu hóa"}</>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <p>{record.avg_speed} km/h</p>
+                    </div>
                 )
             },
-            sorter: true,
         },
         {
             title: "Ngày tạo",
-            dataIndex: 'date_joined',
+            dataIndex: 'created_at',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.date_joined).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
             },
             hideInSearch: true,
@@ -165,9 +153,9 @@ export default function User() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận vô hiệu hóa người dùng"}
-                        description={"Bạn chắc chắn muốn vô hiệu hóa người dùng"}
-                        onConfirm={() => handleDeleteUser(entity.id)}
+                        title={"Xác nhận xóa car"}
+                        description={"Bạn chắc chắn muốn xóa car"}
+                        onConfirm={() => handleDeleteCar(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -195,23 +183,11 @@ export default function User() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
-        if (clone.first_name) {
-            temp += `&first_name=${clone.first_name}`
+        if (clone.name) {
+            temp += `&name=${clone.name}`
         }
-        if (clone.last_name) {
-            temp += `&last_name=${clone.last_name}`
-        }
-        if (clone.email) {
-            temp += `&email=${clone.email}`
-        }
-        if (clone.gender) {
-            temp += `&gender=${clone.gender}`
-        }
-        if (clone.phone_number) {
-            temp += `&phone_number=${clone.phone_number}`
-        }
-        if (clone.role) {
-            temp += `&role=${clone.role}`
+        if (clone.description) {
+            temp += `&description=${clone.description}`
         }
 
         return temp;
@@ -221,14 +197,14 @@ export default function User() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách user"}
+                headerTitle={"Danh sách car"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={users}
+                dataSource={cars}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchUser({ query }))
+                    dispatch(fetchCar({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -255,7 +231,7 @@ export default function User() {
                     );
                 }}
             />
-            <ModalUser
+            <ModalCar
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}
