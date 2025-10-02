@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
@@ -30,6 +30,9 @@ import CityPage from "./pages/Dashboard/CityPage";
 import HotelPage from "./pages/Dashboard/HotelPage";
 import AirportPage from "./pages/Dashboard/AirportPage";
 import CarPage from "./pages/Dashboard/CarPage";
+import ActivityPage from "./pages/Dashboard/ActivityPage";
+import ActivityPackagePage from "./pages/Dashboard/ActivityPackagePage";
+import ActivityDatePage from "./pages/Dashboard/ActivityDatePage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -70,6 +73,9 @@ export default function App() {
           <Route index path="/hotel" element={<HotelPage />} />
           <Route index path="/airport" element={<AirportPage />} />
           <Route index path="/car" element={<CarPage />} />
+          <Route index path="/activity" element={<ActivityPage />} />
+          <Route index path="/activity-package" element={<ActivityPackagePage />} />
+          <Route index path="/activity-date" element={<ActivityDatePage />} />
 
           {/* Others Page */}
           <Route path="/profile" element={<UserProfiles />} />

@@ -141,6 +141,7 @@ const ModalCity = (props: IProps) => {
         form.resetFields();
         setDataInit(null);
         setDataImage([])
+        setDescription("")
         setOpenModal(false);
     }
 

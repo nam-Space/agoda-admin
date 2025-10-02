@@ -6,6 +6,9 @@ import cityReducer from "./slice/citySlide";
 import hotelReducer from "./slice/hotelSlide";
 import airportReducer from "./slice/airportSlide";
 import carReducer from "./slice/carSlide";
+import activityReducer from "./slice/activitySlide";
+import activityPackageReducer from "./slice/activityPackageSlide";
+import activityDateReducer from "./slice/activityDateSlide";
 
 export const store = configureStore({
     reducer: {
@@ -16,6 +19,9 @@ export const store = configureStore({
         hotel: hotelReducer,
         airport: airportReducer,
         car: carReducer,
+        activity: activityReducer,
+        activityPackage: activityPackageReducer,
+        activityDate: activityDateReducer,
     },
 });
 

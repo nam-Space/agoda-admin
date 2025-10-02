@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProForm, ProFormDigit, ProFormText } from "@ant-design/pro-components";
+import { ModalForm, ProForm, ProFormDigit, ProFormMoney, ProFormSelect, ProFormText } from "@ant-design/pro-components";
 import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect, useRef, useState } from "react";
-import { callCreateCountry, callCreateHotel, callFetchCity, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
+import { callCreateActivity, callCreateCountry, callCreateHotel, callFetchCity, callUpdateActivity, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
 import { AdmonitionDirectiveDescriptor, BlockTypeSelect, BoldItalicUnderlineToggles, ChangeAdmonitionType, ChangeCodeMirrorLanguage, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertAdmonition, InsertCodeBlock, InsertFrontmatter, InsertImage, InsertSandpack, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, MDXEditorMethods, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
 import { useAppDispatch } from "@/redux/hooks";
 import { marked } from 'marked';
@@ -14,6 +14,7 @@ import enUS from 'antd/lib/locale/en_US';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
+import { CATEGORY_ACTIVITY } from "@/constants/activity";
 
 interface IProps {
     openModal: boolean;
@@ -23,7 +24,7 @@ interface IProps {
     reloadTable: () => void;
 }
 
-interface IHotelImage {
+interface IActivityImage {
     name: string;
     uid: string;
 }
@@ -34,18 +35,13 @@ export interface ICitySelect {
     key?: number;
 }
 
-const ModalHotel = (props: IProps) => {
+const ModalActivity = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
     const [formMarkdown, setFormMarkdown] = useState({
-        mostFeature: '',
-        facilities: '',
-        withUs: '',
-        usefulInformation: '',
-        description: '',
-        amenitiesAndFacilities: '',
-        locationInfo: '',
-        nearbyLocation: '',
-        regulation: ''
+        short_description: "",
+        more_information: '',
+        cancellation_policy: '',
+        departure_information: ""
     })
 
     const [city, setCity] = useState<ICitySelect>({
@@ -55,7 +51,7 @@ const ModalHotel = (props: IProps) => {
     });
 
     const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
-    const [dataImages, setDataImages] = useState<IHotelImage[]>([]);
+    const [dataImages, setDataImages] = useState<IActivityImage[]>([]);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -67,15 +63,10 @@ const ModalHotel = (props: IProps) => {
         if (dataInit?.id) {
             setFormMarkdown({
                 ...formMarkdown,
-                mostFeature: dataInit.mostFeature || "",
-                facilities: dataInit.facilities || "",
-                withUs: dataInit.withUs || "",
-                usefulInformation: dataInit.usefulInformation || "",
-                description: dataInit.description || "",
-                amenitiesAndFacilities: dataInit.amenitiesAndFacilities || "",
-                locationInfo: dataInit.locationInfo || "",
-                nearbyLocation: dataInit.nearbyLocation || "",
-                regulation: dataInit.regulation || ""
+                short_description: dataInit.short_description || "",
+                more_information: dataInit.more_information || "",
+                cancellation_policy: dataInit.cancellation_policy || "",
+                departure_information: dataInit.departure_information || ""
             })
 
             if (dataInit?.images?.length > 0) {
@@ -116,25 +107,24 @@ const ModalHotel = (props: IProps) => {
     }
 
     const submitData = async (valuesForm: any) => {
-        const { name, lat, lng, point, avg_star, location } = valuesForm;
+        const { name, category, avg_price, avg_star, total_time } = valuesForm;
 
         if (dataInit?.id) {
             //update
             const dataObj = {
                 city: city.value,
                 name,
-                lat,
-                lng,
-                point,
+                category,
+                avg_price,
                 avg_star,
-                location,
+                total_time,
                 ...formMarkdown,
                 images: dataImages.map(image => (image.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""))
             }
 
-            const res: any = await callUpdateHotel(dataInit.id, dataObj);
+            const res: any = await callUpdateActivity(dataInit.id, dataObj);
             if (res.isSuccess) {
-                toast.success("Cập nhật hotel thành công", {
+                toast.success("Cập nhật activity thành công", {
                     position: "bottom-right",
                 });
                 handleReset();
@@ -149,17 +139,16 @@ const ModalHotel = (props: IProps) => {
             const dataObj = {
                 city: city.value,
                 name,
-                lat,
-                lng,
-                point,
+                category,
+                avg_price,
                 avg_star,
-                location,
+                total_time,
                 ...formMarkdown,
                 images: dataImages.map(image => (image.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""))
             }
-            const res: any = await callCreateHotel(dataObj);
+            const res: any = await callCreateActivity(dataObj);
             if (res.isSuccess) {
-                toast.success("Thêm mới hotel thành công", {
+                toast.success("Thêm mới activity thành công", {
                     position: "bottom-right",
                 });
                 handleReset();
@@ -177,15 +166,10 @@ const ModalHotel = (props: IProps) => {
         setDataInit(null);
         setDataImages([])
         setFormMarkdown({
-            mostFeature: '',
-            facilities: '',
-            withUs: '',
-            usefulInformation: '',
-            description: '',
-            amenitiesAndFacilities: '',
-            locationInfo: '',
-            nearbyLocation: '',
-            regulation: ''
+            short_description: "",
+            more_information: '',
+            cancellation_policy: '',
+            departure_information: ""
         })
         setOpenModal(false);
     }
@@ -234,7 +218,7 @@ const ModalHotel = (props: IProps) => {
     };
 
     const handleUploadFileLogo = async ({ file, onSuccess, onError }: any) => {
-        const res: any = await callUploadSingleImage({ file, type: 'hotel' });
+        const res: any = await callUploadSingleImage({ file, type: 'activity' });
         if (res?.isSuccess) {
             setTimeout(() => {
                 setDataImages([...dataImages,
@@ -270,7 +254,7 @@ const ModalHotel = (props: IProps) => {
     return (
         <>
             <ModalForm
-                title={<>{dataInit?.id ? "Cập nhật hotel" : "Thêm mới hotel"}</>}
+                title={<>{dataInit?.id ? "Cập nhật activity" : "Thêm mới activity"}</>}
                 open={openModal}
                 modalProps={{
                     onCancel: () => { handleReset() },
@@ -290,7 +274,7 @@ const ModalHotel = (props: IProps) => {
                 initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
-                    <Col lg={6} md={6} sm={24} xs={24}>
+                    <Col lg={12} md={12} sm={24} xs={24}>
                         <ProForm.Item
                             name="city"
                             label={"Thành phố"}
@@ -315,7 +299,7 @@ const ModalHotel = (props: IProps) => {
                         </ProForm.Item>
 
                     </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
+                    <Col lg={12} md={12} sm={24} xs={24}>
                         <ProFormText
                             label={"Tên"}
                             name="name"
@@ -325,31 +309,21 @@ const ModalHotel = (props: IProps) => {
                             placeholder={"Nhập thông tin"}
                         />
                     </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="lat"
-                            label="Vĩ độ (lat)"
-                            placeholder={"Nhập thông tin"}
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
+                    <Col lg={12} md={12} sm={24} xs={24}>
+                        <ProFormSelect
+                            name="category"
+                            label={"Danh mục"}
+                            valueEnum={CATEGORY_ACTIVITY}
+                            placeholder={"Chọn danh mục"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="lng"
-                            label="Kinh độ (lng)"
+                        <ProFormMoney
+                            name="avg_price"
+                            label="Giá trung bình"
                             placeholder={"Nhập thông tin"}
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                        />
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="point"
-                            label="Điểm"
-                            placeholder={"Nhập thông tin"}
+                            locale="vi-VN"
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
@@ -361,8 +335,8 @@ const ModalHotel = (props: IProps) => {
                     </Col>
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <ProFormText
-                            label={"Địa điểm"}
-                            name="location"
+                            label={"Tổng số giờ chơi"}
+                            name="total_time"
                             rules={[
                                 { required: true, message: "Trường này là bắt buộc" },
                             ]}
@@ -372,7 +346,7 @@ const ModalHotel = (props: IProps) => {
                     <Col lg={24} md={24} sm={24} xs={24}>
                         <Form.Item
                             labelCol={{ span: 24 }}
-                            label={"Ảnh khách sạn"}
+                            label={"Ảnh hoạt động"}
                             name="images"
                         >
                             <ConfigProvider locale={enUS}>
@@ -410,13 +384,13 @@ const ModalHotel = (props: IProps) => {
                         </Form.Item>
                     </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Điểm nổi bật nhất</label>
+                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Mô tả ngắn</label>
                         <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.mostFeature)}
+                            markdown={convertHtmlToMarkdown(formMarkdown.short_description)}
                             className="min-h-[500px] bg-[#fcfcfc]"
                             // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
                             contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('mostFeature', val)}
+                            onChange={(val) => handleChangeMarkdown('short_description', val)}
                             plugins={[
                                 headingsPlugin(),
                                 diffSourcePlugin({
@@ -455,13 +429,13 @@ const ModalHotel = (props: IProps) => {
                         />
                     </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Cơ sở vật chất</label>
+                        <label className="flex items-center gap-[4px]">Thông tin thêm</label>
                         <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.facilities)}
+                            markdown={convertHtmlToMarkdown(formMarkdown.more_information)}
                             className="min-h-[500px] bg-[#fcfcfc]"
                             // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
                             contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('facilities', val)}
+                            onChange={(val) => handleChangeMarkdown('more_information', val)}
                             plugins={[
                                 headingsPlugin(),
                                 diffSourcePlugin({
@@ -500,13 +474,13 @@ const ModalHotel = (props: IProps) => {
                         />
                     </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Về chúng tôi</label>
+                        <label className="flex items-center gap-[4px]">Chính sách hủy</label>
                         <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.withUs)}
+                            markdown={convertHtmlToMarkdown(formMarkdown.cancellation_policy)}
                             className="min-h-[500px] bg-[#fcfcfc]"
                             // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
                             contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('withUs', val)}
+                            onChange={(val) => handleChangeMarkdown('cancellation_policy', val)}
                             plugins={[
                                 headingsPlugin(),
                                 diffSourcePlugin({
@@ -545,238 +519,13 @@ const ModalHotel = (props: IProps) => {
                         />
                     </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Thông tin hữu ích</label>
+                        <label className="flex items-center gap-[4px]">Ngày & giờ khởi hành và trở về</label>
                         <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.usefulInformation)}
+                            markdown={convertHtmlToMarkdown(formMarkdown.departure_information)}
                             className="min-h-[500px] bg-[#fcfcfc]"
                             // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
                             contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('usefulInformation', val)}
-                            plugins={[
-                                headingsPlugin(),
-                                diffSourcePlugin({
-                                    diffMarkdown: 'An older version',
-                                    viewMode: 'rich-text'
-                                }),
-                                linkPlugin(),
-                                linkDialogPlugin(),
-                                frontmatterPlugin(),
-                                imagePlugin(),
-                                tablePlugin(),
-                                thematicBreakPlugin(),
-                                listsPlugin(),
-                                quotePlugin(),
-                                markdownShortcutPlugin(),
-                                toolbarPlugin({
-                                    toolbarClassName: 'markdown-editor',
-                                    toolbarContents: () => (
-                                        <>
-                                            <BlockTypeSelect />
-                                            <BoldItalicUnderlineToggles />
-                                            <CodeToggle />
-                                            <CreateLink />
-                                            <InsertFrontmatter />
-                                            <InsertImage />
-                                            <InsertTable />
-                                            <InsertThematicBreak />
-                                            <ListsToggle />
-                                            <DiffSourceToggleWrapper>
-                                                <UndoRedo />
-                                            </DiffSourceToggleWrapper>
-                                        </>
-                                    )
-                                })]}
-
-                        />
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Mô tả</label>
-                        <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.description)}
-                            className="min-h-[500px] bg-[#fcfcfc]"
-                            // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
-                            contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('description', val)}
-                            plugins={[
-                                headingsPlugin(),
-                                diffSourcePlugin({
-                                    diffMarkdown: 'An older version',
-                                    viewMode: 'rich-text'
-                                }),
-                                linkPlugin(),
-                                linkDialogPlugin(),
-                                frontmatterPlugin(),
-                                imagePlugin(),
-                                tablePlugin(),
-                                thematicBreakPlugin(),
-                                listsPlugin(),
-                                quotePlugin(),
-                                markdownShortcutPlugin(),
-                                toolbarPlugin({
-                                    toolbarClassName: 'markdown-editor',
-                                    toolbarContents: () => (
-                                        <>
-                                            <BlockTypeSelect />
-                                            <BoldItalicUnderlineToggles />
-                                            <CodeToggle />
-                                            <CreateLink />
-                                            <InsertFrontmatter />
-                                            <InsertImage />
-                                            <InsertTable />
-                                            <InsertThematicBreak />
-                                            <ListsToggle />
-                                            <DiffSourceToggleWrapper>
-                                                <UndoRedo />
-                                            </DiffSourceToggleWrapper>
-                                        </>
-                                    )
-                                })]}
-
-                        />
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Tiện nghi và cơ sở vật chất</label>
-                        <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.amenitiesAndFacilities)}
-                            className="min-h-[500px] bg-[#fcfcfc]"
-                            // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
-                            contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('amenitiesAndFacilities', val)}
-                            plugins={[
-                                headingsPlugin(),
-                                diffSourcePlugin({
-                                    diffMarkdown: 'An older version',
-                                    viewMode: 'rich-text'
-                                }),
-                                linkPlugin(),
-                                linkDialogPlugin(),
-                                frontmatterPlugin(),
-                                imagePlugin(),
-                                tablePlugin(),
-                                thematicBreakPlugin(),
-                                listsPlugin(),
-                                quotePlugin(),
-                                markdownShortcutPlugin(),
-                                toolbarPlugin({
-                                    toolbarClassName: 'markdown-editor',
-                                    toolbarContents: () => (
-                                        <>
-                                            <BlockTypeSelect />
-                                            <BoldItalicUnderlineToggles />
-                                            <CodeToggle />
-                                            <CreateLink />
-                                            <InsertFrontmatter />
-                                            <InsertImage />
-                                            <InsertTable />
-                                            <InsertThematicBreak />
-                                            <ListsToggle />
-                                            <DiffSourceToggleWrapper>
-                                                <UndoRedo />
-                                            </DiffSourceToggleWrapper>
-                                        </>
-                                    )
-                                })]}
-
-                        />
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Vị trí</label>
-                        <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.locationInfo)}
-                            className="min-h-[500px] bg-[#fcfcfc]"
-                            // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
-                            contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('locationInfo', val)}
-                            plugins={[
-                                headingsPlugin(),
-                                diffSourcePlugin({
-                                    diffMarkdown: 'An older version',
-                                    viewMode: 'rich-text'
-                                }),
-                                linkPlugin(),
-                                linkDialogPlugin(),
-                                frontmatterPlugin(),
-                                imagePlugin(),
-                                tablePlugin(),
-                                thematicBreakPlugin(),
-                                listsPlugin(),
-                                quotePlugin(),
-                                markdownShortcutPlugin(),
-                                toolbarPlugin({
-                                    toolbarClassName: 'markdown-editor',
-                                    toolbarContents: () => (
-                                        <>
-                                            <BlockTypeSelect />
-                                            <BoldItalicUnderlineToggles />
-                                            <CodeToggle />
-                                            <CreateLink />
-                                            <InsertFrontmatter />
-                                            <InsertImage />
-                                            <InsertTable />
-                                            <InsertThematicBreak />
-                                            <ListsToggle />
-                                            <DiffSourceToggleWrapper>
-                                                <UndoRedo />
-                                            </DiffSourceToggleWrapper>
-                                        </>
-                                    )
-                                })]}
-
-                        />
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Đi đâu gần đây</label>
-                        <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.nearbyLocation)}
-                            className="min-h-[500px] bg-[#fcfcfc]"
-                            // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
-                            contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('nearbyLocation', val)}
-                            plugins={[
-                                headingsPlugin(),
-                                diffSourcePlugin({
-                                    diffMarkdown: 'An older version',
-                                    viewMode: 'rich-text'
-                                }),
-                                linkPlugin(),
-                                linkDialogPlugin(),
-                                frontmatterPlugin(),
-                                imagePlugin(),
-                                tablePlugin(),
-                                thematicBreakPlugin(),
-                                listsPlugin(),
-                                quotePlugin(),
-                                markdownShortcutPlugin(),
-                                toolbarPlugin({
-                                    toolbarClassName: 'markdown-editor',
-                                    toolbarContents: () => (
-                                        <>
-                                            <BlockTypeSelect />
-                                            <BoldItalicUnderlineToggles />
-                                            <CodeToggle />
-                                            <CreateLink />
-                                            <InsertFrontmatter />
-                                            <InsertImage />
-                                            <InsertTable />
-                                            <InsertThematicBreak />
-                                            <ListsToggle />
-                                            <DiffSourceToggleWrapper>
-                                                <UndoRedo />
-                                            </DiffSourceToggleWrapper>
-                                        </>
-                                    )
-                                })]}
-
-                        />
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Quy định của chỗ nghỉ</label>
-                        <MDXEditor
-                            markdown={convertHtmlToMarkdown(formMarkdown.regulation)}
-                            className="min-h-[500px] bg-[#fcfcfc]"
-                            // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
-                            contentEditableClassName="prose"
-                            onChange={(val) => handleChangeMarkdown('regulation', val)}
+                            onChange={(val) => handleChangeMarkdown('departure_information', val)}
                             plugins={[
                                 headingsPlugin(),
                                 diffSourcePlugin({
@@ -829,4 +578,4 @@ const ModalHotel = (props: IProps) => {
     )
 }
 
-export default ModalHotel;
+export default ModalActivity;

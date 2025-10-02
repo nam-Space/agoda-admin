@@ -5,7 +5,12 @@ import {
     ProTableProps,
 } from '@ant-design/pro-components';
 import vi_VN from 'antd/locale/vi_VN';
-import { ConfigProvider } from 'antd';
+import { Button, ConfigProvider, Popconfirm } from 'antd';
+
+type DataTableProps<T extends Record<string, any>, U extends ParamsType = ParamsType, ValueType = 'text'> =
+    ProTableProps<T, U, ValueType> & {
+        handleDelete?: () => void;
+    };
 
 const DataTable = <
     T extends Record<string, any>,
@@ -30,7 +35,8 @@ const DataTable = <
     actionRef,
     dateFormatter = 'string',
     rowSelection,
-}: ProTableProps<T, U, ValueType>) => {
+    handleDelete = () => { },
+}: DataTableProps<T, U, ValueType>) => {
     return (
         <ConfigProvider locale={vi_VN}>
             <ProTable<T, U, ValueType>
@@ -53,6 +59,14 @@ const DataTable = <
                 actionRef={actionRef}
                 dateFormatter={dateFormatter}
                 rowSelection={rowSelection}
+                tableAlertOptionRender={() => <Popconfirm
+                    title="Bạn có chắc chắn muốn xóa?"
+                    onConfirm={handleDelete}
+                    okText="Xóa"
+                    cancelText="Hủy"
+                >
+                    <Button danger>Xóa danh sách</Button>
+                </Popconfirm>}
             />
         </ConfigProvider>
     );

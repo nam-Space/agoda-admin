@@ -149,3 +149,78 @@ export const callUpdateCar = (id: number, data: any) => {
 export const callDeleteCar = (id: number) => {
     return axios.delete(`/api/cars/cars/${id}/delete/`);
 };
+
+// Activity
+export const callFetchActivity = (query: string) => {
+    return axios.get(`/api/activities/activities/?${query}`);
+};
+
+export const callCreateActivity = (data: any) => {
+    return axios.post("/api/activities/activities/create/", { ...data });
+};
+
+export const callUpdateActivity = (id: number, data: any) => {
+    return axios.put(`/api/activities/activities/${id}/update/`, { ...data });
+};
+
+export const callDeleteActivity = (id: number) => {
+    return axios.delete(`/api/activities/activities/${id}/delete/`);
+};
+
+export const callDeleteActivityImage = (id: number) => {
+    return axios.delete(`/api/activities/activity-images/${id}/delete/`);
+};
+
+// Activity Package
+export const callFetchActivityPackage = (query: string) => {
+    return axios.get(`/api/activities/activities-packages/?${query}`);
+};
+
+export const callCreateActivityPackage = (data: any) => {
+    return axios.post("/api/activities/activities-packages/create/", {
+        ...data,
+    });
+};
+
+export const callUpdateActivityPackage = (id: number, data: any) => {
+    return axios.put(`/api/activities/activities-packages/${id}/update/`, {
+        ...data,
+    });
+};
+
+export const callDeleteActivityPackage = (id: number) => {
+    return axios.delete(`/api/activities/activities-packages/${id}/delete/`);
+};
+
+// Activity Date
+export const callFetchActivityDate = (query: string) => {
+    return axios.get(`/api/activities/activities-dates/?${query}`);
+};
+
+export const callCreateActivityDate = (data: any) => {
+    return axios.post("/api/activities/activities-dates/create/", {
+        ...data,
+    });
+};
+
+export const callCreateBulkActivityDate = (data: any) => {
+    return axios.post("/api/activities/activities-dates/create/bulk/", {
+        ...data,
+    });
+};
+
+export const callUpdateActivityDate = (id: number, data: any) => {
+    return axios.put(`/api/activities/activities-dates/${id}/update/`, {
+        ...data,
+    });
+};
+
+export const callDeleteActivityDate = (id: number) => {
+    return axios.delete(`/api/activities/activities-dates/${id}/delete/`);
+};
+
+export const callDeleteBulkActivityDate = (ids: number[]) => {
+    return axios.delete(`/api/activities/activity-dates/bulk-delete/`, {
+        data: { ids },
+    });
+};
