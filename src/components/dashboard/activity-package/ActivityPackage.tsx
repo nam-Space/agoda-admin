@@ -2,34 +2,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Avatar, Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, message, notification, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteCar } from "../../../config/api";
+import { callDeleteActivityPackage } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchCity } from "@/redux/slice/citySlide";
-import { getUserAvatar } from "@/utils/imageUrl";
-import { fetchCar } from "@/redux/slice/carSlide";
-import ModalCar from "./ModalCar";
-import { formatCurrency } from "@/utils/formatCurrency";
-export default function Car() {
+import ModalActivityPackage from "./ModalActivityPackage";
+import { fetchActivityPackage } from "@/redux/slice/activityPackageSlide";
+export default function ActivityPackage() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.car.isFetching);
-    const meta = useAppSelector(state => state.car.meta);
-    const cars = useAppSelector(state => state.car.data);
+    const isFetching = useAppSelector(state => state.activityPackage.isFetching);
+    const meta = useAppSelector(state => state.activityPackage.meta);
+    const cities = useAppSelector(state => state.activityPackage.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteCar = async (id: number | undefined) => {
+    const handleDeleteActivityPackage = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteCar(id);
+            const res: any = await callDeleteActivityPackage(id);
             if (res?.isSuccess) {
-                message.success('Xóa car thành công');
+                message.success('Xóa activity package thành công');
                 reloadTable();
             } else {
                 notification.error({
@@ -51,83 +48,21 @@ export default function Car() {
             hideInSearch: true,
         },
         {
-            title: "Tên xe",
+            title: "Hoạt động",
+            dataIndex: 'activity',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{record?.activity?.name}</div>
+                )
+            },
+        },
+        {
+            title: "Tên gói của hoạt động",
             dataIndex: 'name',
             sorter: true,
 
-        },
-        {
-            title: 'Mô tả',
-            dataIndex: 'description',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div className="line-clamp-6">{record.description}</div>
-                )
-            },
-            width: 200
-        },
-        {
-            title: "Ảnh",
-            dataIndex: 'image',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
-                )
-            },
-            hideInSearch: true,
-            width: 150
-        },
-
-        {
-            title: "Tài xế",
-            dataIndex: 'user',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <Avatar src={getUserAvatar(record.user.avatar)} />
-                        <p>{`${record.user.first_name} ${record.user.last_name}`}</p>
-                    </div>
-                )
-            },
-            hideInSearch: true,
-            width: 150
-        },
-        {
-            title: 'Điểm',
-            dataIndex: 'point',
-            sorter: true,
-        },
-        {
-            title: 'Sao trung bình',
-            dataIndex: 'avg_star',
-            sorter: true,
-        },
-        {
-            title: 'Giá mỗi km',
-            dataIndex: 'price_per_km',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{formatCurrency(record.price_per_km)}đ</p>
-                    </div>
-                )
-            },
-        },
-        {
-            title: 'Tốc độ trung bình',
-            dataIndex: 'avg_speed',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{record.avg_speed} km/h</p>
-                    </div>
-                )
-            },
         },
         {
             title: "Ngày tạo",
@@ -161,9 +96,9 @@ export default function Car() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa car"}
-                        description={"Bạn chắc chắn muốn xóa car"}
-                        onConfirm={() => handleDeleteCar(entity.id)}
+                        title={"Xác nhận xóa activity package"}
+                        description={"Bạn chắc chắn muốn xóa activity package"}
+                        onConfirm={() => handleDeleteActivityPackage(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -205,14 +140,14 @@ export default function Car() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách car"}
+                headerTitle={"Danh sách activity package"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={cars}
+                dataSource={cities}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchCar({ query }))
+                    dispatch(fetchActivityPackage({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -239,7 +174,7 @@ export default function Car() {
                     );
                 }}
             />
-            <ModalCar
+            <ModalActivityPackage
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}

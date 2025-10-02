@@ -2,34 +2,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Avatar, Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, message, notification, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteCar } from "../../../config/api";
+import { callDeleteActivity } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchCity } from "@/redux/slice/citySlide";
-import { getUserAvatar } from "@/utils/imageUrl";
-import { fetchCar } from "@/redux/slice/carSlide";
-import ModalCar from "./ModalCar";
+import { fetchActivity } from "@/redux/slice/activitySlide";
+import ModalActivity from "./ModalActivity";
 import { formatCurrency } from "@/utils/formatCurrency";
-export default function Car() {
+export default function Activity() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.car.isFetching);
-    const meta = useAppSelector(state => state.car.meta);
-    const cars = useAppSelector(state => state.car.data);
+    const isFetching = useAppSelector(state => state.activity.isFetching);
+    const meta = useAppSelector(state => state.activity.meta);
+    const activities = useAppSelector(state => state.activity.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteCar = async (id: number | undefined) => {
+    const handleDeleteActivity = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteCar(id);
+            const res: any = await callDeleteActivity(id);
             if (res?.isSuccess) {
-                message.success('Xóa car thành công');
+                message.success('Xóa activity thành công');
                 reloadTable();
             } else {
                 notification.error({
@@ -51,54 +49,36 @@ export default function Car() {
             hideInSearch: true,
         },
         {
-            title: "Tên xe",
+            title: "Thành phố",
+            dataIndex: 'city',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{record?.city?.name}</div>
+                )
+            },
+        },
+        {
+            title: "Tên hoạt động",
             dataIndex: 'name',
             sorter: true,
-
+            width: 500
         },
         {
-            title: 'Mô tả',
-            dataIndex: 'description',
+            title: 'Danh mục',
+            dataIndex: 'category',
+            sorter: true,
+        },
+        {
+            title: 'Giá trung bình',
+            dataIndex: 'avg_price',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div className="line-clamp-6">{record.description}</div>
+                    <div>{formatCurrency(record?.avg_price)}đ</div>
                 )
             },
-            width: 200
-        },
-        {
-            title: "Ảnh",
-            dataIndex: 'image',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
-                )
-            },
-            hideInSearch: true,
-            width: 150
-        },
-
-        {
-            title: "Tài xế",
-            dataIndex: 'user',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <Avatar src={getUserAvatar(record.user.avatar)} />
-                        <p>{`${record.user.first_name} ${record.user.last_name}`}</p>
-                    </div>
-                )
-            },
-            hideInSearch: true,
-            width: 150
-        },
-        {
-            title: 'Điểm',
-            dataIndex: 'point',
-            sorter: true,
         },
         {
             title: 'Sao trung bình',
@@ -106,28 +86,9 @@ export default function Car() {
             sorter: true,
         },
         {
-            title: 'Giá mỗi km',
-            dataIndex: 'price_per_km',
+            title: 'Tổng số giờ chơi',
+            dataIndex: 'total_time',
             sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{formatCurrency(record.price_per_km)}đ</p>
-                    </div>
-                )
-            },
-        },
-        {
-            title: 'Tốc độ trung bình',
-            dataIndex: 'avg_speed',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{record.avg_speed} km/h</p>
-                    </div>
-                )
-            },
         },
         {
             title: "Ngày tạo",
@@ -161,9 +122,9 @@ export default function Car() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa car"}
-                        description={"Bạn chắc chắn muốn xóa car"}
-                        onConfirm={() => handleDeleteCar(entity.id)}
+                        title={"Xác nhận xóa hoạt động"}
+                        description={"Bạn chắc chắn muốn xóa hoạt động"}
+                        onConfirm={() => handleDeleteActivity(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -205,14 +166,14 @@ export default function Car() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách car"}
+                headerTitle={"Danh sách activity"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={cars}
+                dataSource={activities}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchCar({ query }))
+                    dispatch(fetchActivity({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -239,7 +200,7 @@ export default function Car() {
                     );
                 }}
             />
-            <ModalCar
+            <ModalActivity
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}

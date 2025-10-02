@@ -77,6 +77,7 @@ const ModalCountry = (props: IProps) => {
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
+        setDescription("")
         setOpenModal(false);
     }
 

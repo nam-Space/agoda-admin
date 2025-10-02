@@ -2,39 +2,58 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Avatar, Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, message, notification, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteCar } from "../../../config/api";
+import { callDeleteActivityDate, callDeleteBulkActivityDate } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchCity } from "@/redux/slice/citySlide";
-import { getUserAvatar } from "@/utils/imageUrl";
-import { fetchCar } from "@/redux/slice/carSlide";
-import ModalCar from "./ModalCar";
+import { fetchActivityDate } from "@/redux/slice/activityDateSlide";
+import ModalActivityDate from "./ModalActivityDate";
+import { toast } from "react-toastify";
 import { formatCurrency } from "@/utils/formatCurrency";
-export default function Car() {
+export default function ActivityDate() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.car.isFetching);
-    const meta = useAppSelector(state => state.car.meta);
-    const cars = useAppSelector(state => state.car.data);
+    const isFetching = useAppSelector(state => state.activityDate.isFetching);
+    const meta = useAppSelector(state => state.activityDate.meta);
+    const cities = useAppSelector(state => state.activityDate.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteCar = async (id: number | undefined) => {
+    const [selectedRows, setSelectedRows] = useState<any>([]);
+
+    const handleDeleteActivityDate = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteCar(id);
+            const res: any = await callDeleteActivityDate(id);
             if (res?.isSuccess) {
-                message.success('Xóa car thành công');
+                toast.success("Xóa activity date thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
                 notification.error({
                     message: 'Có lỗi xảy ra',
                     description: res.message
+                });
+            }
+        }
+    }
+
+    const handleDeleteMultipleRow = async () => {
+        if (selectedRows.length > 0) {
+            const res: any = await callDeleteBulkActivityDate(selectedRows.map((item: any) => item.id));
+            if (res?.isSuccess) {
+                toast.success("Xóa danh sách activity date thành công", {
+                    position: "bottom-right",
+                });
+                reloadTable();
+            } else {
+                toast.success(res.message, {
+                    position: "bottom-right",
                 });
             }
         }
@@ -51,81 +70,65 @@ export default function Car() {
             hideInSearch: true,
         },
         {
-            title: "Tên xe",
-            dataIndex: 'name',
-            sorter: true,
-
-        },
-        {
-            title: 'Mô tả',
-            dataIndex: 'description',
+            title: "Ngày tổ chức",
+            dataIndex: 'date_launch',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div className="line-clamp-6">{record.description}</div>
-                )
-            },
-            width: 200
-        },
-        {
-            title: "Ảnh",
-            dataIndex: 'image',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
+                    <>{dayjs(record.date_launch).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
             },
             hideInSearch: true,
-            width: 150
         },
-
         {
-            title: "Tài xế",
-            dataIndex: 'user',
+            title: 'Giá người lớn',
+            dataIndex: 'price_adult',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <Avatar src={getUserAvatar(record.user.avatar)} />
-                        <p>{`${record.user.first_name} ${record.user.last_name}`}</p>
-                    </div>
+                    <div>{formatCurrency(record?.price_adult)}đ</div>
                 )
             },
+        },
+        {
+            title: 'Giá trẻ em',
+            dataIndex: 'price_child',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.price_child)}đ</div>
+                )
+            },
+        },
+        {
+            title: 'Số lượng người lớn',
+            dataIndex: 'adult_quantity',
+            sorter: true,
+        },
+        {
+            title: 'Số lượng trẻ em',
+            dataIndex: 'child_quantity',
+            sorter: true,
+        },
+        {
+            title: "Tên hoạt động",
+            dataIndex: 'activity',
+            sorter: true,
             hideInSearch: true,
-            width: 150
-        },
-        {
-            title: 'Điểm',
-            dataIndex: 'point',
-            sorter: true,
-        },
-        {
-            title: 'Sao trung bình',
-            dataIndex: 'avg_star',
-            sorter: true,
-        },
-        {
-            title: 'Giá mỗi km',
-            dataIndex: 'price_per_km',
-            sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{formatCurrency(record.price_per_km)}đ</p>
-                    </div>
+                    <div>{record?.activity_package?.activity?.name}</div>
                 )
             },
         },
         {
-            title: 'Tốc độ trung bình',
-            dataIndex: 'avg_speed',
+            title: "Gói của hoạt động",
+            dataIndex: 'activity_package',
             sorter: true,
+            hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{record.avg_speed} km/h</p>
-                    </div>
+                    <div>{record?.activity_package?.name}</div>
                 )
             },
         },
@@ -161,9 +164,9 @@ export default function Car() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa car"}
-                        description={"Bạn chắc chắn muốn xóa car"}
-                        onConfirm={() => handleDeleteCar(entity.id)}
+                        title={"Xác nhận xóa activity date"}
+                        description={"Bạn chắc chắn muốn xóa activity date"}
+                        onConfirm={() => handleDeleteActivityDate(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -205,14 +208,14 @@ export default function Car() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách car"}
+                headerTitle={"Danh sách activity date"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={cars}
+                dataSource={cities}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchCar({ query }))
+                    dispatch(fetchActivityDate({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -224,7 +227,12 @@ export default function Car() {
                         showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} bản ghi</div>) }
                     }
                 }
-                rowSelection={false}
+                rowSelection={{
+                    onChange: (_, selectedRows) => {
+                        setSelectedRows(selectedRows);
+                    }
+                }}
+                handleDelete={handleDeleteMultipleRow}
                 toolBarRender={(_action, _rows): any => {
                     return (
                         <Button
@@ -239,7 +247,7 @@ export default function Car() {
                     );
                 }}
             />
-            <ModalCar
+            <ModalActivityDate
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}

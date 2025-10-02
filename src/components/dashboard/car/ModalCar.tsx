@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProForm, ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
-import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
+import { ModalForm, ProForm, ProFormDigit, ProFormMoney, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import { Col, ConfigProvider, DatePicker, Form, Modal, Row, Upload, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect, useState } from "react";
 import { callCreateCar, callFetchUser, callUpdateCar, callUploadSingleImage } from "@/config/api";
@@ -10,6 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
+import { getDatesBetween } from "@/utils/getDatesBetween";
+
 
 interface IProps {
     openModal: boolean;
@@ -95,7 +97,7 @@ const ModalCar = (props: IProps) => {
             point,
             avg_star,
             price_per_km,
-            avg_speed
+            avg_speed,
         } = valuesForm;
 
         if (dataInit?.id) {
@@ -345,10 +347,11 @@ const ModalCar = (props: IProps) => {
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
+                        <ProFormMoney
                             name="price_per_km"
                             label="Giá mỗi km"
                             placeholder={"Nhập thông tin"}
+                            locale="vi-VN"
                             rules={[
                                 { required: true, message: "Trường này là bắt buộc" },
                             ]}
@@ -378,7 +381,6 @@ const ModalCar = (props: IProps) => {
                             placeholder={"Nhập thông tin"}
                         />
                     </Col>
-
                 </Row>
             </ModalForm>
             <Modal

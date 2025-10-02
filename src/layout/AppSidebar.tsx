@@ -37,6 +37,9 @@ const navItems: NavItem[] = [
       { name: "Hotel", path: "/hotel", pro: false },
       { name: "Airport", path: "/airport", pro: false },
       { name: "Car", path: "/car", pro: false },
+      { name: "Activity", path: "/activity", pro: false },
+      { name: "Activity Package", path: "/activity-package", pro: false },
+      { name: "Activity Date", path: "/activity-date", pro: false },
     ],
   },
   {
