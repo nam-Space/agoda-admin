@@ -60,10 +60,21 @@ export default function Hotel() {
             },
         },
         {
+            title: "Ảnh",
+            dataIndex: 'image',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+                )
+            },
+            hideInSearch: true,
+            width: 150
+        },
+        {
             title: "Tên khách sạn",
             dataIndex: 'name',
             sorter: true,
-            width: 500
         },
         {
             title: 'Mô tả',
@@ -80,7 +91,7 @@ export default function Hotel() {
             title: 'Địa chỉ',
             dataIndex: 'location',
             sorter: true,
-            width: 500
+            width: 150
         },
         {
             title: 'Vị trí',
