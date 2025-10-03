@@ -60,6 +60,18 @@ export default function Activity() {
             },
         },
         {
+            title: "Ảnh",
+            dataIndex: 'image',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+                )
+            },
+            hideInSearch: true,
+            width: 150
+        },
+        {
             title: "Tên hoạt động",
             dataIndex: 'name',
             sorter: true,
