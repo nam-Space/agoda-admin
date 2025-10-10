@@ -224,3 +224,16 @@ export const callDeleteBulkActivityDate = (ids: number[]) => {
         data: { ids },
     });
 };
+
+// Chat
+export const callFetchConversation = (query: string) => {
+    return axios.get(`/api/chats/conversations/?${query}`);
+};
+
+export const callGetOrCreateConversation = (data: any) => {
+    return axios.post(`/api/chats/conversations/get_or_create/`, { ...data });
+};
+
+export const callFetchMessage = (conversationId: string) => {
+    return axios.get(`/api/chats/messages/${conversationId}/`);
+};

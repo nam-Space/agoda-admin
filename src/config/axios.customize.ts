@@ -3,6 +3,7 @@ import axios from "axios";
 import { callRefreshToken } from "./api";
 import Cookies from "js-cookie";
 import { emitEvent } from "../utils/eventEmitter";
+import { toast } from "react-toastify";
 
 const instance = axios.create({
     baseURL: import.meta.env.VITE_BE_URL,
@@ -35,6 +36,12 @@ instance.interceptors.response.use(
         return response;
     },
     async function (error) {
+        if (error.response.status === 500) {
+            toast.error(error?.message, {
+                position: "bottom-right",
+            });
+        }
+
         if (
             error.response.status === 401 &&
             error.config.url !== "/api/accounts/login/"

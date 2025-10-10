@@ -40,6 +40,7 @@ const navItems: NavItem[] = [
       { name: "Activity", path: "/activity", pro: false },
       { name: "Activity Package", path: "/activity-package", pro: false },
       { name: "Activity Date", path: "/activity-date", pro: false },
+      { name: "Chat", path: "/chat", pro: false },
     ],
   },
   {
