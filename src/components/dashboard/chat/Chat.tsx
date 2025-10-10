@@ -83,7 +83,7 @@ function Chat() {
                     {user.role !== ROLE.CUSTOMER && (
                         <Select
                             placeholder="Select a person"
-                            className="w-[300px] h-[60px]"
+                            className="w-[300px] !h-[60px]"
                             options={users.map((user: any) => {
                                 return {
                                     label: (
