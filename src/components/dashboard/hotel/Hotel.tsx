@@ -12,6 +12,7 @@ import DataTable from "../../antd/Table";
 import { fetchCity } from "@/redux/slice/citySlide";
 import { fetchHotel } from "@/redux/slice/hotelSlide";
 import ModalHotel from "./ModalHotel";
+import { getUserAvatar } from "@/utils/imageUrl";
 export default function Hotel() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -77,15 +78,24 @@ export default function Hotel() {
             sorter: true,
         },
         {
-            title: 'Mô tả',
-            dataIndex: 'description',
+            title: 'Chủ khách sạn',
+            dataIndex: 'owner',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div className="line-clamp-6">{record.description}</div>
+                    // <div className="line-clamp-6">{record?.owner?.first_name} {record?.owner?.last_name}</div>
+                    record?.owner ? <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(record?.owner?.avatar)}
+                            className="min-w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.owner?.first_name} ${record?.owner?.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${record?.owner?.username}`}</p>
+                        </div>
+                    </div> : <div></div>
                 )
             },
-            width: 500
         },
         {
             title: 'Địa chỉ',

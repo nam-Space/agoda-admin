@@ -1,6 +1,7 @@
 export const ROLE = {
-    ADMIN: "Quản trị viên",
-    STAFF: "Nhân viên",
-    DRIVER: "Tài xế",
-    CUSTOMER: "Khách hàng",
+    ADMIN: "admin",
+    STAFF: "staff",
+    CUSTOMER: "customer",
+    DRIVER: "driver",
+    OWNER: "owner",
 };

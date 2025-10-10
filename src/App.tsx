@@ -33,6 +33,7 @@ import CarPage from "./pages/Dashboard/CarPage";
 import ActivityPage from "./pages/Dashboard/ActivityPage";
 import ActivityPackagePage from "./pages/Dashboard/ActivityPackagePage";
 import ActivityDatePage from "./pages/Dashboard/ActivityDatePage";
+import ChatPage from "./pages/Dashboard/ChatPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -76,6 +77,7 @@ export default function App() {
           <Route index path="/activity" element={<ActivityPage />} />
           <Route index path="/activity-package" element={<ActivityPackagePage />} />
           <Route index path="/activity-date" element={<ActivityDatePage />} />
+          <Route index path="/chat" element={<ChatPage />} />
 
           {/* Others Page */}
           <Route path="/profile" element={<UserProfiles />} />

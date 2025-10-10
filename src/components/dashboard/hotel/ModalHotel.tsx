@@ -4,7 +4,7 @@ import { ModalForm, ProForm, ProFormDigit, ProFormText } from "@ant-design/pro-c
 import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect, useRef, useState } from "react";
-import { callCreateCountry, callCreateHotel, callFetchCity, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
+import { callCreateCountry, callCreateHotel, callFetchCity, callFetchUser, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
 import { AdmonitionDirectiveDescriptor, BlockTypeSelect, BoldItalicUnderlineToggles, ChangeAdmonitionType, ChangeCodeMirrorLanguage, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertAdmonition, InsertCodeBlock, InsertFrontmatter, InsertImage, InsertSandpack, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, MDXEditorMethods, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
 import { useAppDispatch } from "@/redux/hooks";
 import { marked } from 'marked';
@@ -14,6 +14,8 @@ import enUS from 'antd/lib/locale/en_US';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
+import { ROLE } from "@/constants/role";
+import { getUserAvatar } from "@/utils/imageUrl";
 
 interface IProps {
     openModal: boolean;
@@ -29,7 +31,7 @@ interface IHotelImage {
 }
 
 export interface ICitySelect {
-    label?: string;
+    label?: any;
     value?: number;
     key?: number;
 }
@@ -49,6 +51,12 @@ const ModalHotel = (props: IProps) => {
     })
 
     const [city, setCity] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
+    const [owner, setOwner] = useState<ICitySelect>({
         label: "",
         value: 0,
         key: 0,
@@ -96,6 +104,39 @@ const ModalHotel = (props: IProps) => {
                     }
                 )
             }
+            else {
+                setCity({
+                    label: "",
+                    value: 0,
+                    key: 0,
+                })
+            }
+
+            if (dataInit?.owner?.id) {
+                setOwner(
+                    {
+                        label: (<div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(dataInit.owner.avatar)}
+                                className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.owner.first_name} ${dataInit.owner.last_name}`}</p>
+                                <p className="leading-[20px] text-[#929292]">{`@${dataInit.owner.username}`}</p>
+                            </div>
+                        </div>),
+                        value: dataInit.owner.id,
+                        key: dataInit.owner.id,
+                    }
+                )
+            }
+            else {
+                setOwner({
+                    label: "",
+                    value: 0,
+                    key: 0,
+                })
+            }
         }
 
         return () => form.resetFields()
@@ -115,6 +156,29 @@ const ModalHotel = (props: IProps) => {
         } else return [];
     }
 
+    async function fetchOwnerList(): Promise<ICitySelect[]> {
+        const res: any = await callFetchUser(`current=1&pageSize=1000&role=owner`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(item.avatar)}
+                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const submitData = async (valuesForm: any) => {
         const { name, lat, lng, point, avg_star, location } = valuesForm;
 
@@ -122,6 +186,7 @@ const ModalHotel = (props: IProps) => {
             //update
             const dataObj = {
                 city: city.value,
+                owner: owner.value,
                 name,
                 lat,
                 lng,
@@ -131,7 +196,6 @@ const ModalHotel = (props: IProps) => {
                 ...formMarkdown,
                 images: dataImages.map(image => (image.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""))
             }
-
             const res: any = await callUpdateHotel(dataInit.id, dataObj);
             if (res.isSuccess) {
                 toast.success("Cập nhật hotel thành công", {
@@ -148,6 +212,7 @@ const ModalHotel = (props: IProps) => {
             //create
             const dataObj = {
                 city: city.value,
+                owner: owner.value,
                 name,
                 lat,
                 lng,
@@ -313,7 +378,29 @@ const ModalHotel = (props: IProps) => {
                                 style={{ width: '100%' }}
                             />
                         </ProForm.Item>
-
+                    </Col>
+                    <Col lg={6} md={6} sm={24} xs={24}>
+                        <ProForm.Item
+                            name="owner"
+                            label={"Chủ khách sạn"}
+                        >
+                            <DebounceSelect
+                                allowClear
+                                showSearch
+                                defaultValue={owner}
+                                value={owner}
+                                placeholder={<span>Chọn chủ khách sạn</span>}
+                                fetchOptions={fetchOwnerList}
+                                onChange={(newValue: any) => {
+                                    setOwner({
+                                        key: newValue?.key,
+                                        label: newValue?.label,
+                                        value: newValue?.value
+                                    });
+                                }}
+                                className="w-full !h-[60px]"
+                            />
+                        </ProForm.Item>
                     </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
                         <ProFormText

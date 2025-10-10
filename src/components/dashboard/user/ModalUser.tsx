@@ -337,6 +337,7 @@ const ModalUser = (props: IProps) => {
                                 staff: "Nhân viên",
                                 driver: "Tài xế",
                                 customer: "Khách hàng",
+                                owner: "Chủ khách sạn",
                             }}
                             placeholder={"Chọn vai trò"}
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}

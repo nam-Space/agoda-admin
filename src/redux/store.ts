@@ -9,6 +9,7 @@ import carReducer from "./slice/carSlide";
 import activityReducer from "./slice/activitySlide";
 import activityPackageReducer from "./slice/activityPackageSlide";
 import activityDateReducer from "./slice/activityDateSlide";
+import conversationReducer from "./slice/conversationSlide";
 
 export const store = configureStore({
     reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
         activity: activityReducer,
         activityPackage: activityPackageReducer,
         activityDate: activityDateReducer,
+        conversation: conversationReducer,
     },
 });
 
