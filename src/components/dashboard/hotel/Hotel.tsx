@@ -83,11 +83,10 @@ export default function Hotel() {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    // <div className="line-clamp-6">{record?.owner?.first_name} {record?.owner?.last_name}</div>
                     record?.owner ? <div className="flex items-center gap-[10px]">
                         <img
                             src={getUserAvatar(record?.owner?.avatar)}
-                            className="min-w-[40px] h-[40px] object-cover rounded-[50%]"
+                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
                         />
                         <div>
                             <p className="leading-[20px]">{`${record?.owner?.first_name} ${record?.owner?.last_name}`}</p>

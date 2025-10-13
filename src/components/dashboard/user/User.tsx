@@ -12,7 +12,8 @@ import DataTable from "../../antd/Table";
 import { fetchUser } from "../../../redux/slice/userSlide";
 import { getUserAvatar } from "@/utils/imageUrl";
 import ModalUser from "./ModalUser";
-import { ROLE } from "@/constants/role";
+import { ROLE, ROLE_VI } from "@/constants/role";
+import { GENDER_VI } from "@/constants/gender";
 
 export default function User() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -96,6 +97,11 @@ export default function User() {
         {
             title: 'Giới tính',
             dataIndex: 'gender',
+            render: (text, record, index, action) => {
+                return (
+                    <>{(GENDER_VI as any)[record.gender]}</>
+                )
+            },
             sorter: true,
         },
         {
@@ -118,14 +124,14 @@ export default function User() {
             dataIndex: 'role',
             render: (text, record, index, action) => {
                 return (
-                    <>{(ROLE as any)[record.role.toUpperCase()]}</>
+                    <>{(ROLE_VI as any)[record.role]}</>
                 )
             },
             sorter: true,
         },
         {
             title: "Trạng thái",
-            dataIndex: 'role',
+            dataIndex: 'is_active',
             render: (text, record, index, action) => {
                 return (
                     <>{record.is_active ? "Đã kích hoạt" : "Vô hiệu hóa"}</>
