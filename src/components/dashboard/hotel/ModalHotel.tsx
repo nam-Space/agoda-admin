@@ -386,7 +386,6 @@ const ModalHotel = (props: IProps) => {
                         >
                             <DebounceSelect
                                 allowClear
-                                showSearch
                                 defaultValue={owner}
                                 value={owner}
                                 placeholder={<span>Chọn chủ khách sạn</span>}

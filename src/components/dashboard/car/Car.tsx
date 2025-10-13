@@ -86,10 +86,17 @@ export default function Car() {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <Avatar src={getUserAvatar(record.user.avatar)} />
-                        <p>{`${record.user.first_name} ${record.user.last_name}`}</p>
-                    </div>
+                    record?.user ?
+                        <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(record?.user?.avatar)}
+                                className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${record?.user?.first_name} ${record?.user?.last_name}`}</p>
+                                <p className="leading-[20px] text-[#929292]">{`@${record?.user?.username}`}</p>
+                            </div>
+                        </div> : <div></div>
                 )
             },
             hideInSearch: true,

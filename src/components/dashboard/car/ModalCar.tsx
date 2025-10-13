@@ -11,6 +11,7 @@ import enUS from 'antd/lib/locale/en_US';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { getDatesBetween } from "@/utils/getDatesBetween";
+import { getUserAvatar } from "@/utils/imageUrl";
 
 
 interface IProps {
@@ -27,7 +28,7 @@ interface ICarImage {
 }
 
 export interface IUserSelect {
-    label?: string;
+    label?: any;
     value?: number;
     key?: number;
 }
@@ -63,7 +64,16 @@ const ModalCar = (props: IProps) => {
             if (dataInit?.user?.id) {
                 setUser(
                     {
-                        label: `${dataInit.user.first_name} ${dataInit.user.last_name}`,
+                        label: (<div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(dataInit.user.avatar)}
+                                className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.user.first_name} ${dataInit.user.last_name}`}</p>
+                                <p className="leading-[20px] text-[#929292]">{`@${dataInit.user.username}`}</p>
+                            </div>
+                        </div>),
                         value: dataInit.user.id,
                         key: dataInit.user.id,
                     }
@@ -80,7 +90,16 @@ const ModalCar = (props: IProps) => {
             const list = res.data;
             const temp = list.map((item: any) => {
                 return {
-                    label: `${item.first_name} ${item.last_name}`,
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(item.avatar)}
+                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+                        </div>
+                    </div>,
                     value: item.id
                 }
             })
@@ -250,7 +269,6 @@ const ModalCar = (props: IProps) => {
                         >
                             <DebounceSelect
                                 allowClear
-                                showSearch
                                 defaultValue={user}
                                 value={user}
                                 placeholder={<span>Chọn tài xế</span>}
@@ -262,7 +280,7 @@ const ModalCar = (props: IProps) => {
                                         value: newValue?.value
                                     });
                                 }}
-                                style={{ width: '100%' }}
+                                className="w-full !h-[60px]"
                             />
                         </ProForm.Item>
 

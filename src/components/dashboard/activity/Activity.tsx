@@ -12,6 +12,7 @@ import DataTable from "../../antd/Table";
 import { fetchActivity } from "@/redux/slice/activitySlide";
 import ModalActivity from "./ModalActivity";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { CATEGORY_ACTIVITY } from "@/constants/activity";
 export default function Activity() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -80,6 +81,11 @@ export default function Activity() {
         {
             title: 'Danh mục',
             dataIndex: 'category',
+            render: (text, record, index, action) => {
+                return (
+                    <span>{(CATEGORY_ACTIVITY as any)[record.category]}</span>
+                )
+            },
             sorter: true,
         },
         {

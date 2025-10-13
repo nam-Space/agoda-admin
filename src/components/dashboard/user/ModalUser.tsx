@@ -13,6 +13,8 @@ import { getUserAvatar } from "@/utils/imageUrl";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/slice/accountSlide";
 import Cookies from "js-cookie";
+import { ROLE_VI } from "@/constants/role";
+import { GENDER_VI } from "@/constants/gender";
 
 interface IProps {
     openModal: boolean;
@@ -319,11 +321,7 @@ const ModalUser = (props: IProps) => {
                         <ProFormSelect
                             name="gender"
                             label={"Giới tính"}
-                            valueEnum={{
-                                male: "Nam",
-                                female: "Nữ",
-                                other: "Khác",
-                            }}
+                            valueEnum={GENDER_VI}
                             placeholder={"Chọn giới tính"}
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         />
@@ -332,13 +330,7 @@ const ModalUser = (props: IProps) => {
                         <ProFormSelect
                             name="role"
                             label={"Vai trò"}
-                            valueEnum={{
-                                admin: "Quản trị viên",
-                                staff: "Nhân viên",
-                                driver: "Tài xế",
-                                customer: "Khách hàng",
-                                owner: "Chủ khách sạn",
-                            }}
+                            valueEnum={ROLE_VI}
                             placeholder={"Chọn vai trò"}
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         />
