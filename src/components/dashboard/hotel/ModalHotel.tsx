@@ -186,7 +186,7 @@ const ModalHotel = (props: IProps) => {
             //update
             const dataObj = {
                 city: city.value,
-                owner: owner.value,
+                owner: owner.value || null,
                 name,
                 lat,
                 lng,
@@ -212,7 +212,7 @@ const ModalHotel = (props: IProps) => {
             //create
             const dataObj = {
                 city: city.value,
-                owner: owner.value,
+                owner: owner.value || null,
                 name,
                 lat,
                 lng,
