@@ -11,6 +11,7 @@ import vi_VN from 'antd/locale/vi_VN';
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import { getDatesBetween } from "@/utils/getDatesBetween";
+import { getImage } from "@/utils/imageUrl";
 
 dayjs.locale("vi");
 
@@ -25,7 +26,7 @@ interface IProps {
 }
 
 export interface IActivityPackageSelect {
-    label?: string;
+    label?: any;
     value?: number;
     key?: number;
 }
@@ -46,7 +47,17 @@ const ModalActivityDate = (props: IProps) => {
             if (dataInit?.activity_package?.id) {
                 setActivityPackage(
                     {
-                        label: dataInit.activity_package.name,
+                        label:
+                            <div className="flex items-center gap-[10px]">
+                                <img
+                                    src={getImage(dataInit.activity_package?.activity?.images?.[0]?.image)}
+                                    className="w-[70px] h-[50px] object-cover"
+                                />
+                                <div>
+                                    <strong>{dataInit.activity_package?.name}</strong> ({dataInit.activity_package?.activity?.name})
+                                </div>
+                            </div>
+                        ,
                         value: dataInit.activity_package.id,
                         key: dataInit.activity_package.id,
                     }
@@ -63,7 +74,17 @@ const ModalActivityDate = (props: IProps) => {
             const list = res.data;
             const temp = list.map((item: any) => {
                 return {
-                    label: <p><strong>{item.name}</strong> ({item.activity?.name})</p>,
+                    label:
+                        <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getImage(item?.activity?.images?.[0]?.image)}
+                                className="w-[70px] h-[50px] object-cover"
+                            />
+                            <div>
+                                <strong>{item.name}</strong> ({item.activity?.name})
+                            </div>
+                        </div>
+                    ,
                     value: item.id
                 }
             })
@@ -155,7 +176,6 @@ const ModalActivityDate = (props: IProps) => {
                         >
                             <DebounceSelect
                                 allowClear
-                                showSearch
                                 defaultValue={activityPackage}
                                 value={activityPackage}
                                 placeholder={<span>Chọn gói của hoạt động</span>}
@@ -167,7 +187,7 @@ const ModalActivityDate = (props: IProps) => {
                                         value: newValue?.value
                                     });
                                 }}
-                                style={{ width: '100%' }}
+                                className="w-full !h-[70px]"
                             />
                         </ProForm.Item>
 

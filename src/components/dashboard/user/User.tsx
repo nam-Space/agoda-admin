@@ -130,6 +130,26 @@ export default function User() {
             sorter: true,
         },
         {
+            title: "Người quản lý",
+            dataIndex: 'manager',
+            render: (text, record, index, action) => {
+                return (
+                    // <>{(ROLE_VI as any)[record.role]}</>
+                    record?.manager ? <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(record?.manager?.avatar)}
+                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.manager?.first_name} ${record?.manager?.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${record?.manager?.username}`}</p>
+                        </div>
+                    </div> : <div></div>
+                )
+            },
+            sorter: true,
+        },
+        {
             title: "Trạng thái",
             dataIndex: 'is_active',
             render: (text, record, index, action) => {

@@ -4,7 +4,7 @@ import { ModalForm, ProForm, ProFormDigit, ProFormMoney, ProFormSelect, ProFormT
 import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect, useRef, useState } from "react";
-import { callCreateActivity, callCreateCountry, callCreateHotel, callFetchCity, callUpdateActivity, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
+import { callCreateActivity, callCreateCountry, callCreateHotel, callFetchCity, callFetchUser, callUpdateActivity, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
 import { AdmonitionDirectiveDescriptor, BlockTypeSelect, BoldItalicUnderlineToggles, ChangeAdmonitionType, ChangeCodeMirrorLanguage, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertAdmonition, InsertCodeBlock, InsertFrontmatter, InsertImage, InsertSandpack, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, MDXEditorMethods, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
 import { useAppDispatch } from "@/redux/hooks";
 import { marked } from 'marked';
@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { CATEGORY_ACTIVITY } from "@/constants/activity";
+import { getUserAvatar } from "@/utils/imageUrl";
 
 interface IProps {
     openModal: boolean;
@@ -45,6 +46,12 @@ const ModalActivity = (props: IProps) => {
     })
 
     const [city, setCity] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
+    const [eventOrganizer, setEventOrganizer] = useState<ICitySelect>({
         label: "",
         value: 0,
         key: 0,
@@ -87,10 +94,43 @@ const ModalActivity = (props: IProps) => {
                     }
                 )
             }
+
+            if (dataInit?.event_organizer?.id) {
+                setEventOrganizer(
+                    {
+                        label: dataInit.event_organizer.name,
+                        value: dataInit.event_organizer.id,
+                        key: dataInit.event_organizer.id,
+                    }
+                )
+            }
         }
 
         return () => form.resetFields()
     }, [dataInit]);
+
+    async function fetchEventOrganizerList(): Promise<ICitySelect[]> {
+        const res: any = await callFetchUser(`current=1&pageSize=1000&role=event_organizer`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(item.avatar)}
+                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
 
     async function fetchCityList(): Promise<ICitySelect[]> {
         const res: any = await callFetchCity(`current=1&pageSize=100`);
@@ -119,7 +159,8 @@ const ModalActivity = (props: IProps) => {
                 avg_star,
                 total_time,
                 ...formMarkdown,
-                images: dataImages.map(image => (image.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""))
+                images: dataImages.map(image => (image.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, "")),
+                event_organizer: eventOrganizer.value || null,
             }
 
             const res: any = await callUpdateActivity(dataInit.id, dataObj);
@@ -144,7 +185,8 @@ const ModalActivity = (props: IProps) => {
                 avg_star,
                 total_time,
                 ...formMarkdown,
-                images: dataImages.map(image => (image.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""))
+                images: dataImages.map(image => (image.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, "")),
+                event_organizer: eventOrganizer.value || null,
             }
             const res: any = await callCreateActivity(dataObj);
             if (res.isSuccess) {
@@ -170,6 +212,16 @@ const ModalActivity = (props: IProps) => {
             more_information: '',
             cancellation_policy: '',
             departure_information: ""
+        })
+        setCity({
+            label: "",
+            value: 0,
+            key: 0,
+        })
+        setEventOrganizer({
+            label: "",
+            value: 0,
+            key: 0,
         })
         setOpenModal(false);
     }
@@ -274,6 +326,29 @@ const ModalActivity = (props: IProps) => {
                 initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
+                    <Col lg={12} md={12} sm={24} xs={24}>
+                        <ProForm.Item
+                            name="eventOrganizer"
+                            label={"Người tổ chức sự kiện"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                        >
+                            <DebounceSelect
+                                allowClear
+                                defaultValue={eventOrganizer}
+                                value={eventOrganizer}
+                                placeholder={<span>Chọn chủ khách sạn</span>}
+                                fetchOptions={fetchEventOrganizerList}
+                                onChange={(newValue: any) => {
+                                    setEventOrganizer({
+                                        key: newValue?.key,
+                                        label: newValue?.label,
+                                        value: newValue?.value
+                                    });
+                                }}
+                                className="w-full !h-[60px]"
+                            />
+                        </ProForm.Item>
+                    </Col>
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <ProForm.Item
                             name="city"

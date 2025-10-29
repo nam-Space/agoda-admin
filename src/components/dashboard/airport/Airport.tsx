@@ -58,14 +58,23 @@ export default function Airport() {
             dataIndex: 'location',
             sorter: true,
         },
-
+        {
+            title: 'Thành phố',
+            dataIndex: 'city',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="line-clamp-6">{record?.city?.name}</div>
+                )
+            },
+        },
         {
             title: 'Mô tả',
             dataIndex: 'description',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div className="line-clamp-6">{record.description}</div>
+                    <div className="line-clamp-6 w-[350px]">{record.description}</div>
                 )
             },
             width: 400

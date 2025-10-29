@@ -261,7 +261,7 @@ const ModalCar = (props: IProps) => {
                 initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
-                    <Col lg={6} md={6} sm={24} xs={24}>
+                    <Col lg={12} md={12} sm={24} xs={24}>
                         <ProForm.Item
                             name="user"
                             label={"Tài xế"}

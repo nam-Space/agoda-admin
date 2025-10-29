@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProFormDigit, ProFormText } from "@ant-design/pro-components";
+import { ModalForm, ProForm, ProFormDigit, ProFormText } from "@ant-design/pro-components";
 import { Col, Form, Row, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect, useState } from "react";
-import { callCreateAirport, callUpdateAirport } from "@/config/api";
+import { callCreateAirport, callFetchCity, callUpdateAirport } from "@/config/api";
 import { BlockTypeSelect, BoldItalicUnderlineToggles, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertFrontmatter, InsertImage, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, quotePlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
 import { useAppDispatch } from "@/redux/hooks";
 import { marked } from 'marked';
 import TurndownService from 'turndown';
+import { DebounceSelect } from "@/components/antd/DebounceSelect";
 
 interface IProps {
     openModal: boolean;
@@ -18,9 +19,21 @@ interface IProps {
     reloadTable: () => void;
 }
 
+export interface ICitySelect {
+    label?: any;
+    value?: number;
+    key?: number;
+}
+
 const ModalAirport = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
     const [description, setDescription] = useState("");
+
+    const [city, setCity] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
 
     const dispatch = useAppDispatch()
     const [form] = Form.useForm();
@@ -28,10 +41,43 @@ const ModalAirport = (props: IProps) => {
     useEffect(() => {
         if (dataInit?.id) {
             setDescription(dataInit.description)
+
+            if (dataInit?.city?.id) {
+                setCity(
+                    {
+                        label: dataInit.city.name,
+                        value: dataInit.city.id,
+                        key: dataInit.city.id,
+                    }
+                )
+            }
+            else {
+                setCity({
+                    label: "",
+                    value: 0,
+                    key: 0,
+                })
+            }
         }
+
+
 
         return () => form.resetFields()
     }, [dataInit]);
+
+    async function fetchCityList(): Promise<ICitySelect[]> {
+        const res: any = await callFetchCity(`current=1&pageSize=100`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: item.name,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
 
     const submitData = async (valuesForm: any) => {
         const { name, location, lat, lng } = valuesForm;
@@ -39,6 +85,7 @@ const ModalAirport = (props: IProps) => {
         if (dataInit?.id) {
             //update
             const dataObj = {
+                city: city.value,
                 name,
                 location,
                 description,
@@ -60,6 +107,7 @@ const ModalAirport = (props: IProps) => {
         } else {
             //create
             const dataObj = {
+                city: city.value,
                 name,
                 location,
                 description,
@@ -121,6 +169,30 @@ const ModalAirport = (props: IProps) => {
                 initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
+                    <Col lg={6} md={6} sm={24} xs={24}>
+                        <ProForm.Item
+                            name="city"
+                            label={"Thành phố"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                        >
+                            <DebounceSelect
+                                allowClear
+                                showSearch
+                                defaultValue={city}
+                                value={city}
+                                placeholder={<span>Chọn thành phố</span>}
+                                fetchOptions={fetchCityList}
+                                onChange={(newValue: any) => {
+                                    setCity({
+                                        key: newValue?.key,
+                                        label: newValue?.label,
+                                        value: newValue?.value
+                                    });
+                                }}
+                                style={{ width: '100%' }}
+                            />
+                        </ProForm.Item>
+                    </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
                         <ProFormText
                             label={"Tên"}

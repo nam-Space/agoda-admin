@@ -4,6 +4,7 @@ export const ROLE = {
     CUSTOMER: "customer",
     DRIVER: "driver",
     OWNER: "owner",
+    EVENT_ORGANIZER: "event_organizer",
 };
 
 export const ROLE_VI = {
@@ -12,4 +13,5 @@ export const ROLE_VI = {
     driver: "Tài xế",
     customer: "Khách hàng",
     owner: "Chủ khách sạn",
+    event_organizer: "Người tổ chức sự kiện",
 };
