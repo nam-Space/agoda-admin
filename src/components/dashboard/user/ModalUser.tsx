@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProFormDatePicker, ProFormSelect, ProFormText } from "@ant-design/pro-components";
+import { ModalForm, ProForm, ProFormDatePicker, ProFormSelect, ProFormText } from "@ant-design/pro-components";
 import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useState, useEffect } from "react";
-import { callCreateUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
+import { callCreateUser, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
@@ -13,8 +13,9 @@ import { getUserAvatar } from "@/utils/imageUrl";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/slice/accountSlide";
 import Cookies from "js-cookie";
-import { ROLE_VI } from "@/constants/role";
+import { ROLE, ROLE_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
+import { DebounceSelect } from "@/components/antd/DebounceSelect";
 
 interface IProps {
     openModal: boolean;
@@ -29,9 +30,33 @@ interface IUserAvatar {
     uid: string;
 }
 
+export interface IRoleSelect {
+    label?: any;
+    value?: string;
+    key?: string;
+}
+
+export interface IManagerSelect {
+    label?: any;
+    value?: number;
+    key?: number;
+}
+
 const ModalUser = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
     const user = useAppSelector((state: any) => state.account.user)
+
+    const [role, setRole] = useState<IRoleSelect>({
+        label: ROLE_VI.admin,
+        value: ROLE.ADMIN,
+        key: ROLE.ADMIN,
+    });
+
+    const [manager, setManager] = useState<IManagerSelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
 
     const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
     const [dataAvatar, setDataAvatar] = useState<IUserAvatar[]>([]);
@@ -52,12 +77,55 @@ const ModalUser = (props: IProps) => {
                     }
                 ])
             }
+
+            if (dataInit?.role) {
+                setRole(
+                    {
+                        label: ROLE_VI[dataInit.role as keyof typeof ROLE_VI],
+                        value: dataInit.role,
+                        key: dataInit.role,
+                    }
+                )
+            }
+            else {
+                setRole({
+                    label: ROLE_VI.admin,
+                    value: ROLE.ADMIN,
+                    key: ROLE.ADMIN,
+                })
+            }
+
+            if (dataInit?.manager?.id) {
+                setManager(
+                    {
+                        label: (<div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(dataInit.manager.avatar)}
+                                className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.manager.first_name} ${dataInit.manager.last_name}`}</p>
+                                <p className="leading-[20px] text-[#929292]">{`@${dataInit.manager.username}`}</p>
+                            </div>
+                        </div>),
+                        value: dataInit.manager.id,
+                        key: dataInit.manager.id,
+                    }
+                )
+            }
+            else {
+                setManager({
+                    label: "",
+                    value: 0,
+                    key: 0,
+                })
+            }
         }
         return () => form.resetFields()
     }, [dataInit]);
 
     const submitUser = async (valuesForm: any) => {
-        const { username, first_name, last_name, email, phone_number, password, gender, birthday, role } = valuesForm;
+        const { username, first_name, last_name, email, phone_number, password, gender, birthday } = valuesForm;
 
         if (dataInit?.id) {
             //update
@@ -70,7 +138,12 @@ const ModalUser = (props: IProps) => {
                 phone_number,
                 gender,
                 avatar: (dataAvatar[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
-                role
+                role: role.value,
+                manager: manager.value || null,
+            }
+
+            if (role.value !== ROLE.STAFF) {
+                userObj.manager = null
             }
 
             const res: any = await callUpdateUser(dataInit.id, userObj);
@@ -108,8 +181,14 @@ const ModalUser = (props: IProps) => {
                 phone_number,
                 gender,
                 avatar: (dataAvatar[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
-                role
+                role: role.value,
+                manager: manager.value || null,
             }
+
+            if (role.value !== ROLE.STAFF) {
+                userObj.manager = null
+            }
+
             const res: any = await callCreateUser(userObj);
             if (res.isSuccess) {
                 message.success("Thêm mới user thành công");
@@ -124,11 +203,45 @@ const ModalUser = (props: IProps) => {
         }
     }
 
+    async function fetchManagerList(): Promise<IManagerSelect[]> {
+        const res: any = await callFetchUser(`current=1&pageSize=1000&role=owner`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(item.avatar)}
+                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
         setDataAvatar([])
         setOpenModal(false);
+        setRole({
+            label: ROLE_VI.admin,
+            value: ROLE.ADMIN,
+            key: ROLE.ADMIN,
+        }
+        )
+        setManager({
+            label: "",
+            value: 0,
+            key: 0,
+        })
     }
 
     const handleRemoveFile = (file: any) => {
@@ -327,15 +440,83 @@ const ModalUser = (props: IProps) => {
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormSelect
+                        <ProForm.Item
                             name="role"
                             label={"Vai trò"}
-                            valueEnum={ROLE_VI}
-                            placeholder={"Chọn vai trò"}
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}
-                        />
-
+                        >
+                            <DebounceSelect
+                                allowClear
+                                showSearch
+                                defaultValue={role}
+                                value={role}
+                                placeholder={<span>Chọn vai trò</span>}
+                                fetchOptions={async () => {
+                                    return await [
+                                        {
+                                            label: "Quản trị viên",
+                                            value: ROLE.ADMIN
+                                        },
+                                        {
+                                            label: "Chủ khách sạn",
+                                            value: ROLE.OWNER
+                                        },
+                                        {
+                                            label: "Nhân viên",
+                                            value: ROLE.STAFF
+                                        },
+                                        {
+                                            label: "Người tổ chức sự kiện",
+                                            value: ROLE.EVENT_ORGANIZER
+                                        },
+                                        {
+                                            label: "Tài xế",
+                                            value: ROLE.DRIVER
+                                        },
+                                        {
+                                            label: "Khách hàng",
+                                            value: ROLE.CUSTOMER
+                                        },
+                                    ]
+                                }}
+                                onChange={(newValue: any) => {
+                                    setRole({
+                                        key: newValue?.key,
+                                        label: newValue?.label,
+                                        value: newValue?.value
+                                    });
+                                }}
+                                className="w-full"
+                            />
+                        </ProForm.Item>
                     </Col>
+                    {role.value === ROLE.STAFF && (
+                        <Col lg={12} md={12} sm={24} xs={24}>
+                            <ProForm.Item
+                                name="manager"
+                                label={"Người quản lý"}
+                                rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                            >
+                                <DebounceSelect
+                                    allowClear
+                                    defaultValue={manager}
+                                    value={manager}
+                                    placeholder={<span>Chọn người quản lý</span>}
+                                    fetchOptions={fetchManagerList}
+                                    onChange={(newValue: any) => {
+                                        setManager({
+                                            key: newValue?.key,
+                                            label: newValue?.label,
+                                            value: newValue?.value
+                                        });
+                                    }}
+                                    className="w-full !h-[60px]"
+                                />
+                            </ProForm.Item>
+                        </Col>
+                    )}
+
+
                 </Row>
             </ModalForm>
             <Modal

@@ -237,3 +237,20 @@ export const callGetOrCreateConversation = (data: any) => {
 export const callFetchMessage = (conversationId: string) => {
     return axios.get(`/api/chats/messages/${conversationId}/`);
 };
+
+// Payment
+export const callFetchPayment = (query: string) => {
+    return axios.get(`/api/payments/payments/?${query}`);
+};
+
+export const callCreatePayment = (data: any) => {
+    return axios.post("/api/payments/payments/create/", { ...data });
+};
+
+export const callUpdatePayment = (id: number, data: any) => {
+    return axios.put(`/api/payments/payments/${id}/update/`, { ...data });
+};
+
+export const callDeletePayment = (id: number) => {
+    return axios.delete(`/api/payments/payments/${id}/delete/`);
+};

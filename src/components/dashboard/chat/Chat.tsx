@@ -154,6 +154,55 @@ function Chat() {
                                                         </p>
                                                     </div>
                                                 </>
+                                            ) : getOtherUser(conv, user)
+                                                ?.role === ROLE.STAFF ? (
+                                                <>
+                                                    <div className="relative h-fit">
+                                                        <img
+                                                            src={`${import.meta.env.VITE_BE_URL
+                                                                }${getOtherUser(
+                                                                    conv,
+                                                                    user
+                                                                )?.manager
+                                                                    ?.hotel
+                                                                    ?.images?.[0]
+                                                                    ?.image
+                                                                }`}
+                                                            className="w-[50px] h-[50px] object-cover rounded-[50%]"
+                                                        />
+                                                        <img
+                                                            src={`${import.meta.env.VITE_BE_URL
+                                                                }${getOtherUser(
+                                                                    conv,
+                                                                    user
+                                                                )?.avatar
+                                                                }`}
+                                                            className="absolute right-[-4px] bottom-[-4px] w-[24px] h-[24px] object-cover rounded-[50%]"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold">
+                                                            {
+                                                                getOtherUser(
+                                                                    conv,
+                                                                    user
+                                                                )?.manager
+                                                                    ?.hotel
+                                                                    ?.name
+                                                            }
+                                                        </p>
+                                                        <p className="w-[150px] whitespace-nowrap text-ellipsis overflow-hidden">
+                                                            {conv.last_message}
+                                                        </p>
+                                                        <p className="w-[150px] whitespace-nowrap text-ellipsis overflow-hidden text-[#5e6b82] text-[12px]">
+                                                            {dayjs(
+                                                                conv.created_at
+                                                            ).format(
+                                                                "DD-MM-YYYY HH:mm:ss"
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                </>
                                             ) : (
                                                 <>
                                                     <img

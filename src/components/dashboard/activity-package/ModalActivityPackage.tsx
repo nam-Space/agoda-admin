@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { callCreateActivityPackage, callFetchActivity, callUpdateActivityPackage } from "@/config/api";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { toast } from "react-toastify";
+import { getImage } from "@/utils/imageUrl";
 
 interface IProps {
     openModal: boolean;
@@ -17,7 +18,7 @@ interface IProps {
 }
 
 export interface IActivitySelect {
-    label?: string;
+    label?: any;
     value?: number;
     key?: number;
 }
@@ -38,7 +39,16 @@ const ModalActivityPackage = (props: IProps) => {
             if (dataInit?.activity?.id) {
                 setActivity(
                     {
-                        label: dataInit.activity.name,
+                        // label: dataInit.activity.name,
+                        label: (<div className="flex items-center gap-[10px]">
+                            <img
+                                src={getImage(dataInit.activity?.images?.[0]?.image)}
+                                className="w-[70px] h-[50px] object-cover"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.activity.name}`}</p>
+                            </div>
+                        </div>),
                         value: dataInit.activity.id,
                         key: dataInit.activity.id,
                     }
@@ -55,7 +65,15 @@ const ModalActivityPackage = (props: IProps) => {
             const list = res.data;
             const temp = list.map((item: any) => {
                 return {
-                    label: item.name,
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getImage(item?.images?.[0]?.image)}
+                            className="w-[70px] h-[50px] object-cover"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.name}`}</p>
+                        </div>
+                    </div>,
                     value: item.id
                 }
             })
@@ -136,7 +154,7 @@ const ModalActivityPackage = (props: IProps) => {
                 initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
-                    <Col lg={6} md={6} sm={24} xs={24}>
+                    <Col lg={24} md={24} sm={24} xs={24}>
                         <ProForm.Item
                             name="activity"
                             label={"Hoạt động"}
@@ -144,7 +162,6 @@ const ModalActivityPackage = (props: IProps) => {
                         >
                             <DebounceSelect
                                 allowClear
-                                showSearch
                                 defaultValue={activity}
                                 value={activity}
                                 placeholder={<span>Chọn hoạt động</span>}
@@ -156,7 +173,7 @@ const ModalActivityPackage = (props: IProps) => {
                                         value: newValue?.value
                                     });
                                 }}
-                                style={{ width: '100%' }}
+                                className="w-full !h-[70px]"
                             />
                         </ProForm.Item>
 

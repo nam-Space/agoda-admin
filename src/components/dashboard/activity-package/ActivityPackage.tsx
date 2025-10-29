@@ -11,6 +11,7 @@ import { callDeleteActivityPackage } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import ModalActivityPackage from "./ModalActivityPackage";
 import { fetchActivityPackage } from "@/redux/slice/activityPackageSlide";
+import { getImage } from "@/utils/imageUrl";
 export default function ActivityPackage() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -54,7 +55,16 @@ export default function ActivityPackage() {
             hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
-                    <div>{record?.activity?.name}</div>
+                    // <div>{record?.activity?.name}</div>
+                    <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getImage(record?.activity?.images?.[0]?.image)}
+                            className="w-[70px] h-[50px] object-cover"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.activity?.name}`}</p>
+                        </div>
+                    </div>
                 )
             },
         },

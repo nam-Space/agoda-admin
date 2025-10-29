@@ -13,6 +13,7 @@ import { fetchActivity } from "@/redux/slice/activitySlide";
 import ModalActivity from "./ModalActivity";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { CATEGORY_ACTIVITY } from "@/constants/activity";
+import { getUserAvatar } from "@/utils/imageUrl";
 export default function Activity() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -50,6 +51,25 @@ export default function Activity() {
             hideInSearch: true,
         },
         {
+            title: 'Người tổ chức sự kiện',
+            dataIndex: 'event_organizer',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    record?.event_organizer ? <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(record?.event_organizer?.avatar)}
+                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.event_organizer?.first_name} ${record?.event_organizer?.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${record?.event_organizer?.username}`}</p>
+                        </div>
+                    </div> : <div></div>
+                )
+            },
+        },
+        {
             title: "Thành phố",
             dataIndex: 'city',
             sorter: true,
@@ -76,7 +96,7 @@ export default function Activity() {
             title: "Tên hoạt động",
             dataIndex: 'name',
             sorter: true,
-            width: 500
+            width: 200
         },
         {
             title: 'Danh mục',

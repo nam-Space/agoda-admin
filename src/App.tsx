@@ -34,6 +34,10 @@ import ActivityPage from "./pages/Dashboard/ActivityPage";
 import ActivityPackagePage from "./pages/Dashboard/ActivityPackagePage";
 import ActivityDatePage from "./pages/Dashboard/ActivityDatePage";
 import ChatPage from "./pages/Dashboard/ChatPage";
+import RoomPaymentPage from "./pages/Payment/RoomPaymentPage";
+import ActivityPaymentPage from "./pages/Payment/ActivityPaymentPage";
+import CarPaymentPage from "./pages/Payment/CarPaymentPage";
+import FlightPaymentPage from "./pages/Payment/FlightPaymentPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -78,6 +82,12 @@ export default function App() {
           <Route index path="/activity-package" element={<ActivityPackagePage />} />
           <Route index path="/activity-date" element={<ActivityDatePage />} />
           <Route index path="/chat" element={<ChatPage />} />
+
+          {/* Đơn thanh toán Page */}
+          <Route index path="/room-payment" element={<RoomPaymentPage />} />
+          <Route index path="/activity-payment" element={<ActivityPaymentPage />} />
+          <Route index path="/car-payment" element={<CarPaymentPage />} />
+          <Route index path="/flight-payment" element={<FlightPaymentPage />} />
 
           {/* Others Page */}
           <Route path="/profile" element={<UserProfiles />} />

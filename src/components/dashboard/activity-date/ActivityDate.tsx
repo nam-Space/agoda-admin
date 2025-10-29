@@ -13,6 +13,7 @@ import { fetchActivityDate } from "@/redux/slice/activityDateSlide";
 import ModalActivityDate from "./ModalActivityDate";
 import { toast } from "react-toastify";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { getImage } from "@/utils/imageUrl";
 export default function ActivityDate() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -117,7 +118,15 @@ export default function ActivityDate() {
             hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
-                    <div>{record?.activity_package?.activity?.name}</div>
+                    <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getImage(record?.activity_package?.activity?.images?.[0]?.image)}
+                            className="w-[70px] h-[50px] object-cover"
+                        />
+                        <div>
+                            ({record?.activity_package?.activity?.name})
+                        </div>
+                    </div>
                 )
             },
         },

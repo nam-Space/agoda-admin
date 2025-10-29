@@ -355,7 +355,7 @@ const ModalHotel = (props: IProps) => {
                 initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
-                    <Col lg={6} md={6} sm={24} xs={24}>
+                    <Col lg={12} md={12} sm={24} xs={24}>
                         <ProForm.Item
                             name="city"
                             label={"Thành phố"}
@@ -379,7 +379,7 @@ const ModalHotel = (props: IProps) => {
                             />
                         </ProForm.Item>
                     </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
+                    <Col lg={12} md={12} sm={24} xs={24}>
                         <ProForm.Item
                             name="owner"
                             label={"Chủ khách sạn"}

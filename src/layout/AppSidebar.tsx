@@ -28,49 +28,54 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
+    name: "Tổng quan",
     subItems: [
-      { name: "Overview", path: "/", pro: false },
-      { name: "User", path: "/user", pro: false },
-      { name: "Country", path: "/country", pro: false },
-      { name: "City", path: "/city", pro: false },
-      { name: "Hotel", path: "/hotel", pro: false },
-      { name: "Airport", path: "/airport", pro: false },
-      { name: "Car", path: "/car", pro: false },
-      { name: "Activity", path: "/activity", pro: false },
-      { name: "Activity Package", path: "/activity-package", pro: false },
-      { name: "Activity Date", path: "/activity-date", pro: false },
-      { name: "Chat", path: "/chat", pro: false },
+      { name: "Tổng quan hệ thống", path: "/", pro: false },
+      { name: "Người dùng", path: "/user", pro: false },
+      { name: "Đất nước", path: "/country", pro: false },
+      { name: "Thành phố", path: "/city", pro: false },
+      { name: "Khách sạn", path: "/hotel", pro: false },
+      { name: "Sân bay", path: "/airport", pro: false },
+      { name: "Xe cộ", path: "/car", pro: false },
+      { name: "Hoạt động", path: "/activity", pro: false },
+      { name: "Gói hoạt động", path: "/activity-package", pro: false },
+      { name: "Ngày của gói hoạt động", path: "/activity-date", pro: false },
+      { name: "Tin nhắn", path: "/chat", pro: false },
     ],
   },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Calendar",
+  //   path: "/calendar",
+  // },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: "User Profile",
+  //   path: "/profile",
+  // },
   {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-  {
-    name: "Forms",
+    name: "Đơn thanh toán",
     icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
     subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
+      { name: "Đơn thanh toán đặt phòng", path: "/room-payment", pro: false },
+      { name: "Đơn thanh toán hoạt động", path: "/activity-payment", pro: false },
+      { name: "Đơn thanh toán taxi", path: "/car-payment", pro: false },
+      { name: "Đơn thanh toán chuyến bay", path: "/flight-payment", pro: false }
     ],
   },
+  // {
+  //   name: "Tables",
+  //   icon: <TableIcon />,
+  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+  // },
+  // {
+  //   name: "Pages",
+  //   icon: <PageIcon />,
+  //   subItems: [
+  //     { name: "Blank Page", path: "/blank", pro: false },
+  //     { name: "404 Error", path: "/error-404", pro: false },
+  //   ],
+  // },
 ];
 
 const othersItems: NavItem[] = [
