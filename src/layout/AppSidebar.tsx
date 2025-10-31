@@ -4,19 +4,17 @@ import { Link, useLocation } from "react-router";
 // Assume these icons are imported from an icon library
 import {
   BoxCubeIcon,
-  CalenderIcon,
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
-  PageIcon,
   PieChartIcon,
   PlugInIcon,
-  TableIcon,
-  UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
+import { useAppSelector } from "@/redux/hooks";
+import { ROLE } from "@/constants/role";
 
 type NavItem = {
   name: string;
@@ -25,93 +23,94 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Tổng quan",
-    subItems: [
-      { name: "Tổng quan hệ thống", path: "/", pro: false },
-      { name: "Người dùng", path: "/user", pro: false },
-      { name: "Đất nước", path: "/country", pro: false },
-      { name: "Thành phố", path: "/city", pro: false },
-      { name: "Khách sạn", path: "/hotel", pro: false },
-      { name: "Sân bay", path: "/airport", pro: false },
-      { name: "Xe cộ", path: "/car", pro: false },
-      { name: "Hoạt động", path: "/activity", pro: false },
-      { name: "Gói hoạt động", path: "/activity-package", pro: false },
-      { name: "Ngày của gói hoạt động", path: "/activity-date", pro: false },
-      { name: "Tin nhắn", path: "/chat", pro: false },
-    ],
-  },
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Calendar",
-  //   path: "/calendar",
-  // },
-  // {
-  //   icon: <UserCircleIcon />,
-  //   name: "User Profile",
-  //   path: "/profile",
-  // },
-  {
-    name: "Đơn thanh toán",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "Đơn thanh toán đặt phòng", path: "/room-payment", pro: false },
-      { name: "Đơn thanh toán hoạt động", path: "/activity-payment", pro: false },
-      { name: "Đơn thanh toán taxi", path: "/car-payment", pro: false },
-      { name: "Đơn thanh toán chuyến bay", path: "/flight-payment", pro: false }
-    ],
-  },
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
-  // {
-  //   name: "Pages",
-  //   icon: <PageIcon />,
-  //   subItems: [
-  //     { name: "Blank Page", path: "/blank", pro: false },
-  //     { name: "404 Error", path: "/error-404", pro: false },
-  //   ],
-  // },
-];
-
-const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
-  {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
-  },
-];
-
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const user = useAppSelector(state => state.account.user)
+
+  const navItems: NavItem[] = [
+    {
+      icon: <GridIcon />,
+      name: "Tổng quan",
+      subItems: [
+        { name: "Tổng quan hệ thống", path: "/", pro: false },
+        ...(user.role === ROLE.ADMIN ? [{ name: "Người dùng", path: "/user", pro: false }] : []),
+        ...(user.role === ROLE.ADMIN ? [{ name: "Đất nước", path: "/country", pro: false }] : []),
+        ...(user.role === ROLE.ADMIN ? [{ name: "Thành phố", path: "/city", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{ name: "Khách sạn", path: "/hotel", pro: false }] : []),
+        ...(user.role === ROLE.ADMIN ? [{ name: "Sân bay", path: "/airport", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Xe cộ", path: "/car", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Hoạt động", path: "/activity", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Gói hoạt động", path: "/activity-package", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Ngày của gói hoạt động", path: "/activity-date", pro: false }] : []),
+        ...(user.role !== ROLE.CUSTOMER ? [{ name: "Tin nhắn", path: "/chat", pro: false }] : []),
+      ],
+    },
+    // {
+    //   icon: <CalenderIcon />,
+    //   name: "Calendar",
+    //   path: "/calendar",
+    // },
+    // {
+    //   icon: <UserCircleIcon />,
+    //   name: "User Profile",
+    //   path: "/profile",
+    // },
+    {
+      name: "Đơn thanh toán",
+      icon: <ListIcon />,
+      subItems: [
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF) ? [{ name: "Đơn thanh toán đặt phòng", path: "/room-payment", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Đơn thanh toán hoạt động", path: "/activity-payment", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Đơn thanh toán taxi", path: "/car-payment", pro: false }] : []),
+        { name: "Đơn thanh toán chuyến bay", path: "/flight-payment", pro: false }
+      ],
+    },
+    // {
+    //   name: "Tables",
+    //   icon: <TableIcon />,
+    //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    // },
+    // {
+    //   name: "Pages",
+    //   icon: <PageIcon />,
+    //   subItems: [
+    //     { name: "Blank Page", path: "/blank", pro: false },
+    //     { name: "404 Error", path: "/error-404", pro: false },
+    //   ],
+    // },
+  ];
+
+  const othersItems: NavItem[] = [
+    {
+      icon: <PieChartIcon />,
+      name: "Charts",
+      subItems: [
+        { name: "Line Chart", path: "/line-chart", pro: false },
+        { name: "Bar Chart", path: "/bar-chart", pro: false },
+      ],
+    },
+    {
+      icon: <BoxCubeIcon />,
+      name: "UI Elements",
+      subItems: [
+        { name: "Alerts", path: "/alerts", pro: false },
+        { name: "Avatar", path: "/avatars", pro: false },
+        { name: "Badge", path: "/badge", pro: false },
+        { name: "Buttons", path: "/buttons", pro: false },
+        { name: "Images", path: "/images", pro: false },
+        { name: "Videos", path: "/videos", pro: false },
+      ],
+    },
+    {
+      icon: <PlugInIcon />,
+      name: "Authentication",
+      subItems: [
+        { name: "Sign In", path: "/signin", pro: false },
+        { name: "Sign Up", path: "/signup", pro: false },
+      ],
+    },
+  ];
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";

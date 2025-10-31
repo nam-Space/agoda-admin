@@ -14,9 +14,11 @@ import { getUserAvatar } from "@/utils/imageUrl";
 import { fetchCar } from "@/redux/slice/carSlide";
 import ModalCar from "./ModalCar";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { ROLE } from "@/constants/role";
 export default function Car() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -203,6 +205,9 @@ export default function Car() {
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
+        }
+        if (user.role === ROLE.DRIVER) {
+            temp += `&user_id=${user.id}`
         }
 
         return temp;

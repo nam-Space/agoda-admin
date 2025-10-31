@@ -8,6 +8,8 @@ import { callCreateActivityPackage, callFetchActivity, callUpdateActivityPackage
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { toast } from "react-toastify";
 import { getImage } from "@/utils/imageUrl";
+import { useAppSelector } from "@/redux/hooks";
+import { ROLE } from "@/constants/role";
 
 interface IProps {
     openModal: boolean;
@@ -25,6 +27,7 @@ export interface IActivitySelect {
 
 const ModalActivityPackage = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
 
     const [form] = Form.useForm();
 
@@ -60,7 +63,11 @@ const ModalActivityPackage = (props: IProps) => {
     }, [dataInit]);
 
     async function fetchActivityList(): Promise<IActivitySelect[]> {
-        const res: any = await callFetchActivity(`current=1&pageSize=100`);
+        let query = ``
+        if (user.role === ROLE.EVENT_ORGANIZER) {
+            query += `&event_organizer_id=${user.id}`
+        }
+        const res: any = await callFetchActivity(`current=1&pageSize=100${query}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {

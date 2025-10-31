@@ -38,10 +38,12 @@ import RoomPaymentPage from "./pages/Payment/RoomPaymentPage";
 import ActivityPaymentPage from "./pages/Payment/ActivityPaymentPage";
 import CarPaymentPage from "./pages/Payment/CarPaymentPage";
 import FlightPaymentPage from "./pages/Payment/FlightPaymentPage";
+import { ROLE } from "./constants/role";
 
 export default function App() {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector((state) => state.account.isLoading);
+  const user = useAppSelector(state => state.account.user)
 
   useEffect(() => {
     dispatch(fetchAccount())
@@ -63,6 +65,135 @@ export default function App() {
     )
   }
 
+  const protectedRoutes = [
+    {
+      path: "/",
+      element: <HomePage />,
+      index: true
+    },
+    ...(user.role === ROLE.ADMIN ? [{
+      path: "/user",
+      element: <UserPage />,
+      index: true
+    }] : []),
+    ...(user.role === ROLE.ADMIN ? [{
+      path: "/country",
+      element: <CountryPage />,
+      index: true
+    }] : []),
+    ...(user.role === ROLE.ADMIN ? [{
+      path: "/city",
+      element: <CityPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{
+      path: "/hotel",
+      element: <HotelPage />,
+      index: true
+    }] : []),
+    ...(user.role === ROLE.ADMIN ? [{
+      path: "/airport",
+      element: <AirportPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{
+      path: "/car",
+      element: <CarPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+      path: "/activity",
+      element: <ActivityPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+      path: "/activity-package",
+      element: <ActivityPackagePage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+      path: "/activity-date",
+      element: <ActivityDatePage />,
+      index: true
+    }] : []),
+    ...(user.role !== ROLE.CUSTOMER ? [{
+      path: "/chat",
+      element: <ChatPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF) ? [{
+      path: "/room-payment",
+      element: <RoomPaymentPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+      path: "/activity-payment",
+      element: <ActivityPaymentPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{
+      path: "/car-payment",
+      element: <CarPaymentPage />,
+      index: true
+    }] : []),
+    {
+      path: "/flight-payment",
+      element: <FlightPaymentPage />,
+      index: true
+    },
+    {
+      path: "/profile",
+      element: <UserProfiles />,
+    },
+    {
+      path: "/calendar",
+      element: <Calendar />,
+    },
+    {
+      path: "/blank",
+      element: <Blank />,
+    },
+    {
+      path: "/form-elements",
+      element: <FormElements />,
+    },
+    {
+      path: "/basic-tables",
+      element: <BasicTables />,
+    },
+    {
+      path: "/alerts",
+      element: <Alerts />,
+    },
+    {
+      path: "/avatars",
+      element: <Avatars />,
+    },
+    {
+      path: "/badge",
+      element: <Badges />
+    },
+    {
+      path: "/buttons",
+      element: <Buttons />
+    },
+    {
+      path: "/images",
+      element: <Images />
+    },
+    {
+      path: "/videos",
+      element: <Videos />
+    },
+    {
+      path: "/line-chart",
+      element: <LineChart />
+    },
+    {
+      path: "/bar-chart",
+      element: <BarChart />
+    },
+  ]
 
   return (
     <Router>
@@ -72,45 +203,12 @@ export default function App() {
         {/* Dashboard Layout */}
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route index path="/" element={<HomePage />} />
-          <Route index path="/user" element={<UserPage />} />
-          <Route index path="/country" element={<CountryPage />} />
-          <Route index path="/city" element={<CityPage />} />
-          <Route index path="/hotel" element={<HotelPage />} />
-          <Route index path="/airport" element={<AirportPage />} />
-          <Route index path="/car" element={<CarPage />} />
-          <Route index path="/activity" element={<ActivityPage />} />
-          <Route index path="/activity-package" element={<ActivityPackagePage />} />
-          <Route index path="/activity-date" element={<ActivityDatePage />} />
-          <Route index path="/chat" element={<ChatPage />} />
-
-          {/* Đơn thanh toán Page */}
-          <Route index path="/room-payment" element={<RoomPaymentPage />} />
-          <Route index path="/activity-payment" element={<ActivityPaymentPage />} />
-          <Route index path="/car-payment" element={<CarPaymentPage />} />
-          <Route index path="/flight-payment" element={<FlightPaymentPage />} />
-
-          {/* Others Page */}
-          <Route path="/profile" element={<UserProfiles />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/blank" element={<Blank />} />
-
-          {/* Forms */}
-          <Route path="/form-elements" element={<FormElements />} />
-
-          {/* Tables */}
-          <Route path="/basic-tables" element={<BasicTables />} />
-
-          {/* Ui Elements */}
-          <Route path="/alerts" element={<Alerts />} />
-          <Route path="/avatars" element={<Avatars />} />
-          <Route path="/badge" element={<Badges />} />
-          <Route path="/buttons" element={<Buttons />} />
-          <Route path="/images" element={<Images />} />
-          <Route path="/videos" element={<Videos />} />
-
-          {/* Charts */}
-          <Route path="/line-chart" element={<LineChart />} />
-          <Route path="/bar-chart" element={<BarChart />} />
+          {protectedRoutes.map((route) => {
+            return (
+              <Route {...(route.index ? { index: true } : {})} path={route.path} element={route.element} />
+            )
+          }
+          )}
         </Route>
 
         {/* Auth Layout */}

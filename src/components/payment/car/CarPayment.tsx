@@ -15,16 +15,15 @@ import { PAYMENT_METHOD_VI, PAYMENT_STATUS_VI } from "@/constants/payment";
 import { fetchPayment } from "@/redux/slice/paymentSlide";
 import { SERVICE_TYPE } from "@/constants/booking";
 import { getUserAvatar } from "@/utils/imageUrl";
-import {
-    Star,
-    Calendar,
-} from "lucide-react";
 import ModalCarPayment from "./ModalCarPayment";
 import { haversine } from "@/utils/googleMap";
+import { ROLE } from "@/constants/role";
 
 export default function CarPayment() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -304,6 +303,10 @@ export default function CarPayment() {
         temp += `&booking__service_type=${SERVICE_TYPE.CAR}`
         if (clone.transaction_id) {
             temp += `&transaction_id=${clone.transaction_id}`
+        }
+
+        if (user.role === ROLE.DRIVER) {
+            temp += `&driver_id=${user.id}`
         }
 
         return temp;

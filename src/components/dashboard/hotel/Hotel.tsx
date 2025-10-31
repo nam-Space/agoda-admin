@@ -7,15 +7,16 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteCity, callDeleteHotel } from "../../../config/api";
+import { callDeleteHotel } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchCity } from "@/redux/slice/citySlide";
 import { fetchHotel } from "@/redux/slice/hotelSlide";
 import ModalHotel from "./ModalHotel";
 import { getUserAvatar } from "@/utils/imageUrl";
+import { ROLE } from "@/constants/role";
 export default function Hotel() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -202,6 +203,9 @@ export default function Hotel() {
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
+        }
+        if (user.role === ROLE.OWNER) {
+            temp += `&ownerId=${user.id}`
         }
 
         return temp;

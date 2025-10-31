@@ -12,6 +12,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import { getDatesBetween } from "@/utils/getDatesBetween";
 import { getImage } from "@/utils/imageUrl";
+import { useAppSelector } from "@/redux/hooks";
+import { ROLE } from "@/constants/role";
 
 dayjs.locale("vi");
 
@@ -33,6 +35,7 @@ export interface IActivityPackageSelect {
 
 const ModalActivityDate = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
 
     const [form] = Form.useForm();
 
@@ -69,7 +72,11 @@ const ModalActivityDate = (props: IProps) => {
     }, [dataInit]);
 
     async function fetchActivityPackageList(): Promise<IActivityPackageSelect[]> {
-        const res: any = await callFetchActivityPackage(`current=1&pageSize=1000`);
+        let query = ``
+        if (user.role === ROLE.EVENT_ORGANIZER) {
+            query += `&event_organizer_id=${user.id}`
+        }
+        const res: any = await callFetchActivityPackage(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {
