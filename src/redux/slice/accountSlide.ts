@@ -29,6 +29,19 @@ interface IState {
         gender: string;
         avatar: string;
         role: string;
+        manager?: {
+            id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            avatar: string;
+            role: string;
+            gender: string;
+            phone_number: string;
+            birthday: string;
+        };
+        hotel?: any;
     };
     activeMenu: string;
 }

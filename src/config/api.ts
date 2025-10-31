@@ -220,7 +220,7 @@ export const callDeleteActivityDate = (id: number) => {
 };
 
 export const callDeleteBulkActivityDate = (ids: number[]) => {
-    return axios.delete(`/api/activities/activity-dates/bulk-delete/`, {
+    return axios.delete(`/api/activities/activities-dates/bulk-delete/`, {
         data: { ids },
     });
 };

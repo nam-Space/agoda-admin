@@ -6,7 +6,7 @@ import { isMobile } from 'react-device-detect';
 import { useEffect, useRef, useState } from "react";
 import { callCreateActivity, callCreateCountry, callCreateHotel, callFetchCity, callFetchUser, callUpdateActivity, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
 import { AdmonitionDirectiveDescriptor, BlockTypeSelect, BoldItalicUnderlineToggles, ChangeAdmonitionType, ChangeCodeMirrorLanguage, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertAdmonition, InsertCodeBlock, InsertFrontmatter, InsertImage, InsertSandpack, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, MDXEditorMethods, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 import { toast } from "react-toastify";
@@ -16,6 +16,7 @@ import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { CATEGORY_ACTIVITY } from "@/constants/activity";
 import { getUserAvatar } from "@/utils/imageUrl";
+import { ROLE } from "@/constants/role";
 
 interface IProps {
     openModal: boolean;
@@ -31,13 +32,15 @@ interface IActivityImage {
 }
 
 export interface ICitySelect {
-    label?: string;
+    label?: any;
     value?: number;
     key?: number;
 }
 
 const ModalActivity = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
+
     const [formMarkdown, setFormMarkdown] = useState({
         short_description: "",
         more_information: '',
@@ -98,7 +101,16 @@ const ModalActivity = (props: IProps) => {
             if (dataInit?.event_organizer?.id) {
                 setEventOrganizer(
                     {
-                        label: dataInit.event_organizer.name,
+                        label: <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(dataInit.event_organizer.avatar)}
+                                className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.event_organizer.first_name} ${dataInit.event_organizer.last_name}`}</p>
+                                <p className="leading-[20px] text-[#929292]">{`@${dataInit.event_organizer.username}`}</p>
+                            </div>
+                        </div>,
                         value: dataInit.event_organizer.id,
                         key: dataInit.event_organizer.id,
                     }
@@ -110,7 +122,12 @@ const ModalActivity = (props: IProps) => {
     }, [dataInit]);
 
     async function fetchEventOrganizerList(): Promise<ICitySelect[]> {
-        const res: any = await callFetchUser(`current=1&pageSize=1000&role=event_organizer`);
+        let query = `&role=${ROLE.EVENT_ORGANIZER}`
+        if (user.role === ROLE.EVENT_ORGANIZER) {
+            query += `&username=${user.username}`
+        }
+
+        const res: any = await callFetchUser(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {

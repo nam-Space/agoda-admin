@@ -2,14 +2,14 @@
 import { useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { callLogout } from "../../config/api";
 import Cookies from "js-cookie";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setLogoutAction } from "../../redux/slice/accountSlide";
 import { toast } from "react-toastify";
-import { Avatar } from "antd";
 import { getUserAvatar } from "@/utils/imageUrl";
+import { ROLE_VI } from "@/constants/role";
 
 export default function UserDropdown() {
   const dispatch = useAppDispatch()
@@ -70,7 +70,7 @@ export default function UserDropdown() {
               />
             </svg>
           </div>
-          <span className="font-medium text-theme-sm">{user?.role?.toUpperCase()}</span>
+          <span className="font-medium text-theme-sm">{(ROLE_VI as any)[user.role]}</span>
         </div>
       </button>
 

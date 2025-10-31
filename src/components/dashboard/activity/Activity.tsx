@@ -14,9 +14,11 @@ import ModalActivity from "./ModalActivity";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { CATEGORY_ACTIVITY } from "@/constants/activity";
 import { getUserAvatar } from "@/utils/imageUrl";
+import { ROLE } from "@/constants/role";
 export default function Activity() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -195,6 +197,9 @@ export default function Activity() {
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
+        }
+        if (user.role === ROLE.EVENT_ORGANIZER) {
+            temp += `&event_organizer_id=${user.id}`
         }
 
         return temp;

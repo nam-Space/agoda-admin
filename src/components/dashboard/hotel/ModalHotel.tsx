@@ -6,7 +6,7 @@ import { isMobile } from 'react-device-detect';
 import { useEffect, useRef, useState } from "react";
 import { callCreateCountry, callCreateHotel, callFetchCity, callFetchUser, callUpdateCountry, callUpdateHotel, callUploadSingleImage } from "@/config/api";
 import { AdmonitionDirectiveDescriptor, BlockTypeSelect, BoldItalicUnderlineToggles, ChangeAdmonitionType, ChangeCodeMirrorLanguage, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertAdmonition, InsertCodeBlock, InsertFrontmatter, InsertImage, InsertSandpack, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, MDXEditorMethods, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 import { toast } from "react-toastify";
@@ -38,6 +38,8 @@ export interface ICitySelect {
 
 const ModalHotel = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
+
     const [formMarkdown, setFormMarkdown] = useState({
         mostFeature: '',
         facilities: '',
@@ -157,7 +159,11 @@ const ModalHotel = (props: IProps) => {
     }
 
     async function fetchOwnerList(): Promise<ICitySelect[]> {
-        const res: any = await callFetchUser(`current=1&pageSize=1000&role=owner`);
+        let query = `&role=${ROLE.OWNER}`
+        if (user.role === ROLE.OWNER) {
+            query += `&username=${user.username}`
+        }
+        const res: any = await callFetchUser(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {

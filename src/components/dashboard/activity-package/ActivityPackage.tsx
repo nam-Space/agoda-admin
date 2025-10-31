@@ -12,9 +12,11 @@ import DataTable from "../../antd/Table";
 import ModalActivityPackage from "./ModalActivityPackage";
 import { fetchActivityPackage } from "@/redux/slice/activityPackageSlide";
 import { getImage } from "@/utils/imageUrl";
+import { ROLE } from "@/constants/role";
 export default function ActivityPackage() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -141,6 +143,9 @@ export default function ActivityPackage() {
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
+        }
+        if (user.role === ROLE.EVENT_ORGANIZER) {
+            temp += `&event_organizer_id=${user.id}`
         }
 
         return temp;

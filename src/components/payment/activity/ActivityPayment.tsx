@@ -20,10 +20,13 @@ import {
     Calendar,
 } from "lucide-react";
 import ModalActivityPayment from "./ModalActivityPayment";
+import { ROLE } from "@/constants/role";
 
 export default function ActivityPayment() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -136,7 +139,9 @@ export default function ActivityPayment() {
                                             }
                                         </span>
                                         <span className="text-gray-500">
-                                            1,128 bài đánh giá
+                                            {
+                                                activity_date_booking?.review_count || 0
+                                            } lượt đánh giá
                                         </span>
                                     </div>
                                 </div>
@@ -283,6 +288,10 @@ export default function ActivityPayment() {
         temp += `&booking__service_type=${SERVICE_TYPE.ACTIVITY}`
         if (clone.transaction_id) {
             temp += `&transaction_id=${clone.transaction_id}`
+        }
+
+        if (user.role === ROLE.EVENT_ORGANIZER) {
+            temp += `&event_organizer_activity_id=${user.id}`
         }
 
         return temp;

@@ -20,10 +20,13 @@ import {
     Calendar,
 } from "lucide-react";
 import ModalRoomPayment from "./ModalRoomPayment";
+import { ROLE } from "@/constants/role";
 
 export default function RoomPayment() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -137,6 +140,9 @@ export default function RoomPayment() {
                                         <Star className="w-3 h-3 fill-orange-500 text-orange-500" />
                                         <span className="font-semibold">
                                             {room_booking?.room?.hotel?.avg_star?.toFixed(1)}
+                                        </span>
+                                        <span className="text-gray-500">
+                                            {room_booking?.room?.hotel?.review_count || 0} lượt đánh giá
                                         </span>
                                     </div>
                                 </div>
@@ -270,6 +276,13 @@ export default function RoomPayment() {
         temp += `&booking__service_type=${SERVICE_TYPE.HOTEL}`
         if (clone.transaction_id) {
             temp += `&transaction_id=${clone.transaction_id}`
+        }
+
+        if (user.role === ROLE.OWNER) {
+            temp += `&owner_hotel_id=${user.id}`
+        }
+        else if (user.role === ROLE.STAFF) {
+            temp += `&owner_hotel_id=${user.manager?.id || 0}`
         }
 
         return temp;

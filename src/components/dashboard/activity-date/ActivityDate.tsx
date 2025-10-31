@@ -14,9 +14,12 @@ import ModalActivityDate from "./ModalActivityDate";
 import { toast } from "react-toastify";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { getImage } from "@/utils/imageUrl";
+import { ROLE } from "@/constants/role";
 export default function ActivityDate() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -208,6 +211,9 @@ export default function ActivityDate() {
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
+        }
+        if (user.role === ROLE.EVENT_ORGANIZER) {
+            temp += `&event_organizer_id=${user.id}`
         }
 
         return temp;

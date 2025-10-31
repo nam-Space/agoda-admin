@@ -5,13 +5,14 @@ import { Col, ConfigProvider, DatePicker, Form, Modal, Row, Upload, message, not
 import { isMobile } from 'react-device-detect';
 import { useEffect, useState } from "react";
 import { callCreateCar, callFetchUser, callUpdateCar, callUploadSingleImage } from "@/config/api";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { getDatesBetween } from "@/utils/getDatesBetween";
 import { getUserAvatar } from "@/utils/imageUrl";
+import { ROLE } from "@/constants/role";
 
 
 interface IProps {
@@ -35,6 +36,8 @@ export interface IUserSelect {
 
 const ModalCar = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+
+    const currentUser = useAppSelector(state => state.account.user)
 
     const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
     const [dataImage, setDataImage] = useState<ICarImage[]>([]);
@@ -79,13 +82,19 @@ const ModalCar = (props: IProps) => {
                     }
                 )
             }
+
         }
 
         return () => form.resetFields()
     }, [dataInit]);
 
     async function fetchUserList(): Promise<IUserSelect[]> {
-        const res: any = await callFetchUser(`current=1&pageSize=100&role=driver`);
+        let query = `&role=${ROLE.DRIVER}`
+        if (currentUser.role === ROLE.DRIVER) {
+            query += `&username=${currentUser.username}`
+        }
+
+        const res: any = await callFetchUser(`current=1&pageSize=100${query}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {
@@ -178,6 +187,11 @@ const ModalCar = (props: IProps) => {
         setDataInit(null);
         setDataImage([])
         setOpenModal(false);
+        setUser({
+            label: "",
+            value: 0,
+            key: 0,
+        })
     }
 
     const handleRemoveFile = (file: any) => {
