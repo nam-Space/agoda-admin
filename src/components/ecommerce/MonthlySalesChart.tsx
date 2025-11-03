@@ -1,141 +1,618 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import { Dropdown } from "../ui/dropdown/Dropdown";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { MoreDotIcon } from "../../icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { callFetchActivity, callFetchCar, callFetchHotel, callFetchPaymentOverview, callFetchUser } from "@/config/api";
+import { SERVICE_TYPE, SERVICE_TYPE_VI } from "@/constants/booking";
+import { useAppSelector } from "@/redux/hooks";
+import { ROLE } from "@/constants/role";
+import { getUserAvatar } from "@/utils/imageUrl";
+import { DebounceSelect } from "../antd/DebounceSelect";
+import { Star } from "lucide-react";
+import ChartTab from "../common/ChartTab";
+import EcommerceMetrics from "./EcommerceMetrics";
+import MonthlyTarget from "./MonthlyTarget";
+import { TIME_STATISTIC } from "@/constants/time";
+import TableHotelRecommended from "./TableHotelRecommended";
 
-export default function MonthlySalesChart() {
-  const options: ApexOptions = {
-    colors: ["#465fff"],
-    chart: {
-      fontFamily: "Outfit, sans-serif",
-      type: "bar",
-      height: 180,
-      toolbar: {
-        show: false,
-      },
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "39%",
-        borderRadius: 5,
-        borderRadiusApplication: "end",
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      show: true,
-      width: 4,
-      colors: ["transparent"],
-    },
-    xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-    },
-    legend: {
-      show: true,
-      position: "top",
-      horizontalAlign: "left",
-      fontFamily: "Outfit",
-    },
-    yaxis: {
-      title: {
-        text: undefined,
-      },
-    },
-    grid: {
-      yaxis: {
-        lines: {
-          show: true,
-        },
-      },
-    },
-    fill: {
-      opacity: 1,
-    },
+export interface ICitySelect {
+	label?: any;
+	value?: number;
+	key?: number;
+}
 
-    tooltip: {
-      x: {
-        show: false,
-      },
-      y: {
-        formatter: (val: number) => `${val}`,
-      },
-    },
-  };
-  const series = [
-    {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
-    },
-  ];
-  const [isOpen, setIsOpen] = useState(false);
+export default function MonthlySalesChart({ serviceType }: any) {
+	const user = useAppSelector(state => state.account.user)
 
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
+	const [statistic, setStatistic] = useState({
+		"labels": [],
+		"revenues": [],
+		"total": 0,
+		"total_revenue": 0,
+		"revenue_growth": 0,
+		"customers": [],
+		"customer_growth": 0,
+		"orders": [],
+		"order_growth": 0,
+		"statistic_by": TIME_STATISTIC.DAY
+	})
 
-  function closeDropdown() {
-    setIsOpen(false);
-  }
-  return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Monthly Sales
-        </h3>
-        <div className="relative inline-block">
-          <button className="dropdown-toggle" onClick={toggleDropdown}>
-            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
-          </button>
-          <Dropdown
-            isOpen={isOpen}
-            onClose={closeDropdown}
-            className="w-40 p-2"
-          >
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              View More
-            </DropdownItem>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              Delete
-            </DropdownItem>
-          </Dropdown>
-        </div>
-      </div>
+	const [selectedTime, setSelectedTime] = useState(TIME_STATISTIC.DAY);
 
-      <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
-          <Chart options={options} series={series} type="bar" height={180} />
-        </div>
-      </div>
-    </div>
-  );
+	const [owner, setOwner] = useState<ICitySelect>({
+		label: user.role === ROLE.OWNER ? <div className="flex items-center gap-[10px]">
+			<img
+				src={getUserAvatar(user.avatar)}
+				className="w-[40px] h-[40px] object-cover rounded-[50%]"
+			/>
+			<div>
+				<p className="leading-[20px]">{`${user.first_name} ${user.last_name}`}</p>
+				<p className="leading-[20px] text-[#929292]">{`@${user.username}`}</p>
+			</div>
+		</div> : user.role === ROLE.STAFF ? <div className="flex items-center gap-[10px]">
+			<img
+				src={getUserAvatar(user.manager?.avatar)}
+				className="w-[40px] h-[40px] object-cover rounded-[50%]"
+			/>
+			<div>
+				<p className="leading-[20px]">{`${user.manager?.first_name} ${user.manager?.last_name}`}</p>
+				<p className="leading-[20px] text-[#929292]">{`@${user.manager?.username}`}</p>
+			</div>
+		</div> : "",
+		value: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.STAFF ? user.manager?.id : 0),
+		key: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.STAFF ? user.manager?.id : 0),
+	});
+
+	const [hotel, setHotel] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [eventOrganizer, setEventOrganizer] = useState<ICitySelect>({
+		label: user.role === ROLE.EVENT_ORGANIZER ? <div className="flex items-center gap-[10px]">
+			<img
+				src={getUserAvatar(user.avatar)}
+				className="w-[40px] h-[40px] object-cover rounded-[50%]"
+			/>
+			<div>
+				<p className="leading-[20px]">{`${user.first_name} ${user.last_name}`}</p>
+				<p className="leading-[20px] text-[#929292]">{`@${user.username}`}</p>
+			</div>
+		</div> : "",
+		value: user.role === ROLE.EVENT_ORGANIZER ? user.id : 0,
+		key: user.role === ROLE.EVENT_ORGANIZER ? user.id : 0,
+	});
+
+	const [activity, setActivity] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [driver, setDriver] = useState<ICitySelect>({
+		label: user.role === ROLE.DRIVER ? <div className="flex items-center gap-[10px]">
+			<img
+				src={getUserAvatar(user.avatar)}
+				className="w-[40px] h-[40px] object-cover rounded-[50%]"
+			/>
+			<div>
+				<p className="leading-[20px]">{`${user.first_name} ${user.last_name}`}</p>
+				<p className="leading-[20px] text-[#929292]">{`@${user.username}`}</p>
+			</div>
+		</div> : "",
+		value: user.role === ROLE.DRIVER ? user.id : 0,
+		key: user.role === ROLE.DRIVER ? user.id : 0,
+	});
+
+	const [car, setCar] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const options: ApexOptions = {
+		colors: ["#465fff"],
+		chart: {
+			fontFamily: "Outfit, sans-serif",
+			type: "bar",
+			height: 180,
+			toolbar: {
+				show: false,
+			},
+		},
+		plotOptions: {
+			bar: {
+				horizontal: false,
+				columnWidth: "39%",
+				borderRadius: 5,
+				borderRadiusApplication: "end",
+			},
+		},
+		dataLabels: {
+			enabled: false,
+		},
+		stroke: {
+			show: true,
+			width: 4,
+			colors: ["transparent"],
+		},
+		xaxis: {
+			categories: [
+				...statistic.labels
+			],
+			axisBorder: {
+				show: false,
+			},
+			axisTicks: {
+				show: false,
+			},
+		},
+		legend: {
+			show: true,
+			position: "top",
+			horizontalAlign: "left",
+			fontFamily: "Outfit",
+		},
+		yaxis: {
+			title: {
+				text: undefined,
+			},
+		},
+		grid: {
+			yaxis: {
+				lines: {
+					show: true,
+				},
+			},
+		},
+		fill: {
+			opacity: 1,
+		},
+
+		tooltip: {
+			x: {
+				show: false,
+			},
+			y: {
+				formatter: (val: number) => `${val}`,
+			},
+		},
+	};
+	const series = [
+		{
+			name: "Doanh thu",
+			data: [...statistic.revenues],
+		},
+	];
+	const handleGetPaymentOverview = async (query: string) => {
+		const res: any = await callFetchPaymentOverview(query)
+		if (res.isSuccess) {
+			setStatistic({
+				...res.data
+			})
+		}
+	}
+
+	async function fetchOwnerList(): Promise<ICitySelect[]> {
+		let query = `&role=${ROLE.OWNER}`
+		if (user.role === ROLE.OWNER) {
+			query = `&username=${user.username}`
+		}
+		const res: any = await callFetchUser(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label: <div className="flex items-center gap-[10px]">
+						<img
+							src={getUserAvatar(item.avatar)}
+							className="w-[40px] h-[40px] object-cover rounded-[50%]"
+						/>
+						<div>
+							<p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+							<p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+						</div>
+					</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	async function fetchEventOrganizerList(): Promise<ICitySelect[]> {
+		let query = `&role=${ROLE.EVENT_ORGANIZER}`
+		if (user.role === ROLE.EVENT_ORGANIZER) {
+			query += `&username=${user.username}`
+		}
+
+		const res: any = await callFetchUser(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label: <div className="flex items-center gap-[10px]">
+						<img
+							src={getUserAvatar(item.avatar)}
+							className="w-[40px] h-[40px] object-cover rounded-[50%]"
+						/>
+						<div>
+							<p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+							<p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+						</div>
+					</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	async function fetchDriverList(): Promise<ICitySelect[]> {
+		let query = `&role=${ROLE.DRIVER}`
+		if (user.role === ROLE.DRIVER) {
+			query = `&username=${user.username}`
+		}
+
+		const res: any = await callFetchUser(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label: <div className="flex items-center gap-[10px]">
+						<img
+							src={getUserAvatar(item.avatar)}
+							className="w-[40px] h-[40px] object-cover rounded-[50%]"
+						/>
+						<div>
+							<p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+							<p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+						</div>
+					</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	async function fetchHotelList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (owner.value) {
+			query = `&ownerId=${owner.value}`
+		}
+		else if (user.role === ROLE.OWNER) {
+			query = `&ownerId=${user.id}`
+		}
+		else if (user.role === ROLE.STAFF) {
+			if (user.manager?.id) {
+				query = `&ownerId=${user.manager.id}`
+			}
+		}
+		const res: any = await callFetchHotel(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label: <div className="flex gap-3">
+						<div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
+							<img
+								src={`${import.meta.env.VITE_BE_URL}${item?.images?.[0]?.image}`}
+								className="w-full h-full object-cover"
+								alt={item?.name}
+							/>
+						</div>
+						<div className="flex-1 min-w-0">
+							<h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
+								{item?.name}
+							</h4>
+							<div className="flex items-center gap-1 text-xs">
+								<Star className="w-3 h-3 fill-orange-500 text-orange-500" />
+								<span className="font-semibold">
+									{item?.avg_star?.toFixed(1)}
+								</span>
+								<span className="text-gray-500">
+									{item?.review_count || 0} lượt đánh giá
+								</span>
+							</div>
+						</div>
+					</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+
+	async function fetchActivityList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (eventOrganizer.value) {
+			query = `&event_organizer_id=${eventOrganizer.value}`
+		}
+		else if (user.role === ROLE.EVENT_ORGANIZER) {
+			query = `&event_organizer_id=${user.id}`
+		}
+		else if (user.role === ROLE.STAFF) {
+			query = `&event_organizer_id=${user.manager?.id}`
+		}
+		const res: any = await callFetchActivity(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label:
+						<div className="flex gap-3">
+							<div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
+								<img
+									src={`${import.meta.env.VITE_BE_URL}${item?.images?.[0]?.image}`}
+									className="w-full h-full object-cover"
+								/>
+							</div>
+							<div className="flex-1 min-w-0">
+								<h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
+									{
+										item?.name
+									}
+								</h4>
+								<div className="flex items-center gap-1 text-xs">
+									<Star className="w-3 h-3 fill-orange-500 text-orange-500" />
+
+									<span className="font-semibold">
+										{
+											item?.avg_star?.toFixed(1)
+										}
+									</span>
+									<span className="text-gray-500">
+										{
+											item?.review_count || 0
+										} lượt đánh giá
+									</span>
+								</div>
+							</div>
+						</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	async function fetchCarList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (driver.value) {
+			query = `&user_id=${driver.value}`
+		}
+		else if (user.role === ROLE.DRIVER) {
+			query = `&user_id=${user.id}`
+		}
+		const res: any = await callFetchCar(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label:
+						<div className="flex gap-3">
+							<img
+								src={`${import.meta.env.VITE_BE_URL}${item?.image}`}
+								alt={item.name}
+								width={60}
+								height={40}
+								className="object-contain"
+							/>
+							<div>
+								<div className="font-medium text-sm">
+									{
+										item
+											?.name
+									}
+								</div>
+								<div className="text-xs text-gray-500">
+									{
+										item
+											?.description
+									}
+								</div>
+							</div>
+						</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	useEffect(() => {
+		let bossQuery = ``
+		let serviceQuery = ``
+		if (owner.value) {
+			bossQuery = `&owner_hotel_id=${owner.value}`
+		}
+		else if (eventOrganizer.value) {
+			bossQuery = `&event_organizer_activity_id=${eventOrganizer.value}`
+		}
+		else if (driver.value) {
+			bossQuery = `&driver_id=${driver.value}`
+		}
+
+		if (serviceType === SERVICE_TYPE.HOTEL) {
+			if (hotel.value) {
+				serviceQuery = `&hotel_id=${hotel.value}`
+			}
+		}
+		else if (serviceType === SERVICE_TYPE.ACTIVITY) {
+			if (activity.value) {
+				serviceQuery = `&activity_id=${activity.value}`
+			}
+		}
+		else if (serviceType === SERVICE_TYPE.CAR) {
+			if (car.value) {
+				serviceQuery = `&car_id=${car.value}`
+			}
+		}
+
+
+		handleGetPaymentOverview(`booking__service_type=${serviceType}${bossQuery}${serviceQuery}&statistic_by=${selectedTime}`)
+
+	}, [owner, eventOrganizer, driver, serviceType, hotel, activity, car, selectedTime])
+	return (
+		<div>
+			<EcommerceMetrics statistic={statistic} serviceType={serviceType} />
+			<div className="grid grid-cols-9 gap-6 mt-3">
+				<div className="col-start-1 col-end-10 overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 py-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+					<div className="flex items-center justify-between">
+						<h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+							Doanh thu {SERVICE_TYPE_VI[serviceType]?.toLowerCase()}
+						</h3>
+						<ChartTab selectedTime={selectedTime} setSelectedTime={setSelectedTime} />
+					</div>
+					<div className="mt-3 grid grid-cols-2 gap-4">
+						{serviceType === SERVICE_TYPE.HOTEL &&
+							<>
+								<div>
+									<label>Chủ khách sạn</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={owner}
+											value={owner}
+											placeholder={<span>Chọn chủ khách sạn</span>}
+											fetchOptions={fetchOwnerList}
+											onChange={(newValue: any) => {
+												setOwner({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											disabled={user.role === ROLE.OWNER}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Khách sạn</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={hotel}
+											value={hotel}
+											placeholder={<span>Chọn khách sạn</span>}
+											fetchOptions={fetchHotelList}
+											onChange={(newValue: any) => {
+												setHotel({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+							</>
+						}
+
+						{serviceType === SERVICE_TYPE.ACTIVITY &&
+							<>
+								<div>
+									<label>Người tổ chức sự kiện</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={eventOrganizer}
+											value={eventOrganizer}
+											placeholder={<span>Chọn người tổ chức sự kiện</span>}
+											fetchOptions={fetchEventOrganizerList}
+											onChange={(newValue: any) => {
+												setEventOrganizer({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											disabled={user.role === ROLE.EVENT_ORGANIZER}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Hoạt động</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={activity}
+											value={activity}
+											placeholder={<span>Chọn hoạt động</span>}
+											fetchOptions={fetchActivityList}
+											onChange={(newValue: any) => {
+												setActivity({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+							</>
+						}
+
+						{serviceType === SERVICE_TYPE.CAR &&
+							<>
+								<div>
+									<label>Tài xế</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={driver}
+											value={driver}
+											placeholder={<span>Chọn tài xế</span>}
+											fetchOptions={fetchDriverList}
+											onChange={(newValue: any) => {
+												setDriver({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											disabled={user.role === ROLE.DRIVER}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Xe taxi</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={car}
+											value={car}
+											placeholder={<span>Chọn xe taxi</span>}
+											fetchOptions={fetchCarList}
+											onChange={(newValue: any) => {
+												setCar({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+							</>}
+
+					</div>
+
+					<div className="mt-4 max-w-full overflow-x-auto custom-scrollbar">
+						<Chart options={options} series={series} type="bar" height={180} />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }

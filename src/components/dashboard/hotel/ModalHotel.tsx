@@ -106,13 +106,6 @@ const ModalHotel = (props: IProps) => {
                     }
                 )
             }
-            else {
-                setCity({
-                    label: "",
-                    value: 0,
-                    key: 0,
-                })
-            }
 
             if (dataInit?.owner?.id) {
                 setOwner(
@@ -131,13 +124,6 @@ const ModalHotel = (props: IProps) => {
                         key: dataInit.owner.id,
                     }
                 )
-            }
-            else {
-                setOwner({
-                    label: "",
-                    value: 0,
-                    key: 0,
-                })
             }
         }
 

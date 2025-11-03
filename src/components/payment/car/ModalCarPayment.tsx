@@ -93,7 +93,7 @@ const ModalCarPayment = (props: IProps) => {
                 preserve={false}
                 form={form}
                 onFinish={submitData}
-                initialValues={dataInit?.id ? { ...dataInit, booking_code: dataInit?.booking?.booking_code } : {}}
+                initialValues={dataInit?.id ? { ...dataInit, booking_code: dataInit?.booking?.booking_code, status: dataInit.status + "", method: dataInit.method + "" } : {}}
             >
                 <Row gutter={16}>
                     <Col lg={12} md={12} sm={24} xs={24}>

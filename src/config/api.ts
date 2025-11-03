@@ -243,6 +243,10 @@ export const callFetchPayment = (query: string) => {
     return axios.get(`/api/payments/payments/?${query}`);
 };
 
+export const callFetchPaymentOverview = (query: string) => {
+    return axios.get(`/api/payments/payments/overview/?${query}`);
+};
+
 export const callCreatePayment = (data: any) => {
     return axios.post("/api/payments/payments/create/", { ...data });
 };
