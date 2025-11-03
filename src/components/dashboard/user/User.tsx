@@ -12,7 +12,7 @@ import DataTable from "../../antd/Table";
 import { fetchUser } from "../../../redux/slice/userSlide";
 import { getUserAvatar } from "@/utils/imageUrl";
 import ModalUser from "./ModalUser";
-import { ROLE, ROLE_VI } from "@/constants/role";
+import { ROLE, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
 
 export default function User() {
@@ -154,7 +154,7 @@ export default function User() {
             dataIndex: 'is_active',
             render: (text, record, index, action) => {
                 return (
-                    <>{record.is_active ? "Đã kích hoạt" : "Vô hiệu hóa"}</>
+                    <>{STATUS_USER_VI[record.is_active]}</>
                 )
             },
             sorter: true,

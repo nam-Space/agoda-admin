@@ -62,6 +62,8 @@ const initialState: IState = {
         gender: "",
         avatar: "",
         role: "",
+        manager: undefined,
+        hotel: undefined,
     },
 
     activeMenu: "home",
@@ -89,6 +91,8 @@ export const accountSlide = createSlice({
             state.user.gender = action.payload.gender;
             state.user.avatar = action.payload?.avatar;
             state.user.role = action.payload.role;
+            state.user.manager = action.payload.manager;
+            state.user.hotel = action.payload.hotel;
         },
         setLogoutAction: (state, action) => {
             localStorage.removeItem("access_token_agoda_admin");
@@ -105,6 +109,8 @@ export const accountSlide = createSlice({
                 gender: "",
                 avatar: "",
                 role: "",
+                manager: undefined,
+                hotel: undefined,
             };
         },
         setRefreshTokenAction: (state, action) => {
@@ -133,6 +139,8 @@ export const accountSlide = createSlice({
                 state.user.gender = action.payload.data?.gender;
                 state.user.avatar = action.payload.data?.avatar;
                 state.user.role = action.payload.data?.role;
+                state.user.manager = action.payload.data?.manager;
+                state.user.hotel = action.payload.data?.hotel;
             } else {
                 state.isAuthenticated = false;
                 state.isLoading = false;

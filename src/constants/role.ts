@@ -15,3 +15,13 @@ export const ROLE_VI = {
     owner: "Chủ khách sạn",
     event_organizer: "Người tổ chức sự kiện",
 };
+
+export const STATUS_USER = {
+    IS_ACTIVE: true,
+    DE_ACTIVE: false,
+};
+
+export const STATUS_USER_VI = {
+    [STATUS_USER.IS_ACTIVE + ""]: "Đã kích hoạt",
+    [STATUS_USER.DE_ACTIVE + ""]: "Vô hiệu hóa",
+};

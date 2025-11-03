@@ -13,7 +13,7 @@ import { getUserAvatar } from "@/utils/imageUrl";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/slice/accountSlide";
 import Cookies from "js-cookie";
-import { ROLE, ROLE_VI } from "@/constants/role";
+import { ROLE, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 
@@ -113,19 +113,12 @@ const ModalUser = (props: IProps) => {
                     }
                 )
             }
-            else {
-                setManager({
-                    label: "",
-                    value: 0,
-                    key: 0,
-                })
-            }
         }
         return () => form.resetFields()
     }, [dataInit]);
 
     const submitUser = async (valuesForm: any) => {
-        const { username, first_name, last_name, email, phone_number, password, gender, birthday } = valuesForm;
+        const { username, first_name, last_name, email, phone_number, password, gender, birthday, is_active } = valuesForm;
 
         if (dataInit?.id) {
             //update
@@ -140,6 +133,7 @@ const ModalUser = (props: IProps) => {
                 avatar: (dataAvatar[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
                 role: role.value,
                 manager: manager.value || null,
+                is_active
             }
 
             if (role.value !== ROLE.STAFF) {
@@ -183,6 +177,7 @@ const ModalUser = (props: IProps) => {
                 avatar: (dataAvatar[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
                 role: role.value,
                 manager: manager.value || null,
+                is_active
             }
 
             if (role.value !== ROLE.STAFF) {
@@ -321,7 +316,7 @@ const ModalUser = (props: IProps) => {
                 preserve={false}
                 form={form}
                 onFinish={submitUser}
-                initialValues={dataInit?.id ? dataInit : {}}
+                initialValues={dataInit?.id ? { ...dataInit, is_active: dataInit.is_active + "" } : {}}
             >
                 <Row gutter={16}>
                     <Col lg={12} md={12} sm={24} xs={24}>
@@ -516,7 +511,15 @@ const ModalUser = (props: IProps) => {
                         </Col>
                     )}
 
-
+                    <Col lg={6} md={6} sm={24} xs={24}>
+                        <ProFormSelect
+                            name="is_active"
+                            label={"Trạng thái"}
+                            valueEnum={STATUS_USER_VI}
+                            placeholder={"Chọn trạng thái"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                        />
+                    </Col>
                 </Row>
             </ModalForm>
             <Modal
