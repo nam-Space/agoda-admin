@@ -122,7 +122,6 @@ const ModalCar = (props: IProps) => {
             description,
             capacity,
             luggage,
-            point,
             avg_star,
             price_per_km,
             avg_speed,
@@ -136,7 +135,6 @@ const ModalCar = (props: IProps) => {
                 description,
                 capacity,
                 luggage,
-                point,
                 avg_star,
                 price_per_km,
                 avg_speed,
@@ -162,7 +160,6 @@ const ModalCar = (props: IProps) => {
                 description,
                 capacity,
                 luggage,
-                point,
                 avg_star,
                 price_per_km,
                 avg_speed,
@@ -397,13 +394,6 @@ const ModalCar = (props: IProps) => {
                             rules={[
                                 { required: true, message: "Trường này là bắt buộc" },
                             ]}
-                        />
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="point"
-                            label="Điểm"
-                            placeholder={"Nhập thông tin"}
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>

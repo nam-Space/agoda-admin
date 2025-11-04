@@ -127,11 +127,6 @@ export default function Hotel() {
             },
         },
         {
-            title: 'Điểm',
-            dataIndex: 'point',
-            sorter: true,
-        },
-        {
             title: 'Sao trung bình',
             dataIndex: 'avg_star',
             sorter: true,

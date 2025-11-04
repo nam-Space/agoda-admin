@@ -105,11 +105,6 @@ export default function Car() {
             width: 150
         },
         {
-            title: 'Điểm',
-            dataIndex: 'point',
-            sorter: true,
-        },
-        {
             title: 'Sao trung bình',
             dataIndex: 'avg_star',
             sorter: true,

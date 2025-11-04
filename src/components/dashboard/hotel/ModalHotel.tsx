@@ -172,7 +172,7 @@ const ModalHotel = (props: IProps) => {
     }
 
     const submitData = async (valuesForm: any) => {
-        const { name, lat, lng, point, avg_star, location } = valuesForm;
+        const { name, lat, lng, avg_star, location } = valuesForm;
 
         if (dataInit?.id) {
             //update
@@ -182,7 +182,6 @@ const ModalHotel = (props: IProps) => {
                 name,
                 lat,
                 lng,
-                point,
                 avg_star,
                 location,
                 ...formMarkdown,
@@ -208,7 +207,6 @@ const ModalHotel = (props: IProps) => {
                 name,
                 lat,
                 lng,
-                point,
                 avg_star,
                 location,
                 ...formMarkdown,
@@ -421,13 +419,6 @@ const ModalHotel = (props: IProps) => {
                             rules={[
                                 { required: true, message: "Trường này là bắt buộc" },
                             ]}
-                        />
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="point"
-                            label="Điểm"
-                            placeholder={"Nhập thông tin"}
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
