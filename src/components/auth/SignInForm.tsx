@@ -40,7 +40,6 @@ export default function SignInForm() {
         localStorage.setItem("access_token_agoda_admin", res.data.access);
         Cookies.set('refresh_token_agoda_admin', res.data.refresh, { expires: 1 })
         const resAccount = await callGetAccount();
-        console.log('resAccount', resAccount)
         dispatch(setUserLoginInfo(resAccount.data));
         toast.success("Đăng nhập thành công!", {
           position: "bottom-right",
