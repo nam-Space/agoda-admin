@@ -39,6 +39,9 @@ import ActivityPaymentPage from "./pages/Payment/ActivityPaymentPage";
 import CarPaymentPage from "./pages/Payment/CarPaymentPage";
 import FlightPaymentPage from "./pages/Payment/FlightPaymentPage";
 import { ROLE } from "./constants/role";
+import CarTimetablePage from "./pages/Timetable/CarTimetablePage";
+import ActivityTimetablePage from "./pages/Timetable/ActivityTimetablePage";
+import RoomTimetablePage from "./pages/Timetable/RoomTimetablePage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -141,6 +144,21 @@ export default function App() {
       element: <FlightPaymentPage />,
       index: true
     },
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF) ? [{
+      path: "/room-timetable",
+      element: <RoomTimetablePage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{
+      path: "/car-timetable",
+      element: <CarTimetablePage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+      path: "/activity-timetable",
+      element: <ActivityTimetablePage />,
+      index: true
+    }] : []),
     {
       path: "/profile",
       element: <UserProfiles />,
