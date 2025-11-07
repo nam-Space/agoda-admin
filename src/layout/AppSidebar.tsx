@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router";
 // Assume these icons are imported from an icon library
 import {
   BoxCubeIcon,
+  CalenderIcon,
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
@@ -64,6 +65,15 @@ const AppSidebar: React.FC = () => {
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Đơn thanh toán hoạt động", path: "/activity-payment", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Đơn thanh toán taxi", path: "/car-payment", pro: false }] : []),
         { name: "Đơn thanh toán chuyến bay", path: "/flight-payment", pro: false }
+      ],
+    },
+    {
+      name: "Thời khóa biểu",
+      icon: <CalenderIcon />,
+      subItems: [
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF) ? [{ name: "Thời khóa biểu khách sạn", path: "/room-timetable", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Thời khóa biểu taxi", path: "/car-timetable", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Thời khóa biểu sự kiện hoạt động", path: "/activity-timetable", pro: false }] : []),
       ],
     },
     // {
