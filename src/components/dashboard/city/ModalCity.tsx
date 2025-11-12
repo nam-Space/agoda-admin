@@ -43,7 +43,12 @@ const ModalCity = (props: IProps) => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
 
-    const dispatch = useAppDispatch()
+    const [loadingUploadHandbook, setLoadingUploadHandbook] = useState<boolean>(false);
+    const [dataImageHandbook, setDataImageHandbook] = useState<ICityImage[]>([]);
+    const [previewOpenHandbook, setPreviewOpenHandbook] = useState(false);
+    const [previewImageHandbook, setPreviewImageHandbook] = useState('');
+    const [previewTitleHandbook, setPreviewTitleHandbook] = useState('');
+
     const [form] = Form.useForm();
 
     const [country, setCountry] = useState<ICountrySelect>({
@@ -60,6 +65,15 @@ const ModalCity = (props: IProps) => {
                     {
                         uid: uuidv4(),
                         name: `${import.meta.env.VITE_BE_URL}${dataInit.image}`
+                    }
+                ])
+            }
+
+            if (dataInit?.image_handbook) {
+                setDataImageHandbook([
+                    {
+                        uid: uuidv4(),
+                        name: `${import.meta.env.VITE_BE_URL}${dataInit.image_handbook}`
                     }
                 ])
             }
@@ -102,6 +116,7 @@ const ModalCity = (props: IProps) => {
                 name,
                 description,
                 image: (dataImage[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
+                image_handbook: (dataImageHandbook[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
             }
 
             const res: any = await callUpdateCity(dataInit.id, dataObj);
@@ -122,6 +137,7 @@ const ModalCity = (props: IProps) => {
                 name,
                 description,
                 image: (dataImage[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
+                image_handbook: (dataImageHandbook[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
             }
             const res: any = await callCreateCity(dataObj);
             if (res.isSuccess) {
@@ -141,12 +157,17 @@ const ModalCity = (props: IProps) => {
         form.resetFields();
         setDataInit(null);
         setDataImage([])
+        setDataImageHandbook([])
         setDescription("")
         setOpenModal(false);
     }
 
     const handleRemoveFile = (file: any) => {
         setDataImage([])
+    }
+
+    const handleRemoveFileHandbook = (file: any) => {
+        setDataImageHandbook([])
     }
 
     const handlePreview = async (file: any) => {
@@ -160,6 +181,20 @@ const ModalCity = (props: IProps) => {
             setPreviewImage(url);
             setPreviewOpen(true);
             setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+        });
+    };
+
+    const handlePreviewHandbook = async (file: any) => {
+        if (!file.originFileObj) {
+            setPreviewImageHandbook(file.url);
+            setPreviewOpenHandbook(true);
+            setPreviewTitleHandbook(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+            return;
+        }
+        getBase64(file.originFileObj, (url: string) => {
+            setPreviewImageHandbook(url);
+            setPreviewOpenHandbook(true);
+            setPreviewTitleHandbook(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
         });
     };
 
@@ -186,6 +221,19 @@ const ModalCity = (props: IProps) => {
         }
     };
 
+    const handleChangeHandbook = (info: any) => {
+        if (info.file.status === 'uploading') {
+            setLoadingUploadHandbook(true);
+        }
+        if (info.file.status === 'done') {
+            setLoadingUploadHandbook(false);
+        }
+        if (info.file.status === 'error') {
+            setLoadingUploadHandbook(false);
+            message.error(info?.file?.error?.event?.message ?? "Đã có lỗi xảy ra khi upload file.")
+        }
+    };
+
     const handleUploadFileLogo = async ({ file, onSuccess, onError }: any) => {
         const res: any = await callUploadSingleImage({ file, type: 'city' });
         if (res?.isSuccess) {
@@ -197,6 +245,23 @@ const ModalCity = (props: IProps) => {
         } else {
             if (onError) {
                 setDataImage([])
+                const error = new Error(res.message);
+                onError({ event: error });
+            }
+        }
+    };
+
+    const handleUploadFileLogoHandbook = async ({ file, onSuccess, onError }: any) => {
+        const res: any = await callUploadSingleImage({ file, type: 'city_handbook' });
+        if (res?.isSuccess) {
+            setDataImageHandbook([{
+                name: `${import.meta.env.VITE_BE_URL}${res.data.image_url}`,
+                uid: uuidv4()
+            }])
+            if (onSuccess) onSuccess('ok')
+        } else {
+            if (onError) {
+                setDataImageHandbook([])
                 const error = new Error(res.message);
                 onError({ event: error });
             }
@@ -275,7 +340,7 @@ const ModalCity = (props: IProps) => {
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <Form.Item
                             labelCol={{ span: 24 }}
-                            label={"Image"}
+                            label={"Ảnh"}
                             name="image"
                         >
                             <ConfigProvider locale={enUS}>
@@ -312,7 +377,47 @@ const ModalCity = (props: IProps) => {
                                 </Upload>
                             </ConfigProvider>
                         </Form.Item>
+                    </Col>
+                    <Col lg={12} md={12} sm={24} xs={24}>
+                        <Form.Item
+                            labelCol={{ span: 24 }}
+                            label={"Ảnh cẩm nang"}
+                            name="image_handbook"
+                        >
+                            <ConfigProvider locale={enUS}>
+                                <Upload
+                                    name="image_handbook"
+                                    listType="picture-card"
+                                    className="image_handbook-uploader"
+                                    maxCount={1}
+                                    multiple={false}
+                                    customRequest={handleUploadFileLogoHandbook}
+                                    beforeUpload={beforeUpload}
+                                    onChange={handleChangeHandbook}
+                                    onRemove={(file) => handleRemoveFileHandbook(file)}
+                                    onPreview={handlePreviewHandbook}
+                                    defaultFileList={
+                                        dataInit?.id && dataInit.image_handbook ?
+                                            [
+                                                {
+                                                    uid: uuidv4(),
+                                                    name: dataInit?.image_handbook ?? "",
+                                                    status: 'done',
+                                                    url: `${import.meta.env.VITE_BE_URL}${dataInit.image_handbook}`,
+                                                }
+                                            ] : []
+                                    }
 
+                                >
+                                    <div>
+                                        {loadingUploadHandbook ? <LoadingOutlined /> : <PlusOutlined />}
+                                        <div style={{ marginTop: 8 }}>
+                                            Tải ảnh lên
+                                        </div>
+                                    </div>
+                                </Upload>
+                            </ConfigProvider>
+                        </Form.Item>
                     </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
                         <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Mô tả</label>
@@ -369,6 +474,15 @@ const ModalCity = (props: IProps) => {
                 style={{ zIndex: 50 }}
             >
                 <img alt="img" style={{ width: '100%', objectFit: 'cover' }} width={500} height={500} src={previewImage} />
+            </Modal>
+            <Modal
+                open={previewOpenHandbook}
+                title={previewTitleHandbook}
+                footer={null}
+                onCancel={() => setPreviewOpenHandbook(false)}
+                style={{ zIndex: 50 }}
+            >
+                <img alt="img" style={{ width: '100%', objectFit: 'cover' }} width={500} height={500} src={previewImageHandbook} />
             </Modal>
         </>
     )

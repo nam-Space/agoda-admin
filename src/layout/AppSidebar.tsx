@@ -44,6 +44,7 @@ const AppSidebar: React.FC = () => {
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Hoạt động", path: "/activity", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Gói hoạt động", path: "/activity-package", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Ngày của gói hoạt động", path: "/activity-date", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN) ? [{ name: "Cẩm nang", path: "/handbook", pro: false }] : []),
         ...(user.role !== ROLE.CUSTOMER ? [{ name: "Tin nhắn", path: "/chat", pro: false }] : []),
       ],
     },

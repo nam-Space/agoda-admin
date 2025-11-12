@@ -42,6 +42,7 @@ import { ROLE } from "./constants/role";
 import CarTimetablePage from "./pages/Timetable/CarTimetablePage";
 import ActivityTimetablePage from "./pages/Timetable/ActivityTimetablePage";
 import RoomTimetablePage from "./pages/Timetable/RoomTimetablePage";
+import HandbookPage from "./pages/Dashboard/HandbookPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -157,6 +158,11 @@ export default function App() {
     ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
       path: "/activity-timetable",
       element: <ActivityTimetablePage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN) ? [{
+      path: "/handbook",
+      element: <HandbookPage />,
       index: true
     }] : []),
     {

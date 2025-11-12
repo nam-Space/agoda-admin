@@ -11,6 +11,7 @@ import activityPackageReducer from "./slice/activityPackageSlide";
 import activityDateReducer from "./slice/activityDateSlide";
 import conversationReducer from "./slice/conversationSlide";
 import paymentReducer from "./slice/paymentSlide";
+import handbookReducer from "./slice/handbookSlide";
 
 export const store = configureStore({
     reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
         activityDate: activityDateReducer,
         conversation: conversationReducer,
         payment: paymentReducer,
+        handbook: handbookReducer,
     },
 });
 
