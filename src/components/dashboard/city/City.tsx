@@ -11,6 +11,8 @@ import { callDeleteCity } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import ModalCity from "./ModalCity";
 import { fetchCity } from "@/redux/slice/citySlide";
+import { getImage } from "@/utils/imageUrl";
+import { toast } from "react-toastify";
 export default function City() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -26,7 +28,9 @@ export default function City() {
         if (id) {
             const res: any = await callDeleteCity(id);
             if (res?.isSuccess) {
-                message.success('Xóa city thành công');
+                toast.success("Xóa city thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
                 notification.error({
@@ -81,7 +85,19 @@ export default function City() {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
+                    <img src={`${getImage(record.image)}`} />
+                )
+            },
+            hideInSearch: true,
+            width: 150
+        },
+        {
+            title: "Ảnh cẩm nang",
+            dataIndex: 'image_handbook',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <img src={`${getImage(record.image_handbook)}`} />
                 )
             },
             hideInSearch: true,

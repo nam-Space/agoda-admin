@@ -258,3 +258,20 @@ export const callUpdatePayment = (id: number, data: any) => {
 export const callDeletePayment = (id: number) => {
     return axios.delete(`/api/payments/payments/${id}/delete/`);
 };
+
+// Handbook
+export const callFetchHandbook = (query: string) => {
+    return axios.get(`/api/handbooks/handbooks/?${query}`);
+};
+
+export const callCreateHandbook = (data: any) => {
+    return axios.post("/api/handbooks/handbooks/create/", { ...data });
+};
+
+export const callUpdateHandbook = (id: number, data: any) => {
+    return axios.put(`/api/handbooks/handbooks/${id}/update/`, { ...data });
+};
+
+export const callDeleteHandbook = (id: number) => {
+    return axios.delete(`/api/handbooks/handbooks/${id}/delete/`);
+};

@@ -11,6 +11,8 @@ import { callDeleteCountry } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { fetchCountry } from "@/redux/slice/countrySlide";
 import ModalCountry from "./ModalCountry";
+import { getImage } from "@/utils/imageUrl";
+import { toast } from "react-toastify";
 
 export default function Country() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -27,7 +29,9 @@ export default function Country() {
         if (id) {
             const res: any = await callDeleteCountry(id);
             if (res?.isSuccess) {
-                message.success('Xóa country thành công');
+                toast.success("Xóa country thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
                 notification.error({
@@ -53,6 +57,18 @@ export default function Country() {
             title: "Tên",
             dataIndex: 'name',
             sorter: true,
+        },
+        {
+            title: "Ảnh cẩm nang",
+            dataIndex: 'image_handbook',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <img src={`${getImage(record.image_handbook)}`} />
+                )
+            },
+            hideInSearch: true,
+            width: 150
         },
         {
             title: 'Mô tả',

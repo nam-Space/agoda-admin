@@ -7,30 +7,30 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteHotel } from "../../../config/api";
+import { callDeleteHandbook } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchHotel } from "@/redux/slice/hotelSlide";
-import ModalHotel from "./ModalHotel";
-import { getUserAvatar } from "@/utils/imageUrl";
-import { ROLE } from "@/constants/role";
+import { getImage } from "@/utils/imageUrl";
+import { fetchHandbook } from "@/redux/slice/handbookSlide";
+import ModalHandbook from "./ModalHandbook";
 import { toast } from "react-toastify";
-export default function Hotel() {
+import { CATEGORY_HANDBOOK_VI } from "@/constants/handbook";
+
+export default function Handbook() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
-    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.hotel.isFetching);
-    const meta = useAppSelector(state => state.hotel.meta);
-    const hotels = useAppSelector(state => state.hotel.data);
+    const isFetching = useAppSelector(state => state.handbook.isFetching);
+    const meta = useAppSelector(state => state.handbook.meta);
+    const handbooks = useAppSelector(state => state.handbook.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteHotel = async (id: number | undefined) => {
+    const handleDeleteHandbook = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteHotel(id);
+            const res: any = await callDeleteHandbook(id);
             if (res?.isSuccess) {
-                toast.success("Xóa hotel thành công", {
+                toast.success("Xóa handbook thành công", {
                     position: "bottom-right",
                 });
                 reloadTable();
@@ -54,85 +54,54 @@ export default function Hotel() {
             hideInSearch: true,
         },
         {
-            title: "Thành phố",
-            dataIndex: 'city',
+            title: "Tiêu đề",
+            dataIndex: 'title',
             sorter: true,
-            hideInSearch: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div>{record?.city?.name}</div>
-                )
-            },
         },
         {
-            title: "Ảnh",
+            title: "Ảnh thumnail",
             dataIndex: 'image',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+                    <img src={`${getImage(record.image)}`} />
                 )
             },
             hideInSearch: true,
             width: 150
         },
         {
-            title: "Tên khách sạn",
-            dataIndex: 'name',
-            sorter: true,
-        },
-        {
-            title: 'Chủ khách sạn',
-            dataIndex: 'owner',
+            title: "Danh mục",
+            dataIndex: 'category',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    record?.owner ? <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getUserAvatar(record?.owner?.avatar)}
-                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-                        />
-                        <div>
-                            <p className="leading-[20px]">{`${record?.owner?.first_name} ${record?.owner?.last_name}`}</p>
-                            <p className="leading-[20px] text-[#929292]">{`@${record?.owner?.username}`}</p>
-                        </div>
-                    </div> : <div></div>
+                    <div>{(CATEGORY_HANDBOOK_VI as any)[record.category]}</div>
                 )
             },
+            hideInSearch: true,
         },
         {
-            title: 'Địa chỉ',
-            dataIndex: 'location',
-            sorter: true,
-            width: 150
-        },
-        {
-            title: 'Vị trí',
-            dataIndex: 'google-map',
+            title: 'Mô tả ngắn',
+            dataIndex: 'short_description',
             sorter: true,
             render: (text, record, index, action) => {
-                const mapUrl = `https://maps.google.com/maps?q=${record.lat},${record.lng}&hl=vi&z=18&output=embed`;
-
                 return (
-                    <div>
-                        <iframe
-                            width="250"
-                            height="200"
-                            frameBorder="0"
-                            style={{ border: 0 }}
-                            src={mapUrl}
-                            allowFullScreen
-                            aria-hidden="false"
-                            tabIndex={0}
-                        ></iframe>
-                    </div>
+                    <div className="line-clamp-6 w-[200px]">{record.short_description}</div>
                 )
             },
+            width: 200
         },
         {
-            title: 'Sao trung bình',
-            dataIndex: 'avg_star',
+            title: 'Mô tả',
+            dataIndex: 'description',
             sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="line-clamp-6 w-[350px]">{record.description}</div>
+                )
+            },
+            width: 350
         },
         {
             title: "Ngày tạo",
@@ -166,9 +135,9 @@ export default function Hotel() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa khách sạn"}
-                        description={"Bạn chắc chắn muốn xóa khách sạn"}
-                        onConfirm={() => handleDeleteHotel(entity.id)}
+                        title={"Xác nhận xóa handbook"}
+                        description={"Bạn chắc chắn muốn xóa handbook"}
+                        onConfirm={() => handleDeleteHandbook(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -196,14 +165,14 @@ export default function Hotel() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
-        if (clone.name) {
-            temp += `&name=${clone.name}`
+        if (clone.title) {
+            temp += `&title=${clone.title}`
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
-        if (user.role === ROLE.OWNER) {
-            temp += `&ownerId=${user.id}`
+        if (clone.short_description) {
+            temp += `&short_description=${clone.short_description}`
         }
 
         return temp;
@@ -213,14 +182,14 @@ export default function Hotel() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách hotel"}
+                headerTitle={"Danh sách handbook"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={hotels}
+                dataSource={handbooks}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchHotel({ query }))
+                    dispatch(fetchHandbook({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -247,7 +216,7 @@ export default function Hotel() {
                     );
                 }}
             />
-            <ModalHotel
+            <ModalHandbook
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}
