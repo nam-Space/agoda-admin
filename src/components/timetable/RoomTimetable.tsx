@@ -19,7 +19,7 @@ const RoomTimetable = () => {
         label: user.role === ROLE.OWNER ? <div className="flex items-center gap-[10px]">
             <img
                 src={getUserAvatar(user.avatar)}
-                className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
             />
             <div>
                 <p className="leading-[20px]">{`${user.first_name} ${user.last_name}`}</p>
@@ -28,7 +28,7 @@ const RoomTimetable = () => {
         </div> : user.role === ROLE.STAFF ? <div className="flex items-center gap-[10px]">
             <img
                 src={getUserAvatar(user.manager?.avatar)}
-                className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
             />
             <div>
                 <p className="leading-[20px]">{`${user.manager?.first_name} ${user.manager?.last_name}`}</p>
@@ -52,7 +52,7 @@ const RoomTimetable = () => {
                     label: <div className="flex items-center gap-[10px]">
                         <img
                             src={getUserAvatar(item.avatar)}
-                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                            className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
                         />
                         <div>
                             <p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
@@ -112,7 +112,7 @@ const RoomTimetable = () => {
                     <div className="flex items-center gap-[10px]">
                         <img
                             src={getUserAvatar(payment.booking.user.avatar)}
-                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                            className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
                         />
                         <div>
                             <p className="leading-[20px]">{`${payment.booking.user.first_name} ${payment.booking.user.last_name}`}</p>
@@ -140,7 +140,7 @@ const RoomTimetable = () => {
                             <div className="flex items-center gap-[10px]">
                                 <img
                                     src={getUserAvatar(payment.booking.user.avatar)}
-                                    className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
                                 />
                                 <div>
                                     <p className="leading-[20px]">{`${payment.booking.user.first_name} ${payment.booking.user.last_name}`}</p>

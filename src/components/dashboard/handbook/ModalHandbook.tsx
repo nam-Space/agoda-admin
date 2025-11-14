@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { CATEGORY_HANDBOOK_VI } from "@/constants/handbook";
+import { useAppSelector } from "@/redux/hooks";
 
 interface IProps {
     openModal: boolean;
@@ -36,6 +37,7 @@ export interface ICitySelect {
 
 const ModalHandbook = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
 
     const [formMarkdown, setFormMarkdown] = useState({
         description: '',
@@ -114,6 +116,7 @@ const ModalHandbook = (props: IProps) => {
                 category,
                 ...formMarkdown,
                 image: (dataImage[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
+                author: user?.id || null,
             }
             const res: any = await callUpdateHandbook(dataInit.id, dataObj);
             if (res.isSuccess) {
@@ -135,6 +138,7 @@ const ModalHandbook = (props: IProps) => {
                 category,
                 ...formMarkdown,
                 image: (dataImage[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
+                author: user?.id || null,
             }
             const res: any = await callCreateHandbook(dataObj);
             if (res.isSuccess) {

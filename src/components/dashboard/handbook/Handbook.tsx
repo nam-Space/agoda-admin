@@ -9,15 +9,18 @@ import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { callDeleteHandbook } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { getImage } from "@/utils/imageUrl";
+import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { fetchHandbook } from "@/redux/slice/handbookSlide";
 import ModalHandbook from "./ModalHandbook";
 import { toast } from "react-toastify";
 import { CATEGORY_HANDBOOK_VI } from "@/constants/handbook";
+import { ROLE } from "@/constants/role";
 
 export default function Handbook() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+
+    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
@@ -54,9 +57,35 @@ export default function Handbook() {
             hideInSearch: true,
         },
         {
+            title: 'Tác giả',
+            dataIndex: 'author',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    record?.author ? <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(record?.author?.avatar)}
+                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.author?.first_name} ${record?.author?.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${record?.author?.username}`}</p>
+                        </div>
+                    </div> : <div></div>
+                )
+            },
+        },
+        {
             title: "Tiêu đề",
             dataIndex: 'title',
             sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="font-bold">
+                        {record?.title}
+                    </div>
+                )
+            },
         },
         {
             title: "Ảnh thumnail",
@@ -98,10 +127,10 @@ export default function Handbook() {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div className="line-clamp-6 w-[350px]">{record.description}</div>
+                    <div className="line-clamp-6 w-[200px]">{record.description}</div>
                 )
             },
-            width: 350
+            width: 200
         },
         {
             title: "Ngày tạo",
@@ -173,6 +202,10 @@ export default function Handbook() {
         }
         if (clone.short_description) {
             temp += `&short_description=${clone.short_description}`
+        }
+
+        if (user?.id && user.role !== ROLE.ADMIN) {
+            temp += `&author_id=${user.id}`
         }
 
         return temp;
