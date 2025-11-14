@@ -160,7 +160,7 @@ export default function App() {
       element: <ActivityTimetablePage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF || user.role === ROLE.EVENT_ORGANIZER) ? [{
       path: "/handbook",
       element: <HandbookPage />,
       index: true
