@@ -152,13 +152,13 @@ export default function RoomPayment() {
                                     <Calendar className="w-4 h-4 text-gray-500" />
                                     <span>
                                         {
-                                            room_booking
-                                                ?.check_in
+                                            dayjs(room_booking
+                                                ?.check_in).format("YYYY-MM-DD HH:mm")
                                         }{" "}
                                         &rarr;{" "}
                                         {
-                                            room_booking
-                                                ?.check_out
+                                            dayjs(room_booking
+                                                ?.check_out).format("YYYY-MM-DD HH:mm")
                                         }
                                     </span>
                                 </div>

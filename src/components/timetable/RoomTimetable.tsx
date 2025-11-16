@@ -108,7 +108,7 @@ const RoomTimetable = () => {
         <div className="flex flex-col gap-[10px]">
             {listPayment.map((payment: any) => (
                 payment?.booking?.user?.id ? (<div>
-                    <Badge status={"success"} className="font-semibold" text={`${payment.booking.hotel_detail.check_in} → ${payment.booking.hotel_detail.check_out}`} />
+                    <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
                     <div className="flex items-center gap-[10px]">
                         <img
                             src={getUserAvatar(payment.booking.user.avatar)}
@@ -121,8 +121,17 @@ const RoomTimetable = () => {
                     </div>
                 </div>) : (
                     <div>
-                        <Badge status={"success"} className="font-semibold" text={`${payment.booking.hotel_detail.check_in} → ${payment.booking.hotel_detail.check_out}`} />
-                        {payment.booking.guest_info.full_name}
+                        <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
+                        <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(payment.booking.guest_info.avatar)}
+                                className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]"><span className="font-bold">Khách ngoài:</span> {payment.booking.guest_info.full_name}</p>
+                                <p className="leading-[20px] text-[#929292]">{payment.booking.guest_info.email}</p>
+                            </div>
+                        </div>
                     </div>
                 )
             ))}
@@ -136,7 +145,7 @@ const RoomTimetable = () => {
                 <div className="flex flex-col gap-[10px]">
                     {listPayment.map((payment: any) => (
                         payment?.booking?.user?.id ? (<div>
-                            <Badge status={"success"} className="font-semibold" text={`${payment.booking.hotel_detail.check_in} → ${payment.booking.hotel_detail.check_out}`} />
+                            <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
                             <div className="flex items-center gap-[10px]">
                                 <img
                                     src={getUserAvatar(payment.booking.user.avatar)}
@@ -149,8 +158,17 @@ const RoomTimetable = () => {
                             </div>
                         </div>) : (
                             <div>
-                                <Badge status={"success"} className="font-semibold" text={`${payment.booking.hotel_detail.check_in} → ${payment.booking.hotel_detail.check_out}`} />
-                                {payment.booking.guest_info.full_name}
+                                <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
+                                <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(payment.booking.guest_info.avatar)}
+                                        className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]"><span className="font-bold">Khách ngoài:</span> {payment.booking.guest_info.full_name}</p>
+                                        <p className="leading-[20px] text-[#929292]">{payment.booking.guest_info.email}</p>
+                                    </div>
+                                </div>
                             </div>
                         )
                     ))}

@@ -240,6 +240,12 @@ const ModalActivity = (props: IProps) => {
             value: 0,
             key: 0,
         })
+        setFormMarkdown({
+            short_description: "",
+            more_information: '',
+            cancellation_policy: '',
+            departure_information: ""
+        })
         setOpenModal(false);
     }
 

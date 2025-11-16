@@ -242,6 +242,16 @@ const ModalHotel = (props: IProps) => {
             nearbyLocation: '',
             regulation: ''
         })
+        setCity({
+            label: "",
+            value: 0,
+            key: 0,
+        })
+        setOwner({
+            label: "",
+            value: 0,
+            key: 0,
+        })
         setOpenModal(false);
     }
 
