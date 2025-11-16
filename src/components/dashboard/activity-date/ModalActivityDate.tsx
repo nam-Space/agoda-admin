@@ -149,6 +149,11 @@ const ModalActivityDate = (props: IProps) => {
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
+        setActivityPackage({
+            label: "",
+            value: 0,
+            key: 0,
+        })
         setOpenModal(false);
     }
 

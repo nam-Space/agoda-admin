@@ -35,7 +35,6 @@ const ModalAirport = (props: IProps) => {
         key: 0,
     });
 
-    const dispatch = useAppDispatch()
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -51,16 +50,7 @@ const ModalAirport = (props: IProps) => {
                     }
                 )
             }
-            else {
-                setCity({
-                    label: "",
-                    value: 0,
-                    key: 0,
-                })
-            }
         }
-
-
 
         return () => form.resetFields()
     }, [dataInit]);
@@ -131,6 +121,11 @@ const ModalAirport = (props: IProps) => {
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
+        setCity({
+            label: "",
+            value: 0,
+            key: 0,
+        })
         setDescription("")
         setOpenModal(false);
     }

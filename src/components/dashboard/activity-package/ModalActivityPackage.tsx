@@ -135,6 +135,11 @@ const ModalActivityPackage = (props: IProps) => {
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
+        setActivity({
+            label: "",
+            value: 0,
+            key: 0,
+        })
         setOpenModal(false);
     }
 
