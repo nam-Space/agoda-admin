@@ -11,16 +11,19 @@ import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { ToastContainer } from 'react-toastify';
+import { SocketProvider } from "./context/SocketProvider.tsx";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
     <Provider store={store}>
-      <ThemeProvider>
-        <AppWrapper>
-          <App />
-          <ToastContainer />
-        </AppWrapper>
-      </ThemeProvider>
+      <SocketProvider>
+        <ThemeProvider>
+          <AppWrapper>
+            <App />
+            <ToastContainer />
+          </AppWrapper>
+        </ThemeProvider>
+      </SocketProvider>
     </Provider>
   </StrictMode>,
 );

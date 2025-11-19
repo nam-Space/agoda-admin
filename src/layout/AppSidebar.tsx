@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
@@ -13,15 +14,16 @@ import {
   PlugInIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
+import { Badge } from "antd";
+import { useSocket } from "@/context/SocketProvider";
 
 type NavItem = {
-  name: string;
+  name: string | React.ReactNode;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { name: string | React.ReactNode; path: string; pro?: boolean; new?: boolean }[];
 };
 
 const AppSidebar: React.FC = () => {
@@ -29,10 +31,26 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const user = useAppSelector(state => state.account.user)
 
+  const { conversations } = useSocket();
+
+  const unseenTotal = conversations.reduce((total: number, conv: any) => {
+    if (conv?.latest_message?.sender?.id === user?.id) return total;
+    return total + conv.unseen_count;
+  }, 0);
+
   const navItems: NavItem[] = [
     {
       icon: <GridIcon />,
-      name: "Tổng quan",
+      name: <div className="flex items-center gap-[10px]">
+        Tổng quan
+        {unseenTotal > 0 && (
+          <Badge
+            count={unseenTotal}
+            size="small"
+            showZero
+            color="#fa2314"
+          />
+        )}</div>,
       subItems: [
         { name: "Tổng quan hệ thống", path: "/", pro: false },
         ...(user.role === ROLE.ADMIN ? [{ name: "Người dùng", path: "/user", pro: false }] : []),
@@ -45,7 +63,20 @@ const AppSidebar: React.FC = () => {
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Gói hoạt động", path: "/activity-package", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Ngày của gói hoạt động", path: "/activity-date", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Cẩm nang", path: "/handbook", pro: false }] : []),
-        ...(user.role !== ROLE.CUSTOMER ? [{ name: "Tin nhắn", path: "/chat", pro: false }] : []),
+        ...(user.role !== ROLE.CUSTOMER ? [{
+          name: <div className="flex items-center gap-[10px]">
+            Tin nhắn
+            {unseenTotal > 0 && (
+              <Badge
+                count={unseenTotal}
+                size="small"
+                showZero
+                color="#fa2314"
+              />
+            )}</div>,
+          path: "/chat",
+          pro: false
+        }] : []),
       ],
     },
     // {
@@ -190,7 +221,7 @@ const AppSidebar: React.FC = () => {
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => (
-        <li key={nav.name}>
+        <li key={index}>
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
@@ -258,8 +289,8 @@ const AppSidebar: React.FC = () => {
               }}
             >
               <ul className="mt-2 space-y-1 ml-9">
-                {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
+                {nav.subItems.map((subItem, indexSub) => (
+                  <li key={`${index}-${indexSub}`}>
                     <Link
                       to={subItem.path}
                       className={`menu-dropdown-item ${isActive(subItem.path)
