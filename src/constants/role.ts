@@ -8,12 +8,12 @@ export const ROLE = {
 };
 
 export const ROLE_VI = {
-    admin: "Quản trị viên",
-    staff: "Nhân viên",
-    driver: "Tài xế",
-    customer: "Khách hàng",
-    owner: "Chủ khách sạn",
-    event_organizer: "Người tổ chức sự kiện",
+    [ROLE.ADMIN]: "Quản trị viên",
+    [ROLE.STAFF]: "Nhân viên",
+    [ROLE.CUSTOMER]: "Khách hàng",
+    [ROLE.DRIVER]: "Tài xế",
+    [ROLE.OWNER]: "Chủ khách sạn",
+    [ROLE.EVENT_ORGANIZER]: "Người tổ chức sự kiện",
 };
 
 export const STATUS_USER = {
