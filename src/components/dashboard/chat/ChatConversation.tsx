@@ -55,8 +55,10 @@ const ChatConversation = ({ selectedOtherUser, handleOpenChat }: any) => {
                                                     ?.name
                                             }
                                         </p>
-                                        <p className="flex items-center gap-[20px] justify-between w-[150px] whitespace-nowrap text-ellipsis overflow-hidden">
-                                            {conv.last_message}
+                                        <p className="flex items-center gap-[20px] justify-between">
+                                            <span className="w-[150px] whitespace-nowrap text-ellipsis overflow-hidden">
+                                                {conv.last_message}
+                                            </span>
                                             {conv?.latest_message?.sender
                                                 ?.id === user.id &&
                                                 conv?.latest_message?.seen && (
@@ -134,8 +136,10 @@ const ChatConversation = ({ selectedOtherUser, handleOpenChat }: any) => {
                                                     ?.manager?.hotel?.name
                                             }
                                         </p>
-                                        <p className="flex items-center gap-[20px] justify-between w-[150px] whitespace-nowrap text-ellipsis overflow-hidden">
-                                            {conv.last_message}
+                                        <p className="flex items-center gap-[20px] justify-between">
+                                            <span className="w-[150px] whitespace-nowrap text-ellipsis overflow-hidden">
+                                                {conv.last_message}
+                                            </span>
                                             {conv?.latest_message?.sender
                                                 ?.id === user.id &&
                                                 conv?.latest_message?.seen && (
@@ -202,8 +206,10 @@ const ChatConversation = ({ selectedOtherUser, handleOpenChat }: any) => {
                                                     ?.last_name
                                                 }`}
                                         </p>
-                                        <p className="flex items-center gap-[20px] justify-between w-[150px] whitespace-nowrap text-ellipsis overflow-hidden">
-                                            {conv.last_message}
+                                        <p className="flex items-center gap-[20px] justify-between">
+                                            <span className="w-[150px] whitespace-nowrap text-ellipsis overflow-hidden">
+                                                {conv.last_message}
+                                            </span>
                                             {conv?.latest_message?.sender
                                                 ?.id === user.id &&
                                                 conv?.latest_message?.seen && (
@@ -246,6 +252,7 @@ const ChatConversation = ({ selectedOtherUser, handleOpenChat }: any) => {
                         )}
                     </div>
                 ))}
+                <div dangerouslySetInnerHTML={{ __html: `<div class="border-t-[1px] border-[#f0f0f0] px-[10px] py-[10px] flex gap-[10px]"><div class="flex-shrink-0"><img src="http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg" alt="imgBooking" class="w-[50px] h-[50px] object-cover rounded-lg"></div><div class="flex-grow"><h3 class=" text-gray-900 mb-[6px] leading-[18px]"><span class="font-bold">Exploring Ben Thanh Princess Dining Cruise in Ho Chi Minh</span> - <span>Experience Dinner in Cruise</span></h3><div class="flex gap-[20px]"><div><p class="text-gray-600 text-[12px]">Nhận phòng</p><p class="font-semibold text-[12px] text-gray-900">2025-10-10 07:00:00</p></div><div><p class="text-gray-600 text-[12px]">Trả phòng</p><p class="font-semibold text-[12px] text-gray-900">2025-10-12 07:00:00</p></div></div></div></div>` }}></div>
             </div>
         </div>
     );

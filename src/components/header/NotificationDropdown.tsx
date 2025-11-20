@@ -1,12 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { Link } from "react-router";
-import { Badge } from "antd";
+import { useNavigate } from "react-router";
+import { Badge, Spin } from "antd";
+import { useSocket } from "@/context/SocketProvider";
 
 export default function NotificationDropdown() {
+  const {
+    notifications,
+    notifHasNext,
+    totalUnseenNotif,
+    loadingNotifications,
+    loadMoreNotifications,
+    markNotificationAsRead,
+  } = useSocket();
+
+  const navigate = useNavigate()
+
   const [isOpen, setIsOpen] = useState(false);
-  const [notifying, setNotifying] = useState(true);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -18,7 +29,6 @@ export default function NotificationDropdown() {
 
   const handleClick = () => {
     toggleDropdown();
-    setNotifying(false);
   };
   return (
     <div className="relative">
@@ -26,20 +36,15 @@ export default function NotificationDropdown() {
         className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full dropdown-toggle hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         onClick={handleClick}
       >
-        {/* <span
-          className={`absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${!notifying ? "hidden" : "flex"
-            }`}
-        >
-          <span className="absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping"></span>
-        </span> */}
-        {notifying && <div className="absolute right-0 top-[-8px] z-10">
+        {totalUnseenNotif > 0 && <div className="absolute right-0 top-[-8px] z-10">
           <Badge
-            count={6}
+            count={totalUnseenNotif}
             showZero
             size="small"
             color="#fa2314"
           />
         </div>}
+
 
         <svg
           className="fill-current"
@@ -61,9 +66,9 @@ export default function NotificationDropdown() {
         onClose={closeDropdown}
         className="absolute -right-[240px] mt-[17px] flex max-h-[500px] md:!w-[450px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0"
       >
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between pb-3 mb-3">
           <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Notification
+            Thông báo
           </h5>
           <button
             onClick={toggleDropdown}
@@ -85,600 +90,55 @@ export default function NotificationDropdown() {
             </svg>
           </button>
         </div>
-        <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
-          {/* Example notification items */}
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
+        <div className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
+          {notifications.map(
+            (noti: any, index: number) => (
+              <div
+                onClick={() => {
+                  markNotificationAsRead(
+                    noti
+                  );
+                  if (noti.link) {
+                    navigate(
+                      noti.link
+                    );
                   }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            >
-              {/* Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={
-                    "http://localhost:8000/media/activity_images/img1_WLTLSdw.jpg"
-                  }
-                  alt={"imgBooking"}
-                  className="w-[50px] h-[50px] object-cover rounded-lg"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex-grow">
-                <h3 className=" text-gray-900 mb-[6px] leading-[18px]">
-                  <span>Khách hàng</span>{" "}
-                  <span className="font-bold text-blue-700">
-                    Nam Nguyễn
-                  </span>{" "}
-                  <span>
-                    đã đặt:
-                  </span>{" "}
-                  <span className="font-bold">
-                    Exploring Ben Thanh
-                    Princess Dining
-                    Cruise in Ho Chi
-                    Minh
-                  </span>{" "}
-                  -{" "}
-                  <span>
-                    Experience Dinner in
-                    Cruise
-                  </span>
-                </h3>
-
-                <div className="flex gap-[20px]">
-                  <div className="flex items-center gap-[4px]">
-                    <img src="http://localhost:8000/media/user_images/nam.JPG" alt="namtre2003" className="w-[24px] h-[24px] object-cover rounded-[50%]"></img>
-                    <div>
-                      <p className="text-gray-600 text-[12px]">
-                        Nhận phòng
-                      </p>
-                      <p className="font-semibold text-[12px] text-gray-900">
-                        2025-10-10
-                        07:00:00
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-[12px]">
-                      Trả phòng
-                    </p>
-                    <p className="font-semibold text-[12px] text-gray-900">
-                      2025-10-12
-                      07:00:00
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DropdownItem>
-          </li>
-        </ul>
-        <Link
-          to="/"
-          className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                }}
+                key={index}
+                className={`
+                  ${!noti.is_read
+                    ? "bg-gray-100 hover:bg-gray-200"
+                    : "hover:bg-gray-200"
+                  } ${noti.is_error
+                    ? "bg-red-100 hover:bg-red-200"
+                    : ""
+                  } cursor-pointer`}
+                dangerouslySetInnerHTML={{
+                  __html:
+                    noti?.message ||
+                    "",
+                }}
+              ></div>
+            )
+          )}
+        </div>
+        <div
+          onClick={() =>
+            !loadingNotifications &&
+            notifHasNext &&
+            loadMoreNotifications()
+          }
+          className={`block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 ${loadingNotifications
+            ? "select-none opacity-35"
+            : ""
+            } ${!notifHasNext
+              ? "opacity-50 select-none"
+              : "cursor-pointer"
+            } `}
         >
-          View All Notifications
-        </Link>
+          {loadingNotifications && <Spin />}
+          Xem thêm
+        </div>
       </Dropdown>
     </div>
   );

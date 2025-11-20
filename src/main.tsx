@@ -5,6 +5,7 @@ import "swiper/swiper-bundle.css";
 import "flatpickr/dist/flatpickr.css";
 import '@mdxeditor/editor/style.css'
 import 'react-toastify/dist/ReactToastify.css';
+import 'react-loading-skeleton/dist/skeleton.css'
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
