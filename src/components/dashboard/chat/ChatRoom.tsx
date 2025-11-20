@@ -253,10 +253,10 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                             </p>
                             <div
                                 className={`${msg?.sender?.id === user.id
-                                        ? "text-right ml-auto"
-                                        : "text-left mr-auto"
+                                    ? "ml-auto"
+                                    : "text-left mr-auto"
                                     }
-                                w-fit p-[12px] flex items-center gap-[6px]`}
+                                w-fit p-[12px] flex items-center gap-[6px] max-w-[70%]`}
                             >
                                 {msg?.sender?.id !== user.id &&
                                     (getOtherUser(conversation, user)?.role ===
@@ -270,7 +270,7 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                                                 getOtherUser(conversation, user)
                                                     ?.hotel?.name
                                             }
-                                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                                            className="w-[40px] max-w-[40px] min-w-[40px] h-[40px] object-cover rounded-[50%]"
                                         />
                                     ) : (
                                         <img
@@ -282,21 +282,22 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                                                 getOtherUser(conversation, user)
                                                     ?.username
                                             }
-                                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                                            className="w-[40px] max-w-[40px] min-w-[40px] h-[40px] object-cover rounded-[50%]"
                                         />
                                     ))}
-                                <div>
+                                <div className="w-full">
                                     <p
                                         className={`p-[10px] rounded-[6px] ${msg?.sender?.id === user.id
-                                                ? "bg-[#dde9fd]"
-                                                : "bg-[#e9ebee]"
+                                            ? "bg-[#dde9fd]"
+                                            : "bg-[#e9ebee]"
                                             }`}
+                                        style={{ wordBreak: "break-word" }}
                                     >
                                         {msg.text}
                                     </p>
                                     {msg.seen &&
                                         msg?.sender?.id === user.id && (
-                                            <div className="text-[#5e6b82] text-[12px]">
+                                            <div className="text-[#5e6b82] text-[12px] text-right">
                                                 Đã xem
                                             </div>
                                         )}

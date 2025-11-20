@@ -10,10 +10,18 @@ import { setLogoutAction } from "../../redux/slice/accountSlide";
 import { toast } from "react-toastify";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { ROLE_VI } from "@/constants/role";
+import { useSocket } from "@/context/SocketProvider";
 
 export default function UserDropdown() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+
+  const {
+    setOnlineUsers,
+    setConversations,
+    setMessages,
+    setSelectedConversation,
+  } = useSocket();
 
   const user = useAppSelector((state) => state.account.user);
 
@@ -33,6 +41,14 @@ export default function UserDropdown() {
     });
     if (res.isSuccess) {
       dispatch(setLogoutAction({}));
+      setOnlineUsers((prev: any) => {
+        return [...prev].filter(
+          (onlineUser) => onlineUser.id !== user.id
+        );
+      });
+      setConversations([]);
+      setMessages([]);
+      setSelectedConversation({});
       toast.success("Đăng xuất thành công!", {
         position: "bottom-right",
       });
