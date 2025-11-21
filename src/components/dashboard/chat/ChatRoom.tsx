@@ -56,61 +56,6 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                         <div className="col-start-1 col-span-2">
                             <div className="flex gap-[10px]">
                                 {getOtherUser(conversation, user)?.role ===
-                                    ROLE.OWNER ? (
-                                    <>
-                                        <div className="relative h-fit">
-                                            <img
-                                                src={getUserAvatar(
-                                                    getOtherUser(
-                                                        conversation,
-                                                        user
-                                                    )?.hotel?.images?.[0]?.image
-                                                )}
-                                                alt={
-                                                    getOtherUser(
-                                                        conversation,
-                                                        user
-                                                    )?.hotel?.name
-                                                }
-                                                className="w-[50px] h-[50px] object-cover rounded-[50%]"
-                                            />
-
-                                            {onlineUsers.find(
-                                                (onlineUser: any) =>
-                                                    onlineUser.id ===
-                                                    getOtherUser(
-                                                        conversation,
-                                                        user
-                                                    )?.id
-                                            ) && (
-                                                    <div className="absolute right-[5px] bottom-[2px] bg-[#52c41a] w-[10px] h-[10px] rounded-[50%]"></div>
-                                                )}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold">
-                                                {
-                                                    getOtherUser(
-                                                        conversation,
-                                                        user
-                                                    )?.hotel?.name
-                                                }
-                                            </p>
-                                            <p className="text-[#5e6b82] text-[12px]">
-                                                {
-                                                    getOtherUser(
-                                                        conversation,
-                                                        user
-                                                    )?.hotel?.city?.name
-                                                }
-                                            </p>
-                                            <p className="font-semibold text-[13px]">
-                                                {dayjs(
-                                                    conversation.created_at
-                                                ).format("DD-MM-YYYY HH:mm:ss")}
-                                            </p>
-                                        </div>
-                                    </>
-                                ) : getOtherUser(conversation, user)?.role ===
                                     ROLE.STAFF ? (
                                     <>
                                         <div className="relative h-fit">
@@ -162,7 +107,7 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                                                         getOtherUser(
                                                             conversation,
                                                             user
-                                                        )?.manager?.hotel?.name
+                                                        )?.hotel?.name
                                                     }
                                                 </span>
                                             </div>
@@ -203,17 +148,28 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                                                 )}
                                         </div>
                                         <div>
-                                            <p className="font-bold">
-                                                {`${getOtherUser(
-                                                    conversation,
-                                                    user
-                                                )?.first_name
-                                                    } ${getOtherUser(
+                                            <div className="flex items-center gap-[5px]">
+                                                <p className="font-bold">
+                                                    {`${getOtherUser(
                                                         conversation,
                                                         user
-                                                    )?.last_name
-                                                    }`}
-                                            </p>
+                                                    )?.first_name
+                                                        } ${getOtherUser(
+                                                            conversation,
+                                                            user
+                                                        )?.last_name
+                                                        }`}
+                                                </p>
+                                                {getOtherUser(conversation, user)?.role ===
+                                                    ROLE.OWNER && <p>
+                                                        {" "}
+                                                        -{" "}
+                                                        <span className="text-[#5392f9] font-bold">
+                                                            Chủ khách sạn
+                                                        </span>
+                                                    </p>}
+
+                                            </div>
                                             <p className="font-semibold text-[13px]">
                                                 {dayjs(
                                                     conversation.created_at
@@ -226,8 +182,6 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                         </div>
                         <div className="col-start-3 col-span-1">
                             {(getOtherUser(conversation, user)?.role ===
-                                ROLE.OWNER ||
-                                getOtherUser(conversation, user)?.role ===
                                 ROLE.STAFF) && (
                                     <div>
                                         <div className="text-[12px] text-[#5392f9] flex gap-[3px] items-center">
@@ -259,32 +213,18 @@ const ChatRoom = ({ conversation, otherUser }: any) => {
                                 w-fit p-[12px] flex items-center gap-[6px] max-w-[70%]`}
                             >
                                 {msg?.sender?.id !== user.id &&
-                                    (getOtherUser(conversation, user)?.role ===
-                                        ROLE.OWNER ? (
-                                        <img
-                                            src={getUserAvatar(
-                                                getOtherUser(conversation, user)
-                                                    ?.hotel?.images?.[0]?.image
-                                            )}
-                                            alt={
-                                                getOtherUser(conversation, user)
-                                                    ?.hotel?.name
-                                            }
-                                            className="w-[40px] max-w-[40px] min-w-[40px] h-[40px] object-cover rounded-[50%]"
-                                        />
-                                    ) : (
-                                        <img
-                                            src={`${getUserAvatar(
-                                                getOtherUser(conversation, user)
-                                                    ?.avatar
-                                            )}`}
-                                            alt={
-                                                getOtherUser(conversation, user)
-                                                    ?.username
-                                            }
-                                            className="w-[40px] max-w-[40px] min-w-[40px] h-[40px] object-cover rounded-[50%]"
-                                        />
-                                    ))}
+                                    <img
+                                        src={`${getUserAvatar(
+                                            getOtherUser(conversation, user)
+                                                ?.avatar
+                                        )}`}
+                                        alt={
+                                            getOtherUser(conversation, user)
+                                                ?.username
+                                        }
+                                        className="w-[40px] max-w-[40px] min-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                }
                                 <div className="w-full">
                                     <p
                                         className={`p-[10px] rounded-[6px] ${msg?.sender?.id === user.id

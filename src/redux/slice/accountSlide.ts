@@ -41,6 +41,18 @@ interface IState {
             phone_number: string;
             birthday: string;
         };
+        staffs?: {
+            id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            avatar: string;
+            role: string;
+            gender: string;
+            phone_number: string;
+            birthday: string;
+        }[];
         hotel?: any;
     };
     activeMenu: string;
@@ -64,6 +76,7 @@ const initialState: IState = {
         role: "",
         manager: undefined,
         hotel: undefined,
+        staffs: [],
     },
 
     activeMenu: "home",
@@ -93,6 +106,7 @@ export const accountSlide = createSlice({
             state.user.role = action.payload.role;
             state.user.manager = action.payload.manager;
             state.user.hotel = action.payload.hotel;
+            state.user.staffs = action.payload.staffs;
         },
         setLogoutAction: (state, action) => {
             localStorage.removeItem("access_token_agoda_admin");
@@ -111,6 +125,7 @@ export const accountSlide = createSlice({
                 role: "",
                 manager: undefined,
                 hotel: undefined,
+                staffs: [],
             };
         },
         setRefreshTokenAction: (state, action) => {
@@ -141,6 +156,7 @@ export const accountSlide = createSlice({
                 state.user.role = action.payload.data?.role;
                 state.user.manager = action.payload.data?.manager;
                 state.user.hotel = action.payload.data?.hotel;
+                state.user.staffs = action.payload.data?.staffs;
             } else {
                 state.isAuthenticated = false;
                 state.isLoading = false;

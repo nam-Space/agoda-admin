@@ -67,7 +67,7 @@ const ModalActivityPackage = (props: IProps) => {
         if (user.role === ROLE.EVENT_ORGANIZER) {
             query += `&event_organizer_id=${user.id}`
         }
-        const res: any = await callFetchActivity(`current=1&pageSize=100${query}`);
+        const res: any = await callFetchActivity(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {
