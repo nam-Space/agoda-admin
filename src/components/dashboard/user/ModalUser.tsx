@@ -4,12 +4,12 @@ import { ModalForm, ProForm, ProFormDatePicker, ProFormSelect, ProFormText } fro
 import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useState, useEffect } from "react";
-import { callCreateUser, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
+import { callCreateUser, callFetchHotel, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
 import dayjs from "dayjs";
-import { getUserAvatar } from "@/utils/imageUrl";
+import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/slice/accountSlide";
 import Cookies from "js-cookie";
@@ -58,6 +58,12 @@ const ModalUser = (props: IProps) => {
         key: 0,
     });
 
+    const [hotel, setHotel] = useState<IManagerSelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
     const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
     const [dataAvatar, setDataAvatar] = useState<IUserAvatar[]>([]);
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -87,13 +93,6 @@ const ModalUser = (props: IProps) => {
                     }
                 )
             }
-            else {
-                setRole({
-                    label: ROLE_VI.admin,
-                    value: ROLE.ADMIN,
-                    key: ROLE.ADMIN,
-                })
-            }
 
             if (dataInit?.manager?.id) {
                 setManager(
@@ -110,6 +109,24 @@ const ModalUser = (props: IProps) => {
                         </div>),
                         value: dataInit.manager.id,
                         key: dataInit.manager.id,
+                    }
+                )
+            }
+
+            if (dataInit?.hotel?.id) {
+                setHotel(
+                    {
+                        label: (<div className="flex items-center gap-[10px]">
+                            <img
+                                src={getImage(dataInit.hotel?.images?.[0]?.image)}
+                                className="w-[70px] h-[50px] object-cover"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.hotel.name}`}</p>
+                            </div>
+                        </div>),
+                        value: dataInit.hotel.id,
+                        key: dataInit.hotel.id,
                     }
                 )
             }
@@ -133,11 +150,13 @@ const ModalUser = (props: IProps) => {
                 avatar: (dataAvatar[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
                 role: role.value,
                 manager: manager.value || null,
-                is_active
+                is_active,
+                hotel: hotel.value || null
             }
 
             if (role.value !== ROLE.STAFF) {
                 userObj.manager = null
+                userObj.hotel = null
             }
 
             const res: any = await callUpdateUser(dataInit.id, userObj);
@@ -177,11 +196,13 @@ const ModalUser = (props: IProps) => {
                 avatar: (dataAvatar[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
                 role: role.value,
                 manager: manager.value || null,
-                is_active
+                is_active,
+                hotel: hotel.value || null
             }
 
             if (role.value !== ROLE.STAFF) {
                 userObj.manager = null
+                userObj.hotel = null
             }
 
             const res: any = await callCreateUser(userObj);
@@ -221,6 +242,33 @@ const ModalUser = (props: IProps) => {
         } else return [];
     }
 
+    async function fetchHotelList(): Promise<IManagerSelect[]> {
+        let query = ``
+        if (manager.value) {
+            query += `&ownerId=${manager.value}`
+        }
+        else return [];
+        const res: any = await callFetchHotel(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getImage(item?.images?.[0]?.image)}
+                            className="w-[70px] h-[50px] object-cover"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.name}`}</p>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
@@ -233,6 +281,11 @@ const ModalUser = (props: IProps) => {
         }
         )
         setManager({
+            label: "",
+            value: 0,
+            key: 0,
+        })
+        setHotel({
             label: "",
             value: 0,
             key: 0,
@@ -504,8 +557,41 @@ const ModalUser = (props: IProps) => {
                                             label: newValue?.label,
                                             value: newValue?.value
                                         });
+                                        setHotel({
+                                            label: "",
+                                            value: 0,
+                                            key: 0,
+                                        })
+                                        form.resetFields(["hotel"]);
                                     }}
                                     className="w-full !h-[60px]"
+                                />
+                            </ProForm.Item>
+                        </Col>
+
+                    )}
+
+                    {!!manager.value && (
+                        <Col lg={12} md={12} sm={24} xs={24}>
+                            <ProForm.Item
+                                name="hotel"
+                                label={"Khách sạn"}
+                                rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                            >
+                                <DebounceSelect
+                                    allowClear
+                                    defaultValue={hotel}
+                                    value={hotel}
+                                    placeholder={<span>Chọn khách sạn</span>}
+                                    fetchOptions={fetchHotelList}
+                                    onChange={(newValue: any) => {
+                                        setHotel({
+                                            key: newValue?.key,
+                                            label: newValue?.label,
+                                            value: newValue?.value
+                                        });
+                                    }}
+                                    className="w-full !h-[70px]"
                                 />
                             </ProForm.Item>
                         </Col>
