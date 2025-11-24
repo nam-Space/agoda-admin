@@ -91,6 +91,28 @@ export default function NotificationDropdown() {
           </button>
         </div>
         <div className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
+          {/* <div className="hidden bg-gray-100 hover:bg-gray-200  cursor-pointer">
+            <div className="border-t-[1px] border-[#f0f0f0] px-[10px] py-[10px] flex gap-[10px]">
+              <div className="flex-shrink-0"><img src="EEEE" alt="Xe manivan độc nhất" className="w-[50px] h-[50px] object-cover rounded-lg" /></div>
+              <div className="flex-grow">
+                <h3 className="text-gray-900 mb-[6px] leading-[18px]">
+                  <div>Mã:<span className="text-blue-500 font-semibold"> AGDFBE1EB</span></div>
+                  <span className="font-bold">Xe minivan độc nhất</span> <span>(Trường THPT Hoài Đức A → Nội Bài)</span>
+                </h3>
+                <div className="flex gap-[20px]">
+                  <div>
+                    <p className="text-gray-600 text-[12px]">Thời điểm bắt đầu</p>
+                    <p className="font-semibold text-[12px] text-gray-900">2025-12-04 23:00:00</p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-600 text-[12px]">Thời gian ước lượng</p>
+                    <p className="font-semibold text-[12px] text-gray-900">0.41864019633263116 tiếng</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> */}
           {notifications.map(
             (noti: any, index: number) => (
               <div
