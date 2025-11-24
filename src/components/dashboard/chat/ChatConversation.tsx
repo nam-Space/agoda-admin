@@ -184,7 +184,6 @@ const ChatConversation = ({ selectedOtherUser, handleOpenChat }: any) => {
                         )}
                     </div>
                 ))}
-
             </div>
         </div>
     );

@@ -47,7 +47,14 @@ import HandbookPage from "./pages/Dashboard/HandbookPage";
 export default function App() {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector((state) => state.account.isLoading);
+  const errorRefreshToken = useAppSelector(state => state.account.errorRefreshToken);
   const user = useAppSelector(state => state.account.user)
+
+  useEffect(() => {
+    if (errorRefreshToken) {
+      localStorage.removeItem("access_token_agoda_admin");
+    }
+  }, [errorRefreshToken])
 
   useEffect(() => {
     dispatch(fetchAccount())
