@@ -2,35 +2,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
-import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteActivityPackage } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import ModalActivityPackage from "./ModalActivityPackage";
-import { fetchActivityPackage } from "@/redux/slice/activityPackageSlide";
 import { getImage } from "@/utils/imageUrl";
-import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
-export default function ActivityPackage() {
+import { callDeleteFlight } from "@/config/api";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { fetchFlight } from "@/redux/slice/flightSlide";
+import { BAGGAGE_INCLUDED_VI } from "@/constants/airline";
+import ModalFlight from "./ModalFlight";
+import dayjs from "dayjs";
+
+export default function Flight() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
-    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.activityPackage.isFetching);
-    const meta = useAppSelector(state => state.activityPackage.meta);
-    const cities = useAppSelector(state => state.activityPackage.data);
+    const isFetching = useAppSelector(state => state.flight.isFetching);
+    const meta = useAppSelector(state => state.flight.meta);
+    const flights = useAppSelector(state => state.flight.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteActivityPackage = async (id: number | undefined) => {
+    const handleDeleteFlight = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteActivityPackage(id);
+            const res: any = await callDeleteFlight(id);
             if (res?.isSuccess) {
-                toast.success("Xóa activity package thành công", {
+                toast.success("Xóa flight thành công", {
                     position: "bottom-right",
                 });
                 reloadTable();
@@ -53,41 +54,119 @@ export default function ActivityPackage() {
             hideInSearch: true,
         },
         {
-            title: "Hoạt động",
-            dataIndex: 'activity',
+            title: "Hãng hàng không",
+            dataIndex: 'airline',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getImage(record?.airline?.logo)}
+                            className="w-[70px] h-[50px] object-cover"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.airline?.name}`}</p>
+                        </div>
+                    </div>
+                )
+            },
+            hideInSearch: true,
+        },
+        {
+            title: "Máy bay",
+            dataIndex: 'aircraft',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="flex items-center gap-[10px]">
+                        <div>
+                            <p className="leading-[20px]">{`${record?.aircraft?.model}`}</p>
+                        </div>
+                    </div>
+                )
+            },
+            hideInSearch: true,
+        },
+        {
+            title: "Chuyến bay",
+            dataIndex: 'flight',
+            sorter: true,
+            render: (text, record, index, action) => {
+                if (record.legs?.length === 0) return <div></div>
+                const firstLeg = record.legs[0];
+                const lastLeg = record.legs[record.legs.length - 1];
+
+                return (
+                    <div>
+                        <div>
+                            <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(firstLeg?.arrival_time).format("HH:ss")}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">{dayjs(firstLeg?.departure_time).format("MM/DD/YYYY")} - {dayjs(firstLeg?.arrival_time).format("MM/DD/YYYY")}</p>
+                        </div>
+                        <div className="flex items-center gap-[10px]">
+                            <p className="font-semibold leading-[20px]">{`${firstLeg?.departure_airport?.name}`}</p>
+                            →
+                            <p className="font-semibold leading-[20px]">{`${lastLeg?.arrival_airport?.name}`}</p>
+                        </div>
+                    </div>
+                )
+            },
+            hideInSearch: true,
+            width: 200
+        },
+        {
+            title: "Tổng thời gian",
+            dataIndex: 'total_duration',
+            render: (text, record, index, action) => {
+                return (
+                    <div className="flex items-center gap-[10px]">
+                        {record.total_duration} phút
+                    </div>
+                )
+            },
+            sorter: true,
+        },
+        {
+            title: "Bao gồm hành lý",
+            dataIndex: 'baggage_included',
             sorter: true,
             hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
-                    // <div>{record?.activity?.name}</div>
                     <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getImage(record?.activity?.images?.[0]?.image)}
-                            className="w-[70px] h-[50px] object-cover"
-                        />
-                        <div>
-                            <p className="leading-[20px]">{`${record?.activity?.name}`}</p>
-                        </div>
+                        {BAGGAGE_INCLUDED_VI[record.baggage_included]}
                     </div>
                 )
             },
         },
         {
-            title: "Tên gói của hoạt động",
-            dataIndex: 'name',
+            title: "Số điểm dừng",
+            dataIndex: 'stops',
             sorter: true,
-
+        },
+        {
+            title: "Giá tiền cơ sở",
+            dataIndex: 'base_price',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="flex items-center gap-[10px]">
+                        {formatCurrency(record?.base_price)}đ
+                    </div>
+                )
+            },
+            hideInSearch: true,
         },
         {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (text, record) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
             },
-            hideInSearch: true,
         },
         {
 
@@ -110,9 +189,9 @@ export default function ActivityPackage() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa activity package"}
-                        description={"Bạn chắc chắn muốn xóa activity package"}
-                        onConfirm={() => handleDeleteActivityPackage(entity.id)}
+                        title={"Xác nhận xóa flight"}
+                        description={"Bạn chắc chắn muốn xóa flight"}
+                        onConfirm={() => handleDeleteFlight(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -140,16 +219,6 @@ export default function ActivityPackage() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
-        if (clone.name) {
-            temp += `&name=${clone.name}`
-        }
-        if (clone.description) {
-            temp += `&description=${clone.description}`
-        }
-        if (user.role === ROLE.EVENT_ORGANIZER) {
-            temp += `&event_organizer_id=${user.id}`
-        }
-
         temp += `&sort=id-desc`
 
         return temp;
@@ -159,14 +228,14 @@ export default function ActivityPackage() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách activity package"}
+                headerTitle={"Danh sách flight"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={cities}
+                dataSource={flights}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchActivityPackage({ query }))
+                    dispatch(fetchFlight({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -193,7 +262,7 @@ export default function ActivityPackage() {
                     );
                 }}
             />
-            <ModalActivityPackage
+            <ModalFlight
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}

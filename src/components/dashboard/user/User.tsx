@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useRef, useState } from "react";
-import { Avatar, Button, message, notification, Popconfirm, Space } from "antd";
+import { useRef, useState } from "react";
+import { Avatar, Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -12,8 +12,9 @@ import DataTable from "../../antd/Table";
 import { fetchUser } from "../../../redux/slice/userSlide";
 import { getUserAvatar } from "@/utils/imageUrl";
 import ModalUser from "./ModalUser";
-import { ROLE, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
+import { ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
+import { toast } from "react-toastify";
 
 export default function User() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -30,12 +31,13 @@ export default function User() {
         if (id) {
             const res: any = await callDeleteUser(id);
             if (res?.isSuccess) {
-                message.success('Xóa User thành công');
+                toast.success("Xóa User thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -134,7 +136,6 @@ export default function User() {
             dataIndex: 'manager',
             render: (text, record, index, action) => {
                 return (
-                    // <>{(ROLE_VI as any)[record.role]}</>
                     record?.manager ? <div className="flex items-center gap-[10px]">
                         <img
                             src={getUserAvatar(record?.manager?.avatar)}
@@ -239,7 +240,7 @@ export default function User() {
         if (clone.role) {
             temp += `&role=${clone.role}`
         }
-
+        temp += `&sort=id-desc`
         return temp;
     }
 

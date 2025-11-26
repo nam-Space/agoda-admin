@@ -20,6 +20,7 @@ import {
     Calendar,
 } from "lucide-react";
 import ModalFlightPayment from "./ModalFlightPayment";
+import { toast } from "react-toastify";
 
 export default function FlightPayment() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -36,12 +37,13 @@ export default function FlightPayment() {
         if (id) {
             const res: any = await callDeletePayment(id);
             if (res?.isSuccess) {
-                message.success('Xóa payment thành công');
+                toast.success("Xóa payment thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }

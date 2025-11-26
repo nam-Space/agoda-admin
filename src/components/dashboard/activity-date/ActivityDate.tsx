@@ -39,9 +39,8 @@ export default function ActivityDate() {
                 });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -215,6 +214,8 @@ export default function ActivityDate() {
         if (user.role === ROLE.EVENT_ORGANIZER) {
             temp += `&event_organizer_id=${user.id}`
         }
+
+        temp += `&sort=id-desc`
 
         return temp;
     }

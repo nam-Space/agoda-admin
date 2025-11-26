@@ -16,6 +16,7 @@ import Cookies from "js-cookie";
 import { ROLE, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
+import { toast } from "react-toastify";
 
 interface IProps {
     openModal: boolean;
@@ -173,13 +174,14 @@ const ModalUser = (props: IProps) => {
                         dispatch(fetchAccount())
                     }
                 }
-                message.success("Cập nhật user thành công");
+                toast.success("Cập nhật user thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         } else {
@@ -207,13 +209,14 @@ const ModalUser = (props: IProps) => {
 
             const res: any = await callCreateUser(userObj);
             if (res.isSuccess) {
-                message.success("Thêm mới user thành công");
+                toast.success("Thêm mới user thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -329,7 +332,9 @@ const ModalUser = (props: IProps) => {
         }
         if (info.file.status === 'error') {
             setLoadingUpload(false);
-            message.error(info?.file?.error?.event?.message ?? "Đã có lỗi xảy ra khi upload file.")
+            toast.error(info?.file?.error?.event?.message ?? "Đã có lỗi xảy ra khi upload file.", {
+                position: "bottom-right",
+            });
         }
     };
 

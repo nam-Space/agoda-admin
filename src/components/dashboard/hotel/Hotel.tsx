@@ -35,9 +35,8 @@ export default function Hotel() {
                 });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -205,6 +204,8 @@ export default function Hotel() {
         if (user.role === ROLE.OWNER) {
             temp += `&ownerId=${user.id}`
         }
+
+        temp += `&sort=id-desc`
 
         return temp;
     }

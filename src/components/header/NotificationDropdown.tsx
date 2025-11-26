@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useNavigate } from "react-router";
-import { Badge, Spin } from "antd";
+import { Badge, Empty, Spin } from "antd";
 import { useSocket } from "@/context/SocketProvider";
 
 export default function NotificationDropdown() {
@@ -113,7 +113,11 @@ export default function NotificationDropdown() {
               </div>
             </div>
           </div> */}
-          {notifications.map(
+          {!loadingNotifications && notifications.length === 0 && < Empty
+            description="Chưa có thông báo"
+            className="bg-[#abb6cb1f] mx-0 py-[24px] rounded-[16px]"
+          />}
+          {!loadingNotifications && notifications.length > 0 && notifications.map(
             (noti: any, index: number) => (
               <div
                 onClick={() => {

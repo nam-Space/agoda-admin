@@ -11,6 +11,7 @@ import { marked } from 'marked';
 import TurndownService from 'turndown';
 import enUS from 'antd/lib/locale/en_US';
 import { v4 as uuidv4 } from 'uuid';
+import { toast } from "react-toastify";
 
 interface IProps {
     openModal: boolean;
@@ -67,13 +68,14 @@ const ModalCountry = (props: IProps) => {
 
             const res: any = await callUpdateCountry(dataInit.id, dataObj);
             if (res.isSuccess) {
-                message.success("Cập nhật country thành công");
+                toast.success("Cập nhật country thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         } else {
@@ -85,13 +87,14 @@ const ModalCountry = (props: IProps) => {
             }
             const res: any = await callCreateCountry(dataObj);
             if (res.isSuccess) {
-                message.success("Thêm mới country thành công");
+                toast.success("Thêm mới country thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -142,7 +145,9 @@ const ModalCountry = (props: IProps) => {
         }
         if (info.file.status === 'error') {
             setLoadingUpload(false);
-            message.error(info?.file?.error?.event?.message ?? "Đã có lỗi xảy ra khi upload file.")
+            toast.error(info?.file?.error?.event?.message ?? "Đã có lỗi xảy ra khi upload file.", {
+                position: "bottom-right",
+            });
         }
     };
 

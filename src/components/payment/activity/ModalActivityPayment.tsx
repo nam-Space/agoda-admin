@@ -6,6 +6,7 @@ import { isMobile } from 'react-device-detect';
 import { useEffect } from "react";
 import { callCreatePayment, callUpdatePayment } from "@/config/api";
 import { PAYMENT_METHOD_VI, PAYMENT_STATUS_VI } from "@/constants/payment";
+import { toast } from "react-toastify";
 
 interface IProps {
     openModal: boolean;
@@ -37,13 +38,14 @@ const ModalActivityPayment = (props: IProps) => {
 
             const res: any = await callUpdatePayment(dataInit.id, dataObj);
             if (res.isSuccess) {
-                message.success("Cập nhật payment thành công");
+                toast.success("Cập nhật payment thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         } else {
@@ -55,13 +57,14 @@ const ModalActivityPayment = (props: IProps) => {
             }
             const res: any = await callCreatePayment(dataObj);
             if (res.isSuccess) {
-                message.success("Thêm mới payment thành công");
+                toast.success("Thêm mới payment thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }

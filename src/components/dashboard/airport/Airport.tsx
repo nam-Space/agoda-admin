@@ -11,6 +11,7 @@ import { callDeleteAirport } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { fetchAirport } from "@/redux/slice/airportSlide";
 import ModalAirport from "./ModalAirport";
+import { toast } from "react-toastify";
 
 export default function Airport() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -27,12 +28,13 @@ export default function Airport() {
         if (id) {
             const res: any = await callDeleteAirport(id);
             if (res?.isSuccess) {
-                message.success('Xóa airport thành công');
+                toast.success("Xóa airport thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -173,6 +175,8 @@ export default function Airport() {
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
+
+        temp += `&sort=id-desc`
 
         return temp;
     }

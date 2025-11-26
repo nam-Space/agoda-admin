@@ -15,6 +15,7 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { CATEGORY_ACTIVITY } from "@/constants/activity";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
+import { toast } from "react-toastify";
 export default function Activity() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -31,12 +32,13 @@ export default function Activity() {
         if (id) {
             const res: any = await callDeleteActivity(id);
             if (res?.isSuccess) {
-                message.success('Xóa activity thành công');
+                toast.success("Xóa activity thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -201,6 +203,8 @@ export default function Activity() {
         if (user.role === ROLE.EVENT_ORGANIZER) {
             temp += `&event_organizer_id=${user.id}`
         }
+
+        temp += `&sort=id-desc`
 
         return temp;
     }

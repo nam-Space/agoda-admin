@@ -106,9 +106,8 @@ const ModalActivityPackage = (props: IProps) => {
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         } else {
@@ -188,7 +187,6 @@ const ModalActivityPackage = (props: IProps) => {
                                 className="w-full !h-[70px]"
                             />
                         </ProForm.Item>
-
                     </Col>
                     <Col lg={24} md={24} sm={24} xs={24}>
                         <ProFormText

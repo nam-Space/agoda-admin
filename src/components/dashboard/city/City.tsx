@@ -33,9 +33,8 @@ export default function City() {
                 });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -171,6 +170,8 @@ export default function City() {
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
+
+        temp += `&sort=id-desc`
 
         return temp;
     }
