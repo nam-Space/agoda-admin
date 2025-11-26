@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import ModalActivityPayment from "./ModalActivityPayment";
 import { ROLE } from "@/constants/role";
+import { toast } from "react-toastify";
 
 export default function ActivityPayment() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -39,12 +40,13 @@ export default function ActivityPayment() {
         if (id) {
             const res: any = await callDeletePayment(id);
             if (res?.isSuccess) {
-                message.success('Xóa payment thành công');
+                toast.success("Xóa payment thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }

@@ -133,6 +133,91 @@ export const callDeleteAirport = (id: number) => {
     return axios.delete(`/api/airports/airports/${id}/delete/`);
 };
 
+/* Airline */
+export const callFetchAirline = (query: string) => {
+    return axios.get(`/api/airlines/?${query}`);
+};
+
+export const callCreateAirline = (data: any) => {
+    return axios.post("/api/airlines/", { ...data });
+};
+
+export const callUpdateAirline = (id: number, data: any) => {
+    return axios.put(`/api/airlines/${id}/`, { ...data });
+};
+
+export const callDeleteAirline = (id: number) => {
+    return axios.delete(`/api/airlines/${id}/`);
+};
+
+/* Aircraft */
+export const callFetchAircraft = (query: string) => {
+    return axios.get(`/api/airlines/aircrafts/?${query}`);
+};
+
+export const callCreateAircraft = (data: any) => {
+    return axios.post("/api/airlines/aircrafts/", { ...data });
+};
+
+export const callUpdateAircraft = (id: number, data: any) => {
+    return axios.put(`/api/airlines/aircrafts/${id}/`, { ...data });
+};
+
+export const callDeleteAircraft = (id: number) => {
+    return axios.delete(`/api/airlines/aircrafts/${id}/`);
+};
+
+/* Flight */
+export const callFetchFlight = (query: string) => {
+    return axios.get(`/api/flights/flights-for-admin/?${query}`);
+};
+
+export const callCreateFlight = (data: any) => {
+    return axios.post("/api/flights/", { ...data });
+};
+
+export const callUpdateFlight = (id: number, data: any) => {
+    return axios.put(`/api/flights/${id}/`, { ...data });
+};
+
+export const callDeleteFlight = (id: number) => {
+    return axios.delete(`/api/flights/${id}/`);
+};
+
+/* Flight leg */
+export const callFetchFlightLeg = (query: string) => {
+    return axios.get(`/api/flights/legs/?${query}`);
+};
+
+export const callCreateFlightLeg = (data: any) => {
+    return axios.post("/api/flights/legs/", { ...data });
+};
+
+export const callUpdateFlightLeg = (id: number, data: any) => {
+    return axios.put(`/api/flights/legs/${id}/`, { ...data });
+};
+
+export const callDeleteFlightLeg = (id: number) => {
+    return axios.delete(`/api/flights/legs/${id}/`);
+};
+
+/* Seat class pricing */
+export const callFetchSeatClassPricing = (query: string) => {
+    return axios.get(`/api/flights/seat-classes/?${query}`);
+};
+
+export const callCreateSeatClassPricing = (data: any) => {
+    return axios.post("/api/flights/seat-classes/", { ...data });
+};
+
+export const callUpdateSeatClassPricing = (id: number, data: any) => {
+    return axios.put(`/api/flights/seat-classes/${id}/`, { ...data });
+};
+
+export const callDeleteSeatClassPricing = (id: number) => {
+    return axios.delete(`/api/flights/seat-classes/${id}/`);
+};
+
 // Car
 export const callFetchCar = (query: string) => {
     return axios.get(`/api/cars/cars/?${query}`);

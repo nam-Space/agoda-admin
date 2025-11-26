@@ -20,7 +20,7 @@ import HomePage from "./pages/Dashboard/HomePage";
 import UserPage from "./pages/Dashboard/UserPage";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { useEffect } from "react";
-import { fetchAccount, setRefreshTokenAction } from "./redux/slice/accountSlide";
+import { fetchAccount, setLogoutAction, setRefreshTokenAction } from "./redux/slice/accountSlide";
 import { onEvent } from "./utils/eventEmitter";
 import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
@@ -43,6 +43,9 @@ import CarTimetablePage from "./pages/Timetable/CarTimetablePage";
 import ActivityTimetablePage from "./pages/Timetable/ActivityTimetablePage";
 import RoomTimetablePage from "./pages/Timetable/RoomTimetablePage";
 import HandbookPage from "./pages/Dashboard/HandbookPage";
+import AirlinePage from "./pages/Dashboard/AirlinePage";
+import AircraftPage from "./pages/Dashboard/AircraftPage";
+import FlightPage from "./pages/Dashboard/FlightPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -52,7 +55,7 @@ export default function App() {
 
   useEffect(() => {
     if (errorRefreshToken) {
-      localStorage.removeItem("access_token_agoda_admin");
+      dispatch(setLogoutAction({}))
     }
   }, [errorRefreshToken])
 
@@ -105,6 +108,21 @@ export default function App() {
     ...(user.role === ROLE.ADMIN ? [{
       path: "/airport",
       element: <AirportPage />,
+      index: true
+    }] : []),
+    ...(user.role === ROLE.ADMIN ? [{
+      path: "/airline",
+      element: <AirlinePage />,
+      index: true
+    }] : []),
+    ...(user.role === ROLE.ADMIN ? [{
+      path: "/aircraft",
+      element: <AircraftPage />,
+      index: true
+    }] : []),
+    ...(user.role === ROLE.ADMIN ? [{
+      path: "/flight",
+      element: <FlightPage />,
       index: true
     }] : []),
     ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{

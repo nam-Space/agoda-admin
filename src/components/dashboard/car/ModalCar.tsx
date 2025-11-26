@@ -13,6 +13,7 @@ import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { getDatesBetween } from "@/utils/getDatesBetween";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
+import { toast } from "react-toastify";
 
 
 interface IProps {
@@ -143,13 +144,14 @@ const ModalCar = (props: IProps) => {
 
             const res: any = await callUpdateCar(dataInit.id, dataObj);
             if (res.isSuccess) {
-                message.success("Cập nhật car thành công");
+                toast.success("Cập nhật car thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         } else {
@@ -167,13 +169,14 @@ const ModalCar = (props: IProps) => {
             }
             const res: any = await callCreateCar(dataObj);
             if (res.isSuccess) {
-                message.success("Thêm mới car thành công");
+                toast.success("Thêm mới car thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -228,7 +231,9 @@ const ModalCar = (props: IProps) => {
         }
         if (info.file.status === 'error') {
             setLoadingUpload(false);
-            message.error(info?.file?.error?.event?.message ?? "Đã có lỗi xảy ra khi upload file.")
+            toast.error(info?.file?.error?.event?.message ?? "Đã có lỗi xảy ra khi upload file.", {
+                position: "bottom-right",
+            });
         }
     };
 
@@ -358,7 +363,7 @@ const ModalCar = (props: IProps) => {
                     <Col lg={6} md={6} sm={24} xs={24}>
                         <ProFormDigit
                             name="capacity"
-                            label="Sức chứa (người)"
+                            label="Tổng số ghế"
                             placeholder={"Nhập thông tin"}
                             rules={[
                                 { required: true, message: "Trường này là bắt buộc" },

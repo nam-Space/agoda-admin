@@ -10,6 +10,7 @@ import { useAppDispatch } from "@/redux/hooks";
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
+import { toast } from "react-toastify";
 
 interface IProps {
     openModal: boolean;
@@ -85,13 +86,14 @@ const ModalAirport = (props: IProps) => {
 
             const res: any = await callUpdateAirport(dataInit.id, dataObj);
             if (res.isSuccess) {
-                message.success("Cập nhật airport thành công");
+                toast.success("Cập nhật airport thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         } else {
@@ -106,13 +108,14 @@ const ModalAirport = (props: IProps) => {
             }
             const res: any = await callCreateAirport(dataObj);
             if (res.isSuccess) {
-                message.success("Thêm mới airport thành công");
+                toast.success("Thêm mới airport thành công", {
+                    position: "bottom-right",
+                });
                 handleReset();
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }

@@ -2,35 +2,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, notification, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteActivityPackage } from "../../../config/api";
+import { callDeleteAirline } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import ModalActivityPackage from "./ModalActivityPackage";
-import { fetchActivityPackage } from "@/redux/slice/activityPackageSlide";
 import { getImage } from "@/utils/imageUrl";
-import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
-export default function ActivityPackage() {
+import { fetchAirline } from "@/redux/slice/airlineSlide";
+import ModalAirline from "./ModalAirline";
+
+export default function Airline() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
-    const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.activityPackage.isFetching);
-    const meta = useAppSelector(state => state.activityPackage.meta);
-    const cities = useAppSelector(state => state.activityPackage.data);
+    const isFetching = useAppSelector(state => state.airline.isFetching);
+    const meta = useAppSelector(state => state.airline.meta);
+    const airlines = useAppSelector(state => state.airline.data);
     const dispatch = useAppDispatch();
 
-    const handleDeleteActivityPackage = async (id: number | undefined) => {
+    const handleDeleteAirline = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteActivityPackage(id);
+            const res: any = await callDeleteAirline(id);
             if (res?.isSuccess) {
-                toast.success("Xóa activity package thành công", {
+                toast.success("Xóa airline thành công", {
                     position: "bottom-right",
                 });
                 reloadTable();
@@ -53,30 +52,37 @@ export default function ActivityPackage() {
             hideInSearch: true,
         },
         {
-            title: "Hoạt động",
-            dataIndex: 'activity',
-            sorter: true,
-            hideInSearch: true,
-            render: (text, record, index, action) => {
-                return (
-                    // <div>{record?.activity?.name}</div>
-                    <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getImage(record?.activity?.images?.[0]?.image)}
-                            className="w-[70px] h-[50px] object-cover"
-                        />
-                        <div>
-                            <p className="leading-[20px]">{`${record?.activity?.name}`}</p>
-                        </div>
-                    </div>
-                )
-            },
-        },
-        {
-            title: "Tên gói của hoạt động",
+            title: "Tên",
             dataIndex: 'name',
             sorter: true,
-
+        },
+        {
+            title: "Ảnh logo",
+            dataIndex: 'logo',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <img src={`${getImage(record.logo)}`} />
+                )
+            },
+            hideInSearch: true,
+            width: 150
+        },
+        {
+            title: "Mã hàng không",
+            dataIndex: 'code',
+            sorter: true,
+        },
+        {
+            title: 'Mô tả',
+            dataIndex: 'description',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="line-clamp-6">{record.description}</div>
+                )
+            },
+            width: 600
         },
         {
             title: "Ngày tạo",
@@ -110,9 +116,9 @@ export default function ActivityPackage() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa activity package"}
-                        description={"Bạn chắc chắn muốn xóa activity package"}
-                        onConfirm={() => handleDeleteActivityPackage(entity.id)}
+                        title={"Xác nhận xóa airline"}
+                        description={"Bạn chắc chắn muốn xóa airline"}
+                        onConfirm={() => handleDeleteAirline(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -146,9 +152,6 @@ export default function ActivityPackage() {
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
-        if (user.role === ROLE.EVENT_ORGANIZER) {
-            temp += `&event_organizer_id=${user.id}`
-        }
 
         temp += `&sort=id-desc`
 
@@ -159,14 +162,14 @@ export default function ActivityPackage() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách activity package"}
+                headerTitle={"Danh sách airline"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={cities}
+                dataSource={airlines}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchActivityPackage({ query }))
+                    dispatch(fetchAirline({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -193,7 +196,7 @@ export default function ActivityPackage() {
                     );
                 }}
             />
-            <ModalActivityPackage
+            <ModalAirline
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}

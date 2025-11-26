@@ -12,6 +12,10 @@ import activityDateReducer from "./slice/activityDateSlide";
 import conversationReducer from "./slice/conversationSlide";
 import paymentReducer from "./slice/paymentSlide";
 import handbookReducer from "./slice/handbookSlide";
+import airlineReducer from "./slice/airlineSlide";
+import aircraftReducer from "./slice/aircraftSlide";
+import flightReducer from "./slice/flightSlide";
+import flightLegReducer from "./slice/flightLegSlide";
 
 export const store = configureStore({
     reducer: {
@@ -28,6 +32,10 @@ export const store = configureStore({
         conversation: conversationReducer,
         payment: paymentReducer,
         handbook: handbookReducer,
+        airline: airlineReducer,
+        aircraft: aircraftReducer,
+        flight: flightReducer,
+        flightLeg: flightLegReducer,
     },
 });
 

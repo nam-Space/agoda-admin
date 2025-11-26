@@ -15,6 +15,7 @@ import { fetchCar } from "@/redux/slice/carSlide";
 import ModalCar from "./ModalCar";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { ROLE } from "@/constants/role";
+import { toast } from "react-toastify";
 export default function Car() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -31,12 +32,13 @@ export default function Car() {
         if (id) {
             const res: any = await callDeleteCar(id);
             if (res?.isSuccess) {
-                message.success('Xóa car thành công');
+                toast.success("Xóa car thành công", {
+                    position: "bottom-right",
+                });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -204,6 +206,8 @@ export default function Car() {
         if (user.role === ROLE.DRIVER) {
             temp += `&user_id=${user.id}`
         }
+
+        temp += `&sort=id-desc`
 
         return temp;
     }

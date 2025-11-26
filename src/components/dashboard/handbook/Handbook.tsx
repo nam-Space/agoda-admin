@@ -38,9 +38,8 @@ export default function Handbook() {
                 });
                 reloadTable();
             } else {
-                notification.error({
-                    message: 'Có lỗi xảy ra',
-                    description: res.message
+                toast.error("Có lỗi xảy ra", {
+                    position: "bottom-right",
                 });
             }
         }
@@ -207,6 +206,8 @@ export default function Handbook() {
         if (user?.id && user.role !== ROLE.ADMIN) {
             temp += `&author_id=${user.id}`
         }
+
+        temp += `&sort=id-desc`
 
         return temp;
     }
