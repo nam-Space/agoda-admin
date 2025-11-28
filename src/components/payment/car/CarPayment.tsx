@@ -111,7 +111,7 @@ export default function CarPayment() {
             dataIndex: 'method',
             sorter: true,
             render: (text, record, index, action) => {
-                const car_booking = record?.booking?.car_detail
+                const car_booking = record?.booking?.car_detail?.[0]
                 const distance = haversine(
                     car_booking?.lat1 || 0,
                     car_booking?.lng1 || 0,
@@ -215,6 +215,28 @@ export default function CarPayment() {
             render: (text, record, index, action) => {
                 return (
                     <div>{formatCurrency(record?.amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Giảm giá",
+            dataIndex: 'amount',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.discount_amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Thành tiền",
+            dataIndex: 'final_price',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.final_price)}</div>
                 )
             },
         },

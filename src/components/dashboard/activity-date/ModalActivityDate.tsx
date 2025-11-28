@@ -53,7 +53,7 @@ const ModalActivityDate = (props: IProps) => {
                         label:
                             <div className="flex items-center gap-[10px]">
                                 <img
-                                    src={getImage(dataInit.activity_package?.activity?.images?.[0]?.image)}
+                                    src={getImage(dataInit.activity_package?.activity?.thumbnail)}
                                     className="w-[70px] h-[50px] object-cover"
                                 />
                                 <div>
@@ -171,7 +171,6 @@ const ModalActivityDate = (props: IProps) => {
                     maskClosable: false,
                     okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
                     cancelText: "Hủy",
-                    zIndex: 1
                 }}
                 scrollToFirstError={true}
                 preserve={false}

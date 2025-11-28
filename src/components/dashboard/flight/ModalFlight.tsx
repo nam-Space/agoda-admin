@@ -201,7 +201,6 @@ const ModalFlight = (props: IProps) => {
                     maskClosable: false,
                     okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
                     cancelText: "Hủy",
-                    zIndex: 1
                 }}
                 scrollToFirstError={true}
                 preserve={false}
@@ -281,8 +280,8 @@ const ModalFlight = (props: IProps) => {
 
                 </Row>
                 <div className="flex flex-col gap-[50px] mt-[30px]">
-                    {dataInit?.id ? <FlightLegTable flight={dataInit} /> : <FlightLegTableCreate legsData={legsData} setLegsData={setLegsData} />}
-                    {dataInit?.id ? <SeatClassPricingTable flight={dataInit} /> : <SeatClassPricingTableCreate seatClassesData={seatClassesData} setSeatClassesData={setSeatClassesData} />}
+                    {dataInit?.id ? <FlightLegTable flight={dataInit} canCreate={true} canUpdate={true} canDelete={true} /> : <FlightLegTableCreate legsData={legsData} setLegsData={setLegsData} />}
+                    {dataInit?.id ? <SeatClassPricingTable flight={dataInit} canCreate={true} canUpdate={true} canDelete={true} /> : <SeatClassPricingTableCreate seatClassesData={seatClassesData} setSeatClassesData={setSeatClassesData} />}
                 </div>
             </ModalForm>
         </>

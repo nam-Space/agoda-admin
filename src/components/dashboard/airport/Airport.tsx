@@ -56,6 +56,11 @@ export default function Airport() {
             sorter: true,
         },
         {
+            title: "Mã",
+            dataIndex: 'code',
+            sorter: true,
+        },
+        {
             title: "Địa điểm",
             dataIndex: 'location',
             sorter: true,

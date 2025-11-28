@@ -1,54 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { ActionType, ProColumns } from "@ant-design/pro-components";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import DataTable from "../../antd/Table";
-import { getImage } from "@/utils/imageUrl";
-import { toast } from "react-toastify";
-import { callDeleteFlight } from "@/config/api";
-import { formatCurrency } from "@/utils/formatCurrency";
-import { fetchFlight } from "@/redux/slice/flightSlide";
+import { callFetchFlight } from "@/config/api";
 import { BAGGAGE_INCLUDED_VI } from "@/constants/airline";
-import ModalFlight from "./ModalFlight";
+import { useAppSelector } from "@/redux/hooks";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { getImage } from "@/utils/imageUrl";
+import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
+import { useRef, useState } from "react";
+import DataTable from "../antd/Table";
 import { HiOutlineCursorClick } from "react-icons/hi";
-import ModalFlightDetail from "@/components/payment/flight/ModalFlightDetail";
+import ModalFlightDetail from "../payment/flight/ModalFlightDetail";
 
-export default function Flight() {
-    const [openModal, setOpenModal] = useState<boolean>(false);
-    const [dataInit, setDataInit] = useState(null);
-    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
+
+const TableFlightRecommended = () => {
+    const user = useAppSelector(state => state.account.user)
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedFlight, setSelectedFlight] = useState<any>({});
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.flight.isFetching);
-    const meta = useAppSelector(state => state.flight.meta);
-    const flights = useAppSelector(state => state.flight.data);
-    const dispatch = useAppDispatch();
-
-    const handleDeleteFlight = async (id: number | undefined) => {
-        if (id) {
-            const res: any = await callDeleteFlight(id);
-            if (res?.isSuccess) {
-                toast.success("Xóa flight thành công", {
-                    position: "bottom-right",
-                });
-                reloadTable();
-            } else {
-                toast.error("Có lỗi xảy ra", {
-                    position: "bottom-right",
-                });
-            }
-        }
-    }
-
-    const reloadTable = () => {
-        tableRef?.current?.reload();
-    }
+    const [flights, setFlights] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [meta, setMeta] = useState({
+        "totalItems": 0,
+        "currentPage": 1,
+        "itemsPerPage": 5,
+        "totalPages": 1
+    })
 
     const columns: ProColumns<any>[] = [
         {
@@ -106,8 +85,8 @@ export default function Flight() {
 
                 return (
                     <div onClick={() => {
-                        setDataInit(record)
-                        setIsModalDetailOpen(true)
+                        setSelectedFlight(record)
+                        setIsModalOpen(true)
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
                             <div>
@@ -185,46 +164,6 @@ export default function Flight() {
                 )
             },
         },
-        {
-
-            title: "Hành động",
-            hideInSearch: true,
-            width: 50,
-            render: (_value, entity, _index, _action) => (
-                <Space>
-                    <EditOutlined
-                        style={{
-                            fontSize: 20,
-                            color: '#ffa500',
-                        }}
-                        type=""
-                        onClick={() => {
-                            setOpenModal(true);
-                            setDataInit(entity);
-                        }}
-                    />
-
-                    <Popconfirm
-                        placement="leftTop"
-                        title={"Xác nhận xóa flight"}
-                        description={"Bạn chắc chắn muốn xóa flight"}
-                        onConfirm={() => handleDeleteFlight(entity.id)}
-                        okText={"Xác nhận"}
-                        cancelText={"Hủy"}
-                    >
-                        <span style={{ cursor: "pointer", margin: "0 10px" }}>
-                            <DeleteOutlined
-                                style={{
-                                    fontSize: 20,
-                                    color: '#ff4d4f',
-                                }}
-                            />
-                        </span>
-                    </Popconfirm>
-                </Space>
-            ),
-
-        },
     ];
 
     const buildQuery = (params: any, sort: any, filter: any) => {
@@ -236,24 +175,42 @@ export default function Flight() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+        if (clone.name) {
+            temp += `&name=${clone.name}`
+        }
+        if (clone.description) {
+            temp += `&description=${clone.description}`
+        }
+
         temp += `&sort=id-desc`
 
         return temp;
     }
 
+    const handleGetFlights = async (query: string) => {
+        setIsLoading(true)
+        const res: any = await callFetchFlight(query)
+        setIsLoading(false)
+        if (res.isSuccess) {
+            setFlights(res.data)
+            setMeta(res.meta)
+        }
+    }
+
     return (
-        <div>
+        <div className='mt-3 border border-gray-200 dark:border-gray-800'>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách flight"}
+                headerTitle={"Danh sách chuyến bay phổ biến"}
                 rowKey="id"
-                loading={isFetching}
+                loading={isLoading}
                 columns={columns}
                 dataSource={flights}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchFlight({ query }))
+                    handleGetFlights(query)
                 }}
+                search={false}
                 scroll={{ x: true }}
                 pagination={
                     {
@@ -265,32 +222,14 @@ export default function Flight() {
                     }
                 }
                 rowSelection={false}
-                toolBarRender={(_action, _rows): any => {
-                    return (
-                        <Button
-                            icon={<PlusOutlined />}
-                            type="primary"
-                            onClick={() => setOpenModal(true)}
-                        >
-                            <span>
-                                Thêm mới
-                            </span>
-                        </Button>
-                    );
-                }}
-            />
-            <ModalFlight
-                openModal={openModal}
-                setOpenModal={setOpenModal}
-                reloadTable={reloadTable}
-                dataInit={dataInit}
-                setDataInit={setDataInit}
             />
             <ModalFlightDetail
-                flight={dataInit}
-                isModalOpen={isModalDetailOpen}
-                setIsModalOpen={setIsModalDetailOpen}
+                flight={selectedFlight}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
             />
         </div>
-    );
+    )
 }
+
+export default TableFlightRecommended

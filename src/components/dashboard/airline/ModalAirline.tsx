@@ -182,145 +182,141 @@ const ModalAirline = (props: IProps) => {
     }
 
     return (
-        <>
-            <ModalForm
-                title={<>{dataInit?.id ? "Cập nhật airline" : "Thêm mới airline"}</>}
-                open={openModal}
-                modalProps={{
-                    onCancel: () => { handleReset() },
-                    afterClose: () => handleReset(),
-                    destroyOnClose: true,
-                    width: isMobile ? "100%" : 900,
-                    keyboard: false,
-                    maskClosable: false,
-                    okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
-                    cancelText: "Hủy",
-                    zIndex: 1
-                }}
-                scrollToFirstError={true}
-                preserve={false}
-                form={form}
-                onFinish={submitData}
-                initialValues={dataInit?.id ? dataInit : {}}
-            >
-                <Row gutter={16}>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <ProFormText
-                            label={"Tên"}
-                            name="name"
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                            placeholder={"Nhập thông tin"}
-                        />
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <ProFormText
-                            label={"Mã hàng không"}
-                            name="code"
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                            placeholder={"Nhập thông tin"}
-                        />
-                    </Col>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <Form.Item
-                            labelCol={{ span: 24 }}
-                            label={"Ảnh cẩm nang"}
-                            name="logo"
-                        >
-                            <ConfigProvider locale={enUS}>
-                                <Upload
-                                    name="logo"
-                                    listType="picture-card"
-                                    className="image-uploader"
-                                    maxCount={1}
-                                    multiple={false}
-                                    customRequest={handleUploadFileLogo}
-                                    beforeUpload={beforeUpload}
-                                    onChange={handleChange}
-                                    onRemove={(file) => handleRemoveFile(file)}
-                                    onPreview={handlePreview}
-                                    defaultFileList={
-                                        dataInit?.id && dataInit.logo ?
-                                            [
-                                                {
-                                                    uid: uuidv4(),
-                                                    name: dataInit?.logo ?? "",
-                                                    status: 'done',
-                                                    url: `${import.meta.env.VITE_BE_URL}${dataInit.logo}`,
-                                                }
-                                            ] : []
-                                    }
+        <ModalForm
+            title={<>{dataInit?.id ? "Cập nhật airline" : "Thêm mới airline"}</>}
+            open={openModal}
+            modalProps={{
+                onCancel: () => { handleReset() },
+                afterClose: () => handleReset(),
+                destroyOnClose: true,
+                width: isMobile ? "100%" : 900,
+                keyboard: false,
+                maskClosable: false,
+                okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
+                cancelText: "Hủy",
+            }}
+            scrollToFirstError={true}
+            preserve={false}
+            form={form}
+            onFinish={submitData}
+            initialValues={dataInit?.id ? dataInit : {}}
+        >
+            <Row gutter={16}>
+                <Col lg={24} md={24} sm={24} xs={24}>
+                    <ProFormText
+                        label={"Tên"}
+                        name="name"
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                        placeholder={"Nhập thông tin"}
+                    />
+                </Col>
+                <Col lg={24} md={24} sm={24} xs={24}>
+                    <ProFormText
+                        label={"Mã hàng không"}
+                        name="code"
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                        placeholder={"Nhập thông tin"}
+                    />
+                </Col>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <Form.Item
+                        labelCol={{ span: 24 }}
+                        label={"Ảnh cẩm nang"}
+                        name="logo"
+                    >
+                        <ConfigProvider locale={enUS}>
+                            <Upload
+                                name="logo"
+                                listType="picture-card"
+                                className="image-uploader"
+                                maxCount={1}
+                                multiple={false}
+                                customRequest={handleUploadFileLogo}
+                                beforeUpload={beforeUpload}
+                                onChange={handleChange}
+                                onRemove={(file) => handleRemoveFile(file)}
+                                onPreview={handlePreview}
+                                defaultFileList={
+                                    dataInit?.id && dataInit.logo ?
+                                        [
+                                            {
+                                                uid: uuidv4(),
+                                                name: dataInit?.logo ?? "",
+                                                status: 'done',
+                                                url: `${import.meta.env.VITE_BE_URL}${dataInit.logo}`,
+                                            }
+                                        ] : []
+                                }
 
-                                >
-                                    <div>
-                                        {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
-                                        <div style={{ marginTop: 8 }}>
-                                            Tải ảnh lên
-                                        </div>
+                            >
+                                <div>
+                                    {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
+                                    <div style={{ marginTop: 8 }}>
+                                        Tải ảnh lên
                                     </div>
-                                </Upload>
-                            </ConfigProvider>
-                        </Form.Item>
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Mô tả</label>
-                        <MDXEditor
-                            markdown={convertHtmlToMarkdown(description)}
-                            className="min-h-[500px] bg-[#fcfcfc]"
-                            // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
-                            contentEditableClassName="prose"
-                            onChange={handleChangeMarkdown}
-                            plugins={[
-                                headingsPlugin(),
-                                diffSourcePlugin({
-                                    diffMarkdown: 'An older version',
-                                    viewMode: 'rich-text'
-                                }),
-                                linkPlugin(),
-                                linkDialogPlugin(),
-                                frontmatterPlugin(),
-                                imagePlugin(),
-                                tablePlugin(),
-                                thematicBreakPlugin(),
-                                listsPlugin(),
-                                quotePlugin(),
-                                markdownShortcutPlugin(),
-                                toolbarPlugin({
-                                    toolbarClassName: 'markdown-editor',
-                                    toolbarContents: () => (
-                                        <>
-                                            <BlockTypeSelect />
-                                            <BoldItalicUnderlineToggles />
-                                            <CodeToggle />
-                                            <CreateLink />
-                                            <InsertFrontmatter />
-                                            <InsertImage />
-                                            <InsertTable />
-                                            <InsertThematicBreak />
-                                            <ListsToggle />
-                                            <DiffSourceToggleWrapper>
-                                                <UndoRedo />
-                                            </DiffSourceToggleWrapper>
-                                        </>
-                                    )
-                                })]}
-                        />
-                    </Col>
-                </Row>
-            </ModalForm>
+                                </div>
+                            </Upload>
+                        </ConfigProvider>
+                    </Form.Item>
+                </Col>
+                <Col lg={24} md={24} sm={24} xs={24}>
+                    <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Mô tả</label>
+                    <MDXEditor
+                        markdown={convertHtmlToMarkdown(description)}
+                        className="min-h-[500px] bg-[#fcfcfc]"
+                        // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
+                        contentEditableClassName="prose"
+                        onChange={handleChangeMarkdown}
+                        plugins={[
+                            headingsPlugin(),
+                            diffSourcePlugin({
+                                diffMarkdown: 'An older version',
+                                viewMode: 'rich-text'
+                            }),
+                            linkPlugin(),
+                            linkDialogPlugin(),
+                            frontmatterPlugin(),
+                            imagePlugin(),
+                            tablePlugin(),
+                            thematicBreakPlugin(),
+                            listsPlugin(),
+                            quotePlugin(),
+                            markdownShortcutPlugin(),
+                            toolbarPlugin({
+                                toolbarClassName: 'markdown-editor',
+                                toolbarContents: () => (
+                                    <>
+                                        <BlockTypeSelect />
+                                        <BoldItalicUnderlineToggles />
+                                        <CodeToggle />
+                                        <CreateLink />
+                                        <InsertFrontmatter />
+                                        <InsertImage />
+                                        <InsertTable />
+                                        <InsertThematicBreak />
+                                        <ListsToggle />
+                                        <DiffSourceToggleWrapper>
+                                            <UndoRedo />
+                                        </DiffSourceToggleWrapper>
+                                    </>
+                                )
+                            })]}
+                    />
+                </Col>
+            </Row>
             <Modal
                 open={previewOpen}
                 title={previewTitle}
                 footer={null}
                 onCancel={() => setPreviewOpen(false)}
-                style={{ zIndex: 50 }}
             >
                 <img alt="img" style={{ width: '100%', objectFit: 'cover' }} width={500} height={500} src={previewImage} />
             </Modal>
-        </>
+        </ModalForm>
     )
 }
 

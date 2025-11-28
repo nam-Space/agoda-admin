@@ -116,6 +116,40 @@ export const callDeleteHotelImage = (id: number) => {
     return axios.delete(`/api/hotels/hotel-images/${id}/delete/`);
 };
 
+// Room
+export const callFetchRoom = (query: string) => {
+    return axios.get(`/api/rooms/rooms/?${query}`);
+};
+
+export const callCreateRoom = (data: any) => {
+    return axios.post("/api/rooms/rooms/create/", { ...data });
+};
+
+export const callUpdateRoom = (id: number, data: any) => {
+    return axios.put(`/api/rooms/rooms/${id}/update/`, { ...data });
+};
+
+export const callDeleteRoom = (id: number) => {
+    return axios.delete(`/api/rooms/rooms/${id}/delete/`);
+};
+
+// Room amenity
+export const callFetchRoomAmenity = (query: string) => {
+    return axios.get(`/api/rooms/amenities/?${query}`);
+};
+
+export const callCreateRoomAmenity = (data: any) => {
+    return axios.post("/api/rooms/amenities/create/", { ...data });
+};
+
+export const callUpdateRoomAmenity = (id: number, data: any) => {
+    return axios.put(`/api/rooms/amenities/${id}/update/`, { ...data });
+};
+
+export const callDeleteRoomAmenity = (id: number) => {
+    return axios.delete(`/api/rooms/amenities/${id}/delete/`);
+};
+
 /* Airport */
 export const callFetchAirport = (query: string) => {
     return axios.get(`/api/airports/airports/?${query}`);

@@ -57,6 +57,7 @@ const AppSidebar: React.FC = () => {
         ...(user.role === ROLE.ADMIN ? [{ name: "Đất nước", path: "/country", pro: false }] : []),
         ...(user.role === ROLE.ADMIN ? [{ name: "Thành phố", path: "/city", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{ name: "Khách sạn", path: "/hotel", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{ name: "Phòng", path: "/room", pro: false }] : []),
         ...(user.role === ROLE.ADMIN ? [{ name: "Sân bay", path: "/airport", pro: false }] : []),
         ...(user.role === ROLE.ADMIN ? [{ name: "Hãng hàng không", path: "/airline", pro: false }] : []),
         ...(user.role === ROLE.ADMIN ? [{ name: "Máy bay", path: "/aircraft", pro: false }] : []),

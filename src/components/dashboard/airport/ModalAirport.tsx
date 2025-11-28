@@ -71,13 +71,14 @@ const ModalAirport = (props: IProps) => {
     }
 
     const submitData = async (valuesForm: any) => {
-        const { name, location, lat, lng } = valuesForm;
+        const { name, code, location, lat, lng } = valuesForm;
 
         if (dataInit?.id) {
             //update
             const dataObj = {
                 city: city.value,
                 name,
+                code,
                 location,
                 description,
                 lat,
@@ -101,6 +102,7 @@ const ModalAirport = (props: IProps) => {
             const dataObj = {
                 city: city.value,
                 name,
+                code,
                 location,
                 description,
                 lat,
@@ -158,7 +160,6 @@ const ModalAirport = (props: IProps) => {
                     maskClosable: false,
                     okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
                     cancelText: "Hủy",
-                    zIndex: 1
                 }}
                 scrollToFirstError={true}
                 preserve={false}
@@ -167,7 +168,7 @@ const ModalAirport = (props: IProps) => {
                 initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
-                    <Col lg={6} md={6} sm={24} xs={24}>
+                    <Col lg={8} md={8} sm={24} xs={24}>
                         <ProForm.Item
                             name="city"
                             label={"Thành phố"}
@@ -191,10 +192,20 @@ const ModalAirport = (props: IProps) => {
                             />
                         </ProForm.Item>
                     </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
+                    <Col lg={8} md={8} sm={24} xs={24}>
                         <ProFormText
                             label={"Tên"}
                             name="name"
+                            rules={[
+                                { required: true, message: "Trường này là bắt buộc" },
+                            ]}
+                            placeholder={"Nhập thông tin"}
+                        />
+                    </Col>
+                    <Col lg={8} md={8} sm={24} xs={24}>
+                        <ProFormText
+                            label={"Mã"}
+                            name="code"
                             rules={[
                                 { required: true, message: "Trường này là bắt buộc" },
                             ]}

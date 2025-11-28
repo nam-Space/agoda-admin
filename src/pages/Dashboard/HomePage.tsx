@@ -7,6 +7,7 @@ import { ROLE } from "@/constants/role";
 import TableHotelRecommended from "@/components/ecommerce/TableHotelRecommended";
 import TableActivityRecommended from "@/components/ecommerce/TableActivityRecommended";
 import TableCarRecommended from "@/components/ecommerce/TableCarRecommended";
+import TableFlightRecommended from "@/components/ecommerce/TableFlightRecommended";
 
 export default function Home() {
   const user = useAppSelector(state => state.account.user)
@@ -40,8 +41,14 @@ export default function Home() {
               <TableCarRecommended />
             </div>
           }
+          {(user.role === ROLE.ADMIN) &&
+            <div>
+              <h1 className="font-semibold text-[24px]">Dịch vụ vé máy bay</h1>
+              <MonthlySalesChart serviceType={SERVICE_TYPE.FLIGHT} />
+              <TableFlightRecommended />
+            </div>
+          }
 
-          <MonthlySalesChart serviceType={SERVICE_TYPE.FLIGHT} />
         </div>
       </div>
     </>

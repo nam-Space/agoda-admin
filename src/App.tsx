@@ -46,6 +46,7 @@ import HandbookPage from "./pages/Dashboard/HandbookPage";
 import AirlinePage from "./pages/Dashboard/AirlinePage";
 import AircraftPage from "./pages/Dashboard/AircraftPage";
 import FlightPage from "./pages/Dashboard/FlightPage";
+import RoomPage from "./pages/Dashboard/RoomPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -103,6 +104,11 @@ export default function App() {
     ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{
       path: "/hotel",
       element: <HotelPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{
+      path: "/room",
+      element: <RoomPage />,
       index: true
     }] : []),
     ...(user.role === ROLE.ADMIN ? [{

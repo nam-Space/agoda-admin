@@ -90,7 +90,6 @@ const ModalFlightPayment = (props: IProps) => {
                     maskClosable: false,
                     okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
                     cancelText: "Hủy",
-                    zIndex: 1
                 }}
                 scrollToFirstError={true}
                 preserve={false}
