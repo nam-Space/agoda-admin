@@ -16,6 +16,7 @@ import airlineReducer from "./slice/airlineSlide";
 import aircraftReducer from "./slice/aircraftSlide";
 import flightReducer from "./slice/flightSlide";
 import flightLegReducer from "./slice/flightLegSlide";
+import roomReducer from "./slice/roomSlide";
 
 export const store = configureStore({
     reducer: {
@@ -36,6 +37,7 @@ export const store = configureStore({
         aircraft: aircraftReducer,
         flight: flightReducer,
         flightLeg: flightLegReducer,
+        room: roomReducer,
     },
 });
 

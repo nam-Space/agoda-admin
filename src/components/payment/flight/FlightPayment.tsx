@@ -14,18 +14,18 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { PAYMENT_METHOD_VI, PAYMENT_STATUS_VI } from "@/constants/payment";
 import { fetchPayment } from "@/redux/slice/paymentSlide";
 import { SERVICE_TYPE } from "@/constants/booking";
-import { getUserAvatar } from "@/utils/imageUrl";
-import {
-    Star,
-    Calendar,
-} from "lucide-react";
+import { getImage, getUserAvatar } from "@/utils/imageUrl";
+import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightPayment from "./ModalFlightPayment";
 import { toast } from "react-toastify";
+import ModalFlightDetail from "./ModalFlightDetail";
 
 export default function FlightPayment() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
+    const [selectedFlight, setSelectedFlight] = useState({})
+    const [isModalFlightDetailOpen, setIsModalFlightDetailOpen] = useState(false);
     const tableRef = useRef<ActionType>(null);
 
     const isFetching = useAppSelector(state => state.payment.isFetching);
@@ -111,81 +111,78 @@ export default function FlightPayment() {
             dataIndex: 'method',
             sorter: true,
             render: (text, record, index, action) => {
-                const activity_date_booking = record?.booking?.activity_date_detail
+                const going = record?.booking?.flight_detail?.[0]
+                const returning = record?.booking?.flight_detail?.[1]
 
                 return (
-                    <div>
-                        {activity_date_booking && <div>
-                            <div className="flex gap-3 p-3">
-                                <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
-                                    <img
-                                        src={`${import.meta.env.VITE_BE_URL}${activity_date_booking?.activity_image}`}
-                                        className="w-full h-full object-cover"
-                                    />
+                    <div className="flex flex-col gap-[20px]">
+                        <div onClick={() => {
+                            setSelectedFlight(going?.flight)
+                            setIsModalFlightDetailOpen(true)
+                        }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                            <h2 className="font-semibold text-[16px] text-blue-700"> Chiều đi (→):</h2>
+                            <div className="flex items-center flex-col">
+                                <div className="flex items-center gap-[10px]">
+                                    <img className="w-[50px] object-cover" src={getImage(going?.flight?.airline?.logo)} />
+                                    <div>
+                                        <p className="leading-[20px] font-semibold">{going?.flight?.airline?.name}</p>
+                                    </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
-                                        {
-                                            activity_date_booking?.activity_name
-                                        }
-                                    </h4>
-                                    <div className="flex items-center gap-1 text-xs">
-                                        <Star className="w-3 h-3 fill-orange-500 text-orange-500" />
-
-                                        <span className="font-semibold">
-                                            {
-                                                activity_date_booking?.avg_star
-                                            }
-                                        </span>
-                                        <span className="text-gray-500">
-                                            1,128 bài đánh giá
-                                        </span>
+                                <div>
+                                    <div>
+                                        <p className="font-semibold text-base">{dayjs(going?.flight?.departure_time).format("HH:mm")} → {dayjs(going?.flight?.arrival_time).format("HH:mm")}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500">{dayjs(going?.flight?.departure_time).format("DD/MM/YYYY")} → {dayjs(going?.flight?.arrival_time).format("DD/MM/YYYY")}</p>
+                                    </div>
+                                    <div className="flex items-center gap-[10px]">
+                                        <p className="font-semibold leading-[20px]">{going?.flight?.departure_airport?.name}</p>
+                                        →
+                                        <p className="font-semibold leading-[20px]">{going?.flight?.arrival_airport?.name}</p>
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="border-gray-200 p-3 space-y-2">
-                                <div className="flex items-center gap-2 text-sm">
-                                    <Calendar className="w-4 h-4 text-gray-500" />
-                                    <span>
-                                        {dayjs(
-                                            activity_date_booking?.date_launch
-                                        ).format("YYYY-MM-DD")}
-                                    </span>
-                                </div>
-
-                                <div className="text-sm">
-                                    <div className="font-semibold text-gray-900 mb-1">
-                                        {
-                                            activity_date_booking?.activity_package_name
-                                        }
+                            <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                                <HiOutlineCursorClick />
+                                <span>Click để xem chi tiết</span>
+                            </div>
+                        </div>
+                        {returning && <div onClick={() => {
+                            setSelectedFlight(returning?.flight)
+                            setIsModalFlightDetailOpen(true)
+                        }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                            <h2 className="font-semibold text-[16px] text-red-700">Chiều về (←):</h2>
+                            <div className="flex items-center flex-col">
+                                <div className="flex items-center gap-[10px]">
+                                    <img className="w-[50px] object-cover" src={getImage(returning?.flight?.airline?.logo)} />
+                                    <div>
+                                        <p className="leading-[20px] font-semibold">{returning?.flight?.airline?.name}</p>
                                     </div>
-                                    {activity_date_booking?.adult_quantity_booking >
-                                        0 && (
-                                            <div className="text-gray-600 text-xs">
-                                                {
-                                                    activity_date_booking?.adult_quantity_booking
-                                                }{" "}
-                                                người lớn
-                                            </div>
-                                        )}
-
-                                    {activity_date_booking?.child_quantity_booking >
-                                        0 && (
-                                            <div className="text-gray-600 text-xs">
-                                                {
-                                                    activity_date_booking?.child_quantity_booking
-                                                }{" "}
-                                                trẻ em
-                                            </div>
-                                        )}
                                 </div>
-
+                                <div>
+                                    <div>
+                                        <p className="font-semibold text-base">{dayjs(returning?.flight?.departure_time).format("HH:mm")} → {dayjs(returning?.flight?.arrival_time).format("HH:mm")}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500">{dayjs(returning?.flight?.departure_time).format("DD/MM/YYYY")} → {dayjs(returning?.flight?.arrival_time).format("DD/MM/YYYY")}</p>
+                                    </div>
+                                    <div className="flex items-center gap-[10px]">
+                                        <p className="font-semibold leading-[20px]">{returning?.flight?.departure_airport?.name}</p>
+                                        →
+                                        <p className="font-semibold leading-[20px]">{returning?.flight?.arrival_airport?.name}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                                <HiOutlineCursorClick />
+                                <span>Click để xem chi tiết</span>
                             </div>
                         </div>}
+
                     </div>
                 )
             },
+            width: 250,
         },
         {
             title: "Tổng tiền",
@@ -195,6 +192,28 @@ export default function FlightPayment() {
             render: (text, record, index, action) => {
                 return (
                     <div>{formatCurrency(record?.amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Giảm giá",
+            dataIndex: 'amount',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.discount_amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Thành tiền",
+            dataIndex: 'final_price',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.final_price)}</div>
                 )
             },
         },
@@ -335,6 +354,7 @@ export default function FlightPayment() {
                 dataInit={dataInit}
                 setDataInit={setDataInit}
             />
+            <ModalFlightDetail flight={selectedFlight} isModalOpen={isModalFlightDetailOpen} setIsModalOpen={setIsModalFlightDetailOpen} />
         </div>
     );
 }

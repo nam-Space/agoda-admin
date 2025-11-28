@@ -287,198 +287,194 @@ const ModalCity = (props: IProps) => {
     }
 
     return (
-        <>
-            <ModalForm
-                title={<>{dataInit?.id ? "Cập nhật city" : "Thêm mới city"}</>}
-                open={openModal}
-                modalProps={{
-                    onCancel: () => { handleReset() },
-                    afterClose: () => handleReset(),
-                    destroyOnClose: true,
-                    width: isMobile ? "100%" : 900,
-                    keyboard: false,
-                    maskClosable: false,
-                    okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
-                    cancelText: "Hủy",
-                    zIndex: 1
-                }}
-                scrollToFirstError={true}
-                preserve={false}
-                form={form}
-                onFinish={submitData}
-                initialValues={dataInit?.id ? dataInit : {}}
-            >
-                <Row gutter={16}>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProForm.Item
-                            name="country"
-                            label={"Quốc gia"}
-                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
-                        >
-                            <DebounceSelect
-                                allowClear
-                                showSearch
-                                defaultValue={country}
-                                value={country}
-                                placeholder={<span>Chọn Quốc gia</span>}
-                                fetchOptions={fetchCountryList}
-                                onChange={(newValue: any) => {
-                                    setCountry({
-                                        key: newValue?.key,
-                                        label: newValue?.label,
-                                        value: newValue?.value
-                                    });
-                                }}
-                                style={{ width: '100%' }}
-                            />
-                        </ProForm.Item>
-
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <ProFormText
-                            label={"Tên thành phố"}
-                            name="name"
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                            placeholder={"Nhập thông tin"}
+        <ModalForm
+            title={<>{dataInit?.id ? "Cập nhật city" : "Thêm mới city"}</>}
+            open={openModal}
+            modalProps={{
+                onCancel: () => { handleReset() },
+                afterClose: () => handleReset(),
+                destroyOnClose: true,
+                width: isMobile ? "100%" : 900,
+                keyboard: false,
+                maskClosable: false,
+                okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
+                cancelText: "Hủy",
+            }}
+            scrollToFirstError={true}
+            preserve={false}
+            form={form}
+            onFinish={submitData}
+            initialValues={dataInit?.id ? dataInit : {}}
+        >
+            <Row gutter={16}>
+                <Col lg={6} md={6} sm={24} xs={24}>
+                    <ProForm.Item
+                        name="country"
+                        label={"Quốc gia"}
+                        rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                    >
+                        <DebounceSelect
+                            allowClear
+                            showSearch
+                            defaultValue={country}
+                            value={country}
+                            placeholder={<span>Chọn Quốc gia</span>}
+                            fetchOptions={fetchCountryList}
+                            onChange={(newValue: any) => {
+                                setCountry({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            style={{ width: '100%' }}
                         />
-                    </Col>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <Form.Item
-                            labelCol={{ span: 24 }}
-                            label={"Ảnh"}
-                            name="image"
-                        >
-                            <ConfigProvider locale={enUS}>
-                                <Upload
-                                    name="image"
-                                    listType="picture-card"
-                                    className="image-uploader"
-                                    maxCount={1}
-                                    multiple={false}
-                                    customRequest={handleUploadFileLogo}
-                                    beforeUpload={beforeUpload}
-                                    onChange={handleChange}
-                                    onRemove={(file) => handleRemoveFile(file)}
-                                    onPreview={handlePreview}
-                                    defaultFileList={
-                                        dataInit?.id && dataInit.image ?
-                                            [
-                                                {
-                                                    uid: uuidv4(),
-                                                    name: dataInit?.image ?? "",
-                                                    status: 'done',
-                                                    url: `${import.meta.env.VITE_BE_URL}${dataInit.image}`,
-                                                }
-                                            ] : []
-                                    }
+                    </ProForm.Item>
 
-                                >
-                                    <div>
-                                        {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
-                                        <div style={{ marginTop: 8 }}>
-                                            Tải ảnh lên
-                                        </div>
+                </Col>
+                <Col lg={24} md={24} sm={24} xs={24}>
+                    <ProFormText
+                        label={"Tên thành phố"}
+                        name="name"
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                        placeholder={"Nhập thông tin"}
+                    />
+                </Col>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <Form.Item
+                        labelCol={{ span: 24 }}
+                        label={"Ảnh"}
+                        name="image"
+                    >
+                        <ConfigProvider locale={enUS}>
+                            <Upload
+                                name="image"
+                                listType="picture-card"
+                                className="image-uploader"
+                                maxCount={1}
+                                multiple={false}
+                                customRequest={handleUploadFileLogo}
+                                beforeUpload={beforeUpload}
+                                onChange={handleChange}
+                                onRemove={(file) => handleRemoveFile(file)}
+                                onPreview={handlePreview}
+                                defaultFileList={
+                                    dataInit?.id && dataInit.image ?
+                                        [
+                                            {
+                                                uid: uuidv4(),
+                                                name: dataInit?.image ?? "",
+                                                status: 'done',
+                                                url: `${import.meta.env.VITE_BE_URL}${dataInit.image}`,
+                                            }
+                                        ] : []
+                                }
+
+                            >
+                                <div>
+                                    {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
+                                    <div style={{ marginTop: 8 }}>
+                                        Tải ảnh lên
                                     </div>
-                                </Upload>
-                            </ConfigProvider>
-                        </Form.Item>
-                    </Col>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <Form.Item
-                            labelCol={{ span: 24 }}
-                            label={"Ảnh cẩm nang"}
-                            name="image_handbook"
-                        >
-                            <ConfigProvider locale={enUS}>
-                                <Upload
-                                    name="image_handbook"
-                                    listType="picture-card"
-                                    className="image_handbook-uploader"
-                                    maxCount={1}
-                                    multiple={false}
-                                    customRequest={handleUploadFileLogoHandbook}
-                                    beforeUpload={beforeUpload}
-                                    onChange={handleChangeHandbook}
-                                    onRemove={(file) => handleRemoveFileHandbook(file)}
-                                    onPreview={handlePreviewHandbook}
-                                    defaultFileList={
-                                        dataInit?.id && dataInit.image_handbook ?
-                                            [
-                                                {
-                                                    uid: uuidv4(),
-                                                    name: dataInit?.image_handbook ?? "",
-                                                    status: 'done',
-                                                    url: `${import.meta.env.VITE_BE_URL}${dataInit.image_handbook}`,
-                                                }
-                                            ] : []
-                                    }
+                                </div>
+                            </Upload>
+                        </ConfigProvider>
+                    </Form.Item>
+                </Col>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <Form.Item
+                        labelCol={{ span: 24 }}
+                        label={"Ảnh cẩm nang"}
+                        name="image_handbook"
+                    >
+                        <ConfigProvider locale={enUS}>
+                            <Upload
+                                name="image_handbook"
+                                listType="picture-card"
+                                className="image_handbook-uploader"
+                                maxCount={1}
+                                multiple={false}
+                                customRequest={handleUploadFileLogoHandbook}
+                                beforeUpload={beforeUpload}
+                                onChange={handleChangeHandbook}
+                                onRemove={(file) => handleRemoveFileHandbook(file)}
+                                onPreview={handlePreviewHandbook}
+                                defaultFileList={
+                                    dataInit?.id && dataInit.image_handbook ?
+                                        [
+                                            {
+                                                uid: uuidv4(),
+                                                name: dataInit?.image_handbook ?? "",
+                                                status: 'done',
+                                                url: `${import.meta.env.VITE_BE_URL}${dataInit.image_handbook}`,
+                                            }
+                                        ] : []
+                                }
 
-                                >
-                                    <div>
-                                        {loadingUploadHandbook ? <LoadingOutlined /> : <PlusOutlined />}
-                                        <div style={{ marginTop: 8 }}>
-                                            Tải ảnh lên
-                                        </div>
+                            >
+                                <div>
+                                    {loadingUploadHandbook ? <LoadingOutlined /> : <PlusOutlined />}
+                                    <div style={{ marginTop: 8 }}>
+                                        Tải ảnh lên
                                     </div>
-                                </Upload>
-                            </ConfigProvider>
-                        </Form.Item>
-                    </Col>
-                    <Col lg={24} md={24} sm={24} xs={24}>
-                        <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Mô tả</label>
-                        <MDXEditor
-                            markdown={convertHtmlToMarkdown(description)}
-                            className="min-h-[500px] bg-[#fcfcfc]"
-                            // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
-                            contentEditableClassName="prose"
-                            onChange={handleChangeMarkdown}
-                            plugins={[
-                                headingsPlugin(),
-                                diffSourcePlugin({
-                                    diffMarkdown: 'An older version',
-                                    viewMode: 'rich-text'
-                                }),
-                                linkPlugin(),
-                                linkDialogPlugin(),
-                                frontmatterPlugin(),
-                                imagePlugin(),
-                                tablePlugin(),
-                                thematicBreakPlugin(),
-                                listsPlugin(),
-                                quotePlugin(),
-                                markdownShortcutPlugin(),
-                                toolbarPlugin({
-                                    toolbarClassName: 'markdown-editor',
-                                    toolbarContents: () => (
-                                        <>
-                                            <BlockTypeSelect />
-                                            <BoldItalicUnderlineToggles />
-                                            <CodeToggle />
-                                            <CreateLink />
-                                            <InsertFrontmatter />
-                                            <InsertImage />
-                                            <InsertTable />
-                                            <InsertThematicBreak />
-                                            <ListsToggle />
-                                            <DiffSourceToggleWrapper>
-                                                <UndoRedo />
-                                            </DiffSourceToggleWrapper>
-                                        </>
-                                    )
-                                })]}
+                                </div>
+                            </Upload>
+                        </ConfigProvider>
+                    </Form.Item>
+                </Col>
+                <Col lg={24} md={24} sm={24} xs={24}>
+                    <label className="flex items-center gap-[4px]"><span className="text-red-500 text-[20px]">*</span>Mô tả</label>
+                    <MDXEditor
+                        markdown={convertHtmlToMarkdown(description)}
+                        className="min-h-[500px] bg-[#fcfcfc]"
+                        // bắt buộc phải có contentEditableClassName="prose" nếu không TailwindCSS sẽ ghi đè
+                        contentEditableClassName="prose"
+                        onChange={handleChangeMarkdown}
+                        plugins={[
+                            headingsPlugin(),
+                            diffSourcePlugin({
+                                diffMarkdown: 'An older version',
+                                viewMode: 'rich-text'
+                            }),
+                            linkPlugin(),
+                            linkDialogPlugin(),
+                            frontmatterPlugin(),
+                            imagePlugin(),
+                            tablePlugin(),
+                            thematicBreakPlugin(),
+                            listsPlugin(),
+                            quotePlugin(),
+                            markdownShortcutPlugin(),
+                            toolbarPlugin({
+                                toolbarClassName: 'markdown-editor',
+                                toolbarContents: () => (
+                                    <>
+                                        <BlockTypeSelect />
+                                        <BoldItalicUnderlineToggles />
+                                        <CodeToggle />
+                                        <CreateLink />
+                                        <InsertFrontmatter />
+                                        <InsertImage />
+                                        <InsertTable />
+                                        <InsertThematicBreak />
+                                        <ListsToggle />
+                                        <DiffSourceToggleWrapper>
+                                            <UndoRedo />
+                                        </DiffSourceToggleWrapper>
+                                    </>
+                                )
+                            })]}
 
-                        />
-                    </Col>
-                </Row>
-            </ModalForm>
+                    />
+                </Col>
+            </Row>
             <Modal
                 open={previewOpen}
                 title={previewTitle}
                 footer={null}
                 onCancel={() => setPreviewOpen(false)}
-                style={{ zIndex: 50 }}
             >
                 <img alt="img" style={{ width: '100%', objectFit: 'cover' }} width={500} height={500} src={previewImage} />
             </Modal>
@@ -487,11 +483,10 @@ const ModalCity = (props: IProps) => {
                 title={previewTitleHandbook}
                 footer={null}
                 onCancel={() => setPreviewOpenHandbook(false)}
-                style={{ zIndex: 50 }}
             >
                 <img alt="img" style={{ width: '100%', objectFit: 'cover' }} width={500} height={500} src={previewImageHandbook} />
             </Modal>
-        </>
+        </ModalForm>
     )
 }
 

@@ -141,8 +141,8 @@ const ActivityTimetable = () => {
     const getListData = (value: Dayjs) => {
         const listPayment = payments.filter(
             (payment: any) =>
-                payment?.booking?.activity_date_detail?.date_launch &&
-                (dayjs(payment.booking.activity_date_detail.date_launch).format('YYYY-MM-DD') === value.format('YYYY-MM-DD'))
+                payment?.booking?.activity_date_detail?.[0]?.date_launch &&
+                (dayjs(payment.booking.activity_date_detail[0].date_launch).format('YYYY-MM-DD') === value.format('YYYY-MM-DD'))
         )
         return listPayment;
     };
@@ -182,14 +182,14 @@ const ActivityTimetable = () => {
                         <div className="flex gap-3">
                             <div className="relative w-[40px] min-w-[40px] max-w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
                                 <img
-                                    src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.images?.[0]?.image}`}
+                                    src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.thumbnail}`}
                                     className="w-full h-full object-cover"
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
                                     {
-                                        payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.name
+                                        payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.name
                                     }
                                 </h4>
                                 <div className="flex items-center gap-1 text-xs">
@@ -197,12 +197,12 @@ const ActivityTimetable = () => {
 
                                     <span className="font-semibold">
                                         {
-                                            payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
+                                            payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
                                         }
                                     </span>
                                     <span className="text-gray-500">
                                         {
-                                            payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.review_count || 0
+                                            payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.review_count || 0
                                         } lượt đánh giá
                                     </span>
                                 </div>
@@ -224,14 +224,14 @@ const ActivityTimetable = () => {
                         <div className="flex gap-3">
                             <div className="relative w-[40px] min-w-[40px] max-w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
                                 <img
-                                    src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.images?.[0]?.image}`}
+                                    src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.thumbnail}`}
                                     className="w-full h-full object-cover"
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
                                     {
-                                        payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.name
+                                        payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.name
                                     }
                                 </h4>
                                 <div className="flex items-center gap-1 text-xs">
@@ -239,12 +239,12 @@ const ActivityTimetable = () => {
 
                                     <span className="font-semibold">
                                         {
-                                            payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
+                                            payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
                                         }
                                     </span>
                                     <span className="text-gray-500">
                                         {
-                                            payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.review_count || 0
+                                            payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.review_count || 0
                                         } lượt đánh giá
                                     </span>
                                 </div>
@@ -278,14 +278,14 @@ const ActivityTimetable = () => {
                                 <div className="flex gap-3">
                                     <div className="relative w-[40px] min-w-[40px] max-w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
                                         <img
-                                            src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.images?.[0]?.image}`}
+                                            src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.thumbnail}`}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
                                             {
-                                                payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.name
+                                                payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.name
                                             }
                                         </h4>
                                         <div className="flex items-center gap-1 text-xs">
@@ -293,12 +293,12 @@ const ActivityTimetable = () => {
 
                                             <span className="font-semibold">
                                                 {
-                                                    payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
+                                                    payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
                                                 }
                                             </span>
                                             <span className="text-gray-500">
                                                 {
-                                                    payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.review_count || 0
+                                                    payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.review_count || 0
                                                 } lượt đánh giá
                                             </span>
                                         </div>
@@ -320,14 +320,14 @@ const ActivityTimetable = () => {
                                 <div className="flex gap-3">
                                     <div className="relative w-[40px] min-w-[40px] max-w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
                                         <img
-                                            src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.images?.[0]?.image}`}
+                                            src={`${import.meta.env.VITE_BE_URL}${payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.thumbnail}`}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
                                             {
-                                                payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.name
+                                                payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.name
                                             }
                                         </h4>
                                         <div className="flex items-center gap-1 text-xs">
@@ -335,12 +335,12 @@ const ActivityTimetable = () => {
 
                                             <span className="font-semibold">
                                                 {
-                                                    payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
+                                                    payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.avg_star?.toFixed(1)
                                                 }
                                             </span>
                                             <span className="text-gray-500">
                                                 {
-                                                    payment?.booking?.activity_date_detail?.activity_date?.activity_package?.activity?.review_count || 0
+                                                    payment?.booking?.activity_date_detail?.[0]?.activity_date?.activity_package?.activity?.review_count || 0
                                                 } lượt đánh giá
                                             </span>
                                         </div>

@@ -122,12 +122,12 @@ export default function RoomPayment() {
             dataIndex: 'method',
             sorter: true,
             render: (text, record, index, action) => {
-                const room_booking = record?.booking?.hotel_detail
+                const room_booking = record?.booking?.room_details?.[0]
                 return (
                     <div>
                         {room_booking && <div>
                             <div className="flex gap-3">
-                                <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+                                <div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
                                     <img
                                         src={`${import.meta.env.VITE_BE_URL}${room_booking.room?.images?.[0]?.image}`}
                                         className="w-full h-full object-cover"
@@ -188,6 +188,28 @@ export default function RoomPayment() {
             render: (text, record, index, action) => {
                 return (
                     <div>{formatCurrency(record?.amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Giảm giá",
+            dataIndex: 'amount',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.discount_amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Thành tiền",
+            dataIndex: 'final_price',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.final_price)}</div>
                 )
             },
         },

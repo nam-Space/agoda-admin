@@ -114,13 +114,13 @@ export default function ActivityPayment() {
             dataIndex: 'method',
             sorter: true,
             render: (text, record, index, action) => {
-                const activity_date_booking = record?.booking?.activity_date_detail
+                const activity_date_booking = record?.booking?.activity_date_detail?.[0]
 
                 return (
                     <div>
                         {activity_date_booking && <div>
                             <div className="flex gap-3 p-3">
-                                <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+                                <div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
                                     <img
                                         src={`${import.meta.env.VITE_BE_URL}${activity_date_booking?.activity_image}`}
                                         className="w-full h-full object-cover"
@@ -191,6 +191,7 @@ export default function ActivityPayment() {
                     </div>
                 )
             },
+            width: 220
         },
         {
             title: "Tổng tiền",
@@ -200,6 +201,28 @@ export default function ActivityPayment() {
             render: (text, record, index, action) => {
                 return (
                     <div>{formatCurrency(record?.amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Giảm giá",
+            dataIndex: 'amount',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.discount_amount)}</div>
+                )
+            },
+        },
+        {
+            title: "Thành tiền",
+            dataIndex: 'final_price',
+            sorter: true,
+            hideInSearch: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>{formatCurrency(record?.booking?.final_price)}</div>
                 )
             },
         },

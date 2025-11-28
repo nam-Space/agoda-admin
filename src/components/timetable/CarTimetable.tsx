@@ -74,8 +74,8 @@ const CarTimetable = () => {
     const getListData = (value: Dayjs) => {
         const listPayment = payments.filter(
             (payment: any) =>
-                payment?.booking?.car_detail?.pickup_datetime &&
-                (dayjs(payment.booking.car_detail.pickup_datetime).format('YYYY-MM-DD') === value.format('YYYY-MM-DD'))
+                payment?.booking?.car_detail?.[0]?.pickup_datetime &&
+                (dayjs(payment.booking.car_detail[0].pickup_datetime).format('YYYY-MM-DD') === value.format('YYYY-MM-DD'))
         )
         return listPayment;
     };
@@ -100,7 +100,7 @@ const CarTimetable = () => {
         <div className="flex flex-col gap-[10px]">
             {listPayment.map((payment: any) => (
                 payment?.booking?.user?.id ? (<div>
-                    <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail.pickup_datetime).format("HH:mm")} (${payment.booking.car_detail.pickup_location} → ${payment.booking.car_detail.dropoff_location})`} />
+                    <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail[0].pickup_datetime).format("HH:mm")} (${payment.booking.car_detail[0].pickup_location} → ${payment.booking.car_detail[0].dropoff_location})`} />
                     <div className="flex items-center gap-[10px]">
                         <img
                             src={getUserAvatar(payment.booking.user.avatar)}
@@ -113,8 +113,17 @@ const CarTimetable = () => {
                     </div>
                 </div>) : (
                     <div>
-                        <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail.pickup_datetime).format("HH:mm")} (${payment.booking.car_detail.pickup_location} → ${payment.booking.car_detail.dropoff_location})`} />
-                        {payment.booking.guest_info.full_name}
+                        <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail[0].pickup_datetime).format("HH:mm")} (${payment.booking.car_detail[0].pickup_location} → ${payment.booking.car_detail[0].dropoff_location})`} />
+                        <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(payment.booking.guest_info.avatar)}
+                                className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]"><span className="font-bold">Khách ngoài:</span> {payment.booking.guest_info.full_name}</p>
+                                <p className="leading-[20px] text-[#929292]">{payment.booking.guest_info.email}</p>
+                            </div>
+                        </div>
                     </div>
                 )
             ))}
@@ -128,7 +137,7 @@ const CarTimetable = () => {
                 <div className="flex flex-col gap-[10px]">
                     {listPayment.map((payment: any) => (
                         payment?.booking?.user?.id ? (<div>
-                            <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail.pickup_datetime).format("HH:mm")} (${payment.booking.car_detail.pickup_location} → ${payment.booking.car_detail.dropoff_location})`} />
+                            <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail[0].pickup_datetime).format("HH:mm")} (${payment.booking.car_detail[0].pickup_location} → ${payment.booking.car_detail[0].dropoff_location})`} />
                             <div className="flex items-center gap-[10px]">
                                 <img
                                     src={getUserAvatar(payment.booking.user.avatar)}
@@ -141,8 +150,17 @@ const CarTimetable = () => {
                             </div>
                         </div>) : (
                             <div>
-                                <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail.pickup_datetime).format("HH:mm")} (${payment.booking.car_detail.pickup_location} → ${payment.booking.car_detail.dropoff_location})`} />
-                                {payment.booking.guest_info.full_name}
+                                <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail[0].pickup_datetime).format("HH:mm")} (${payment.booking.car_detail[0].pickup_location} → ${payment.booking.car_detail[0].dropoff_location})`} />
+                                <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(payment.booking.guest_info.avatar)}
+                                        className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]"><span className="font-bold">Khách ngoài:</span> {payment.booking.guest_info.full_name}</p>
+                                        <p className="leading-[20px] text-[#929292]">{payment.booking.guest_info.email}</p>
+                                    </div>
+                                </div>
                             </div>
                         )
                     ))}

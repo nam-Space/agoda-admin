@@ -5,24 +5,30 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { DeleteOutlined, EditOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
-import { callDeleteSeatClassPricing, callFetchSeatClassPricing } from "@/config/api";
+import { callDeleteRoomAmenity, callFetchRoomAmenity } from "@/config/api";
 import { toast } from "react-toastify";
 import vi_VN from 'antd/locale/vi_VN';
-import { HAS_FREE_DRINK_VI, HAS_LOUNGE_ACCESS_VI, HAS_MEAL_VI, HAS_POWER_OUTLET_VI, HAS_PRIORITY_BOARDING_VI, SEAT_CLASS_VI } from "@/constants/airline";
-import ModalSeatClassPricingUpsert from "./ModalSeatClassPricingUpsert";
+import ModalRoomAmenityUpsert from "./ModalRoomAmenityUpsert";
 
 interface IProps {
-    flight?: any | null;
+    room?: any | null;
     canCreate?: boolean;
     canUpdate?: boolean;
     canDelete?: boolean;
 }
 
-const SeatClassPricingTable = (props: IProps) => {
-    const { flight, canCreate, canUpdate, canDelete } = props;
+export interface IMeta {
+    currentPage: number;
+    itemsPerPage: number;
+    totalPages: number;
+    totalItems: number;
+}
+
+const RoomAmenityTable = (props: IProps) => {
+    const { room, canCreate, canUpdate, canDelete } = props;
 
     const [data, setData] = useState([]);
-    const [meta, setMeta] = useState({
+    const [meta, setMeta] = useState<IMeta>({
         currentPage: 1,
         itemsPerPage: 10,
         totalPages: 0,
@@ -32,12 +38,12 @@ const SeatClassPricingTable = (props: IProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [dataInit, setDataInit] = useState({});
 
-    const handleDeleteSeatClassPricingTable = async (id: number | undefined) => {
+    const handleDeleteRoomAmenity = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteSeatClassPricing(id);
+            const res: any = await callDeleteRoomAmenity(id);
             if (res?.isSuccess) {
-                await handleGetSeatClassPricing(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=id-desc`);
-                toast.success("Xóa seat class pricing thành công", {
+                await handleGetRoomAmenity(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&room_id=${room.id}&sort=created_at-desc`);
+                toast.success("Xóa room amenity thành công", {
                     position: "bottom-right",
                 });
             } else {
@@ -54,89 +60,8 @@ const SeatClassPricingTable = (props: IProps) => {
             dataIndex: 'id',
         },
         {
-            title: "Loại ghế",
-            dataIndex: 'seat_class',
-            render: (_, record) => {
-                return (
-                    <div className="flex items-center gap-[10px]">
-                        {SEAT_CLASS_VI[record.seat_class]}
-                    </div>
-                )
-            },
-        },
-        {
-            title: "Hệ số giá",
-            dataIndex: 'multiplier',
-        },
-        {
-            title: "Tổng số ghế",
-            dataIndex: 'capacity',
-        },
-        {
-            title: "Số ghế khả dụng",
-            dataIndex: 'available_seats',
-            render: (_, record) => {
-                return (
-                    <div className="flex items-center gap-[10px]">
-                        {record.available_seats}
-                    </div>
-                )
-            },
-        },
-        {
-            title: "Đồ ăn",
-            dataIndex: 'has_meal',
-            render: (_, record) => {
-                return (
-                    <div className="flex items-center gap-[10px]">
-                        {HAS_MEAL_VI[record.has_meal]}
-                    </div>
-                )
-            },
-        },
-        {
-            title: "Đồ uông miễn phí",
-            dataIndex: 'has_free_drink',
-            render: (_, record) => {
-                return (
-                    <div className="flex items-center gap-[10px]">
-                        {HAS_FREE_DRINK_VI[record.has_free_drink]}
-                    </div>
-                )
-            },
-        },
-        {
-            title: "Phòng chờ",
-            dataIndex: 'has_lounge_access',
-            render: (_, record) => {
-                return (
-                    <div className="flex items-center gap-[10px]">
-                        {HAS_LOUNGE_ACCESS_VI[record.has_lounge_access]}
-                    </div>
-                )
-            },
-        },
-        {
-            title: "Ổ cắm điện",
-            dataIndex: 'has_power_outlet',
-            render: (_, record) => {
-                return (
-                    <div className="flex items-center gap-[10px]">
-                        {HAS_POWER_OUTLET_VI[record.has_power_outlet]}
-                    </div>
-                )
-            },
-        },
-        {
-            title: "Ưu tiên lên máy bay",
-            dataIndex: 'has_priority_boarding',
-            render: (_, record) => {
-                return (
-                    <div className="flex items-center gap-[10px]">
-                        {HAS_PRIORITY_BOARDING_VI[record.has_priority_boarding]}
-                    </div>
-                )
-            },
+            title: "Tên tiện nghi",
+            dataIndex: 'name',
         },
         {
             title: "Ngày tạo",
@@ -168,9 +93,9 @@ const SeatClassPricingTable = (props: IProps) => {
 
                     {canDelete && <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa seat class pricing"}
-                        description={"Bạn chắc chắn muốn xóa seat class pricing"}
-                        onConfirm={() => handleDeleteSeatClassPricingTable(record.id)}
+                        title={"Xác nhận xóa room amenity"}
+                        description={"Bạn chắc chắn muốn xóa room amenity"}
+                        onConfirm={() => handleDeleteRoomAmenity(record.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -184,16 +109,17 @@ const SeatClassPricingTable = (props: IProps) => {
                         </span>
                     </Popconfirm>}
 
+
                 </Space>
             ),
 
         }] : []),
     ];
 
-    const handleGetSeatClassPricing = async (query: string) => {
+    const handleGetRoomAmenity = async (query: string) => {
         setIsLoading(true);
         try {
-            const res: any = await callFetchSeatClassPricing(query);
+            const res: any = await callFetchRoomAmenity(query);
             setData(res.data);
             setMeta(res.meta);
         } catch (error: any) {
@@ -207,18 +133,18 @@ const SeatClassPricingTable = (props: IProps) => {
     const handleChange = async (pagination: any) => {
         const { current, pageSize } = pagination
 
-        await handleGetSeatClassPricing(`current=${current}&pageSize=${pageSize}&flight_id=${flight.id}&sort=id-desc`);
+        await handleGetRoomAmenity(`current=${current}&pageSize=${pageSize}&room_id=${room.id}&sort=created_at-desc`);
     };
 
     useEffect(() => {
-        if (flight?.id) {
-            handleGetSeatClassPricing(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=id-desc`);
+        if (room?.id) {
+            handleGetRoomAmenity(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&room_id=${room.id}&sort=created_at-desc`);
         }
-    }, [flight?.id]);
+    }, [room?.id]);
 
     return (
         <div>
-            <h2 className="text-[16px] font-semibold">Danh sách các hạng ghế</h2>
+            <h2 className="text-[16px] font-semibold">Danh sách các tiện nghi</h2>
             <div className="flex items-center justify-end gap-[10px]">
                 {canCreate && <Button
                     type="primary"
@@ -230,7 +156,7 @@ const SeatClassPricingTable = (props: IProps) => {
                 </Button>}
 
                 <ReloadOutlined
-                    onClick={() => handleGetSeatClassPricing(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=id-desc`)}
+                    onClick={() => handleGetRoomAmenity(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&room_id=${room.id}&sort=created_at-desc`)}
                     className="text-[18px] px-[6px] cursor-pointer"
                 />
             </div>
@@ -260,17 +186,17 @@ const SeatClassPricingTable = (props: IProps) => {
                     />
                 </ConfigProvider>
             </div>
-            <ModalSeatClassPricingUpsert
-                flight={flight}
+            <ModalRoomAmenityUpsert
+                room={room}
                 isModalOpen={isModalOpen}
                 dataInit={dataInit}
                 setDataInit={setDataInit}
                 setIsModalOpen={setIsModalOpen}
-                handleGetSeatClassPricing={handleGetSeatClassPricing}
+                handleGetRoomAmenity={handleGetRoomAmenity}
                 meta={meta}
             />
         </div>
     )
 }
 
-export default SeatClassPricingTable
+export default RoomAmenityTable

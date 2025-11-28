@@ -255,171 +255,167 @@ const ModalCar = (props: IProps) => {
     };
 
     return (
-        <>
-            <ModalForm
-                title={<>{dataInit?.id ? "Cập nhật car" : "Thêm mới car"}</>}
-                open={openModal}
-                modalProps={{
-                    onCancel: () => { handleReset() },
-                    afterClose: () => handleReset(),
-                    destroyOnClose: true,
-                    width: isMobile ? "100%" : 900,
-                    keyboard: false,
-                    maskClosable: false,
-                    okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
-                    cancelText: "Hủy",
-                    zIndex: 1
-                }}
-                scrollToFirstError={true}
-                preserve={false}
-                form={form}
-                onFinish={submitData}
-                initialValues={dataInit?.id ? dataInit : {}}
-            >
-                <Row gutter={16}>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <ProForm.Item
-                            name="user"
-                            label={"Tài xế"}
-                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
-                        >
-                            <DebounceSelect
-                                allowClear
-                                defaultValue={user}
-                                value={user}
-                                placeholder={<span>Chọn tài xế</span>}
-                                fetchOptions={fetchUserList}
-                                onChange={(newValue: any) => {
-                                    setUser({
-                                        key: newValue?.key,
-                                        label: newValue?.label,
-                                        value: newValue?.value
-                                    });
-                                }}
-                                className="w-full !h-[60px]"
-                            />
-                        </ProForm.Item>
-
-                    </Col>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <ProFormText
-                            label={"Tên xe"}
-                            name="name"
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                            placeholder={"Nhập thông tin"}
+        <ModalForm
+            title={<>{dataInit?.id ? "Cập nhật car" : "Thêm mới car"}</>}
+            open={openModal}
+            modalProps={{
+                onCancel: () => { handleReset() },
+                afterClose: () => handleReset(),
+                destroyOnClose: true,
+                width: isMobile ? "100%" : 900,
+                keyboard: false,
+                maskClosable: false,
+                okText: <>{dataInit?.id ? "Xác nhận" : "Thêm mới"}</>,
+                cancelText: "Hủy",
+            }}
+            scrollToFirstError={true}
+            preserve={false}
+            form={form}
+            onFinish={submitData}
+            initialValues={dataInit?.id ? dataInit : {}}
+        >
+            <Row gutter={16}>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <ProForm.Item
+                        name="user"
+                        label={"Tài xế"}
+                        rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                    >
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={user}
+                            value={user}
+                            placeholder={<span>Chọn tài xế</span>}
+                            fetchOptions={fetchUserList}
+                            onChange={(newValue: any) => {
+                                setUser({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            className="w-full !h-[60px]"
                         />
-                    </Col>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <ProFormTextArea
-                            label={"Mô tả"}
-                            name="description"
-                            placeholder={"Nhập thông tin"}
-                        />
-                    </Col>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <Form.Item
-                            labelCol={{ span: 24 }}
-                            label={"Image"}
-                            name="image"
-                        >
-                            <ConfigProvider locale={enUS}>
-                                <Upload
-                                    name="image"
-                                    listType="picture-card"
-                                    className="image-uploader"
-                                    maxCount={1}
-                                    multiple={false}
-                                    customRequest={handleUploadFileLogo}
-                                    beforeUpload={beforeUpload}
-                                    onChange={handleChange}
-                                    onRemove={(file) => handleRemoveFile(file)}
-                                    onPreview={handlePreview}
-                                    defaultFileList={
-                                        dataInit?.id && dataInit.image ?
-                                            [
-                                                {
-                                                    uid: uuidv4(),
-                                                    name: dataInit?.image ?? "",
-                                                    status: 'done',
-                                                    url: `${import.meta.env.VITE_BE_URL}${dataInit.image}`,
-                                                }
-                                            ] : []
-                                    }
+                    </ProForm.Item>
 
-                                >
-                                    <div>
-                                        {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
-                                        <div style={{ marginTop: 8 }}>
-                                            Tải ảnh lên
-                                        </div>
+                </Col>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <ProFormText
+                        label={"Tên xe"}
+                        name="name"
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                        placeholder={"Nhập thông tin"}
+                    />
+                </Col>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <ProFormTextArea
+                        label={"Mô tả"}
+                        name="description"
+                        placeholder={"Nhập thông tin"}
+                    />
+                </Col>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <Form.Item
+                        labelCol={{ span: 24 }}
+                        label={"Image"}
+                        name="image"
+                    >
+                        <ConfigProvider locale={enUS}>
+                            <Upload
+                                name="image"
+                                listType="picture-card"
+                                className="image-uploader"
+                                maxCount={1}
+                                multiple={false}
+                                customRequest={handleUploadFileLogo}
+                                beforeUpload={beforeUpload}
+                                onChange={handleChange}
+                                onRemove={(file) => handleRemoveFile(file)}
+                                onPreview={handlePreview}
+                                defaultFileList={
+                                    dataInit?.id && dataInit.image ?
+                                        [
+                                            {
+                                                uid: uuidv4(),
+                                                name: dataInit?.image ?? "",
+                                                status: 'done',
+                                                url: `${import.meta.env.VITE_BE_URL}${dataInit.image}`,
+                                            }
+                                        ] : []
+                                }
+
+                            >
+                                <div>
+                                    {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
+                                    <div style={{ marginTop: 8 }}>
+                                        Tải ảnh lên
                                     </div>
-                                </Upload>
-                            </ConfigProvider>
-                        </Form.Item>
+                                </div>
+                            </Upload>
+                        </ConfigProvider>
+                    </Form.Item>
 
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="capacity"
-                            label="Tổng số ghế"
-                            placeholder={"Nhập thông tin"}
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                        />
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="luggage"
-                            label="Số hành lý tối đa"
-                            placeholder={"Nhập thông tin"}
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                        />
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormMoney
-                            name="price_per_km"
-                            label="Giá mỗi km"
-                            placeholder={"Nhập thông tin"}
-                            locale="vi-VN"
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                        />
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="avg_speed"
-                            label="Tốc độ trung bình (km/h)"
-                            placeholder={"Nhập thông tin"}
-                            rules={[
-                                { required: true, message: "Trường này là bắt buộc" },
-                            ]}
-                        />
-                    </Col>
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormDigit
-                            name="avg_star"
-                            label="Số sao trung bình"
-                            placeholder={"Nhập thông tin"}
-                        />
-                    </Col>
-                </Row>
-            </ModalForm>
+                </Col>
+                <Col lg={6} md={6} sm={24} xs={24}>
+                    <ProFormDigit
+                        name="capacity"
+                        label="Tổng số ghế"
+                        placeholder={"Nhập thông tin"}
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                    />
+                </Col>
+                <Col lg={6} md={6} sm={24} xs={24}>
+                    <ProFormDigit
+                        name="luggage"
+                        label="Số hành lý tối đa"
+                        placeholder={"Nhập thông tin"}
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                    />
+                </Col>
+                <Col lg={6} md={6} sm={24} xs={24}>
+                    <ProFormMoney
+                        name="price_per_km"
+                        label="Giá mỗi km"
+                        placeholder={"Nhập thông tin"}
+                        locale="vi-VN"
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                    />
+                </Col>
+                <Col lg={6} md={6} sm={24} xs={24}>
+                    <ProFormDigit
+                        name="avg_speed"
+                        label="Tốc độ trung bình (km/h)"
+                        placeholder={"Nhập thông tin"}
+                        rules={[
+                            { required: true, message: "Trường này là bắt buộc" },
+                        ]}
+                    />
+                </Col>
+                <Col lg={6} md={6} sm={24} xs={24}>
+                    <ProFormDigit
+                        name="avg_star"
+                        label="Số sao trung bình"
+                        placeholder={"Nhập thông tin"}
+                    />
+                </Col>
+            </Row>
             <Modal
                 open={previewOpen}
                 title={previewTitle}
                 footer={null}
                 onCancel={() => setPreviewOpen(false)}
-                style={{ zIndex: 50 }}
             >
                 <img alt="img" style={{ width: '100%', objectFit: 'cover' }} width={500} height={500} src={previewImage} />
             </Modal>
-        </>
+        </ModalForm>
     )
 }
 

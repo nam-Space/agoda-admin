@@ -22,7 +22,7 @@ interface IProps {
     meta: IMeta
 }
 
-const ModalFlightLegTable = (props: IProps) => {
+const ModalFlightLegUpsert = (props: IProps) => {
     const {
         flight,
         isModalOpen,
@@ -101,7 +101,7 @@ const ModalFlightLegTable = (props: IProps) => {
             departure_airport_name: "",
             arrival_airport_name: "",
         })
-        await handleGetFlightLeg(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}`);
+        await handleGetFlightLeg(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=departure_time-desc`);
     };
 
     const handleGetAirport = async (query: string) => {
@@ -119,7 +119,7 @@ const ModalFlightLegTable = (props: IProps) => {
     return (
         <ConfigProvider locale={vi_VN}>
             <Modal
-                title={`${dataInit?._id ? "Sửa" : "Tạo mới"} flight leg`}
+                title={`${dataInit?.id ? "Sửa" : "Tạo mới"} flight leg`}
                 open={isModalOpen}
                 onOk={handleSubmit}
                 onCancel={() => {
@@ -208,4 +208,4 @@ const ModalFlightLegTable = (props: IProps) => {
     );
 };
 
-export default ModalFlightLegTable;
+export default ModalFlightLegUpsert;

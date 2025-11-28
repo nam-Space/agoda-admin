@@ -2,60 +2,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space, Tag } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteActivityDate, callDeleteBulkActivityDate } from "../../../config/api";
+import { callDeleteRoom } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchActivityDate } from "@/redux/slice/activityDateSlide";
-import ModalActivityDate from "./ModalActivityDate";
-import { toast } from "react-toastify";
-import { formatCurrency } from "@/utils/formatCurrency";
 import { getImage } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
-export default function ActivityDate() {
+import { toast } from "react-toastify";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { fetchRoom } from "@/redux/slice/roomSlide";
+import ModalRoom from "./ModalRoom";
+export default function Room() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
-
     const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
 
-    const isFetching = useAppSelector(state => state.activityDate.isFetching);
-    const meta = useAppSelector(state => state.activityDate.meta);
-    const cities = useAppSelector(state => state.activityDate.data);
+    const isFetching = useAppSelector(state => state.room.isFetching);
+    const meta = useAppSelector(state => state.room.meta);
+    const rooms = useAppSelector(state => state.room.data);
     const dispatch = useAppDispatch();
 
-    const [selectedRows, setSelectedRows] = useState<any>([]);
-
-    const handleDeleteActivityDate = async (id: number | undefined) => {
+    const handleDeleteRoom = async (id: number | undefined) => {
         if (id) {
-            const res: any = await callDeleteActivityDate(id);
+            const res: any = await callDeleteRoom(id);
             if (res?.isSuccess) {
-                toast.success("Xóa activity date thành công", {
+                toast.success("Xóa room thành công", {
                     position: "bottom-right",
                 });
                 reloadTable();
             } else {
                 toast.error("Có lỗi xảy ra", {
-                    position: "bottom-right",
-                });
-            }
-        }
-    }
-
-    const handleDeleteMultipleRow = async () => {
-        if (selectedRows.length > 0) {
-            const res: any = await callDeleteBulkActivityDate(selectedRows.map((item: any) => item.id));
-            if (res?.isSuccess) {
-                toast.success("Xóa danh sách activity date thành công", {
-                    position: "bottom-right",
-                });
-                reloadTable();
-            } else {
-                toast.success(res.message, {
                     position: "bottom-right",
                 });
             }
@@ -73,83 +54,103 @@ export default function ActivityDate() {
             hideInSearch: true,
         },
         {
-            title: "Ngày tổ chức",
-            dataIndex: 'date_launch',
+            title: "Ảnh",
+            dataIndex: 'image',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.date_launch).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
                 )
             },
             hideInSearch: true,
+            width: 120
         },
         {
-            title: 'Giá người lớn',
-            dataIndex: 'price_adult',
+            title: 'Loại phòng',
+            dataIndex: 'room_type',
             sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div>{formatCurrency(record?.price_adult)}đ</div>
-                )
-            },
-        },
-        {
-            title: 'Giá trẻ em',
-            dataIndex: 'price_child',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div>{formatCurrency(record?.price_child)}đ</div>
-                )
-            },
-        },
-        {
-            title: 'Số lượng người lớn',
-            dataIndex: 'adult_quantity',
-            sorter: true,
-        },
-        {
-            title: 'Số lượng trẻ em',
-            dataIndex: 'child_quantity',
-            sorter: true,
-        },
-        {
-            title: "Tên hoạt động",
-            dataIndex: 'activity',
-            sorter: true,
-            hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getImage(record?.activity_package?.activity?.thumbnail)}
-                            className="w-[70px] h-[50px] object-cover"
-                        />
+
                         <div>
-                            ({record?.activity_package?.activity?.name})
+                            <p className="text-[18px] font-semibold">{`${record?.room_type}`}</p>
+                            <p className="">Số giường: {`${record?.beds}`}</p>
+                            <p className="">Diện tích: {`${record?.area_m2}`} m²</p>
+                            <p className="">Giá mỗi đêm: {`${formatCurrency(record?.price_per_night)}`}đ</p>
+                            {record.available ? <div>
+                                <Tag color="green">Có sẵn</Tag>
+                            </div> : <div>
+                                <Tag color="red">Ngừng hoạt động</Tag>
+                            </div>}
+                            {record?.has_promotion && <div className="mt-[4px]"><Tag color="#87d068">Đang khuyến mãi</Tag></div>}
+
                         </div>
                     </div>
                 )
             },
         },
+
         {
-            title: "Gói của hoạt động",
-            dataIndex: 'activity_package',
+            title: 'Khách sạn',
+            dataIndex: 'hotel',
             sorter: true,
-            hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
-                    <div>{record?.activity_package?.name}</div>
+                    <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getImage(record?.hotel?.thumbnail)}
+                            className="w-[70px] h-[50px] object-cover"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.hotel?.name}`}</p>
+                        </div>
+                    </div>
+                )
+            },
+            width: 200
+        },
+        {
+            title: 'Mô tả',
+            dataIndex: 'description',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="line-clamp-6 w-[200px]">{record.description}</div>
+                )
+            },
+            width: 200
+        },
+        {
+            title: 'Không gian',
+            dataIndex: 'space',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div className="flex items-center gap-[10px]">
+                        <ul>
+                            <li>- Tổng: {record?.total_rooms} phòng</li>
+                            <li>- Khả dụng: {record?.available_rooms} phòng</li>
+                            <li>- {record?.adults_capacity} người lớn</li>
+                            <li>- {record?.children_capacity} trẻ em</li>
+                        </ul>
+                    </div>
                 )
             },
         },
         {
-            title: "Ngày tạo",
+            title: "Thời gian",
             dataIndex: 'created_at',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <div className="flex items-center gap-[10px]">
+                        <ul>
+                            <li>- Ngày tạo: {dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</li>
+                            <li>- Ngày bắt đầu: {dayjs(record.start_date).format('DD-MM-YYYY HH:mm:ss')}</li>
+                            <li>- Ngày kết thúc: {dayjs(record.end_date).format('DD-MM-YYYY HH:mm:ss')}</li>
+                        </ul>
+                    </div>
                 )
             },
             hideInSearch: true,
@@ -175,9 +176,9 @@ export default function ActivityDate() {
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa activity date"}
-                        description={"Bạn chắc chắn muốn xóa activity date"}
-                        onConfirm={() => handleDeleteActivityDate(entity.id)}
+                        title={"Xác nhận xóa phòng"}
+                        description={"Bạn chắc chắn muốn xóa phòng"}
+                        onConfirm={() => handleDeleteRoom(entity.id)}
                         okText={"Xác nhận"}
                         cancelText={"Hủy"}
                     >
@@ -211,8 +212,8 @@ export default function ActivityDate() {
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
-        if (user.role === ROLE.EVENT_ORGANIZER) {
-            temp += `&event_organizer_id=${user.id}`
+        if (user.role === ROLE.OWNER) {
+            temp += `&ownerId=${user.id}`
         }
 
         temp += `&sort=id-desc`
@@ -224,14 +225,14 @@ export default function ActivityDate() {
         <div>
             <DataTable
                 actionRef={tableRef}
-                headerTitle={"Danh sách activity date"}
+                headerTitle={"Danh sách room"}
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={cities}
+                dataSource={rooms}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchActivityDate({ query }))
+                    dispatch(fetchRoom({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -243,12 +244,7 @@ export default function ActivityDate() {
                         showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} bản ghi</div>) }
                     }
                 }
-                rowSelection={{
-                    onChange: (_, selectedRows) => {
-                        setSelectedRows(selectedRows);
-                    }
-                }}
-                handleDelete={handleDeleteMultipleRow}
+                rowSelection={false}
                 toolBarRender={(_action, _rows): any => {
                     return (
                         <Button
@@ -263,7 +259,7 @@ export default function ActivityDate() {
                     );
                 }}
             />
-            <ModalActivityDate
+            <ModalRoom
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}

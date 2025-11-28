@@ -19,7 +19,7 @@ interface IProps {
     meta: IMeta
 }
 
-const ModalSeatClassPricingTable = (props: IProps) => {
+const ModalSeatClassPricingUpsert = (props: IProps) => {
     const {
         flight,
         isModalOpen,
@@ -117,7 +117,7 @@ const ModalSeatClassPricingTable = (props: IProps) => {
     return (
         <ConfigProvider locale={vi_VN}>
             <Modal
-                title={`${dataInit?._id ? "Sửa" : "Tạo mới"} seat class`}
+                title={`${dataInit?.id ? "Sửa" : "Tạo mới"} seat class`}
                 open={isModalOpen}
                 onOk={handleSubmit}
                 onCancel={() => {
@@ -303,4 +303,4 @@ const ModalSeatClassPricingTable = (props: IProps) => {
     );
 };
 
-export default ModalSeatClassPricingTable;
+export default ModalSeatClassPricingUpsert;

@@ -82,8 +82,8 @@ const RoomTimetable = () => {
     const getListData = (value: Dayjs) => {
         const listPayment = payments.filter(
             (payment: any) =>
-                payment?.booking?.hotel_detail?.check_in &&
-                (dayjs(payment.booking.hotel_detail.check_in).format('YYYY-MM-DD') === value.format('YYYY-MM-DD'))
+                payment?.booking?.room_details?.[0]?.check_in &&
+                (dayjs(payment.booking.room_details[0].check_in).format('YYYY-MM-DD') === value.format('YYYY-MM-DD'))
         )
         return listPayment;
     };
@@ -108,7 +108,7 @@ const RoomTimetable = () => {
         <div className="flex flex-col gap-[10px]">
             {listPayment.map((payment: any) => (
                 payment?.booking?.user?.id ? (<div>
-                    <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
+                    <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.room_details[0].check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.room_details[0].check_out).format("YYYY-MM-DD HH:mm")}`} />
                     <div className="flex items-center gap-[10px]">
                         <img
                             src={getUserAvatar(payment.booking.user.avatar)}
@@ -121,7 +121,7 @@ const RoomTimetable = () => {
                     </div>
                 </div>) : (
                     <div>
-                        <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
+                        <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.room_details[0].check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.room_details[0].check_out).format("YYYY-MM-DD HH:mm")}`} />
                         <div className="flex items-center gap-[10px]">
                             <img
                                 src={getUserAvatar(payment.booking.guest_info.avatar)}
@@ -145,7 +145,7 @@ const RoomTimetable = () => {
                 <div className="flex flex-col gap-[10px]">
                     {listPayment.map((payment: any) => (
                         payment?.booking?.user?.id ? (<div>
-                            <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
+                            <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.room_details[0].check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.room_details[0].check_out).format("YYYY-MM-DD HH:mm")}`} />
                             <div className="flex items-center gap-[10px]">
                                 <img
                                     src={getUserAvatar(payment.booking.user.avatar)}
@@ -158,7 +158,7 @@ const RoomTimetable = () => {
                             </div>
                         </div>) : (
                             <div>
-                                <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.hotel_detail.check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.hotel_detail.check_out).format("YYYY-MM-DD HH:mm")}`} />
+                                <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.room_details[0].check_in).format("YYYY-MM-DD HH:mm")} → ${dayjs(payment.booking.room_details[0].check_out).format("YYYY-MM-DD HH:mm")}`} />
                                 <div className="flex items-center gap-[10px]">
                                     <img
                                         src={getUserAvatar(payment.booking.guest_info.avatar)}

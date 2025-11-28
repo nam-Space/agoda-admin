@@ -8,10 +8,13 @@ import type { TableProps } from 'antd';
 import { callDeleteFlightLeg, callFetchFlightLeg } from "@/config/api";
 import { toast } from "react-toastify";
 import vi_VN from 'antd/locale/vi_VN';
-import ModalFlightLegTable from "./ModalFlightLegTable";
+import ModalFlightLegUpsert from "./ModalFlightLegUpsert";
 
 interface IProps {
     flight?: any | null;
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
 }
 
 export interface IMeta {
@@ -22,7 +25,7 @@ export interface IMeta {
 }
 
 const FlightLegTable = (props: IProps) => {
-    const { flight } = props;
+    const { flight, canCreate, canUpdate, canDelete } = props;
 
     const [data, setData] = useState([]);
     const [meta, setMeta] = useState<IMeta>({
@@ -39,7 +42,7 @@ const FlightLegTable = (props: IProps) => {
         if (id) {
             const res: any = await callDeleteFlightLeg(id);
             if (res?.isSuccess) {
-                await handleGetFlightLeg(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=id-desc`);
+                await handleGetFlightLeg(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=departure_time-desc`);
                 toast.success("Xóa flight leg thành công", {
                     position: "bottom-right",
                 });
@@ -64,7 +67,7 @@ const FlightLegTable = (props: IProps) => {
         {
             title: "Thời gian khởi hành",
             dataIndex: 'departure_time',
-            render: (text, record) => {
+            render: (_, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {dayjs(record.departure_time).format("YYYY-MM-DD HH:mm:ss")}
@@ -86,7 +89,7 @@ const FlightLegTable = (props: IProps) => {
         {
             title: "Tổng thời gian",
             dataIndex: 'arrival_time',
-            render: (text, record) => {
+            render: (_, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record.duration_minutes} phút
@@ -97,7 +100,7 @@ const FlightLegTable = (props: IProps) => {
         {
             title: "Địa điểm khởi hành",
             dataIndex: 'departure_airport',
-            render: (text, record) => {
+            render: (_, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -110,7 +113,7 @@ const FlightLegTable = (props: IProps) => {
         {
             title: "Địa điểm hạ cánh",
             dataIndex: 'arrival_airport',
-            render: (text, record) => {
+            render: (_, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -125,19 +128,19 @@ const FlightLegTable = (props: IProps) => {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record) => {
+            render: (_, record) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
             },
         },
-        {
+        ...((canUpdate || canDelete) ? [{
 
             title: "Hành động",
             width: 50,
-            render: (text, record) => (
+            render: (_: any, record: any) => (
                 <Space>
-                    <EditOutlined
+                    {canUpdate && <EditOutlined
                         style={{
                             fontSize: 20,
                             color: '#ffa500',
@@ -147,9 +150,9 @@ const FlightLegTable = (props: IProps) => {
                             setIsModalOpen(true);
                             setDataInit(record);
                         }}
-                    />
+                    />}
 
-                    <Popconfirm
+                    {canDelete && <Popconfirm
                         placement="leftTop"
                         title={"Xác nhận xóa flight leg"}
                         description={"Bạn chắc chắn muốn xóa flight leg"}
@@ -165,11 +168,13 @@ const FlightLegTable = (props: IProps) => {
                                 }}
                             />
                         </span>
-                    </Popconfirm>
+                    </Popconfirm>}
+
+
                 </Space>
             ),
 
-        },
+        }] : []),
     ];
 
     const handleGetFlightLeg = async (query: string) => {
@@ -189,12 +194,12 @@ const FlightLegTable = (props: IProps) => {
     const handleChange = async (pagination: any) => {
         const { current, pageSize } = pagination
 
-        await handleGetFlightLeg(`current=${current}&pageSize=${pageSize}&flight_id=${flight.id}&sort=id-desc`);
+        await handleGetFlightLeg(`current=${current}&pageSize=${pageSize}&flight_id=${flight.id}&sort=departure_time-desc`);
     };
 
     useEffect(() => {
         if (flight?.id) {
-            handleGetFlightLeg(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=id-desc`);
+            handleGetFlightLeg(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=departure_time-desc`);
         }
     }, [flight?.id]);
 
@@ -202,15 +207,24 @@ const FlightLegTable = (props: IProps) => {
         <div>
             <h2 className="text-[16px] font-semibold">Danh sách các trạm dừng</h2>
             <div className="flex items-center justify-end gap-[10px]">
-                <Button type="primary" onClick={() => {
-                    setIsModalOpen(true);
-                    setDataInit({});
-                }}>Thêm mới</Button>
-                <ReloadOutlined className="text-[18px] px-[6px] cursor-pointer" />
+                {canCreate && <Button
+                    type="primary"
+                    onClick={() => {
+                        setIsModalOpen(true);
+                        setDataInit({});
+                    }}>
+                    Thêm mới
+                </Button>}
+
+                <ReloadOutlined
+                    onClick={() => handleGetFlightLeg(`current=${meta.currentPage}&pageSize=${meta.itemsPerPage}&flight_id=${flight.id}&sort=departure_time-desc`)}
+                    className="text-[18px] px-[6px] cursor-pointer"
+                />
             </div>
             <div className="mt-[10px]">
                 <ConfigProvider locale={vi_VN}>
                     <Table
+                        scroll={{ x: true }}
                         className="table-ele"
                         loading={isLoading}
                         pagination={{
@@ -233,7 +247,7 @@ const FlightLegTable = (props: IProps) => {
                     />
                 </ConfigProvider>
             </div>
-            <ModalFlightLegTable
+            <ModalFlightLegUpsert
                 flight={flight}
                 isModalOpen={isModalOpen}
                 dataInit={dataInit}
