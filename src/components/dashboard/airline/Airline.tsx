@@ -9,12 +9,14 @@ import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { callDeleteAirline } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { getImage } from "@/utils/imageUrl";
+import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { toast } from "react-toastify";
 import { fetchAirline } from "@/redux/slice/airlineSlide";
 import ModalAirline from "./ModalAirline";
+import { ROLE } from "@/constants/role";
 
 export default function Airline() {
+    const user = useAppSelector(state => state.account.user)
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
@@ -52,6 +54,25 @@ export default function Airline() {
             hideInSearch: true,
         },
         {
+            title: 'Người vận hành chuyến bay',
+            dataIndex: 'flight_operations_staff',
+            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    record?.flight_operations_staff ? <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(record?.flight_operations_staff?.avatar)}
+                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${record?.flight_operations_staff?.first_name} ${record?.flight_operations_staff?.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${record?.flight_operations_staff?.username}`}</p>
+                        </div>
+                    </div> : <div></div>
+                )
+            },
+        },
+        {
             title: "Tên",
             dataIndex: 'name',
             sorter: true,
@@ -82,7 +103,7 @@ export default function Airline() {
                     <div className="line-clamp-6">{record.description}</div>
                 )
             },
-            width: 600
+            width: 350
         },
         {
             title: "Ngày tạo",
@@ -152,6 +173,10 @@ export default function Airline() {
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            temp += `&flight_operations_staff_id=${user.id}`
+        }
+
 
         temp += `&sort=id-desc`
 

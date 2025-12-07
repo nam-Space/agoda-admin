@@ -10,6 +10,8 @@ import { getImage } from "@/utils/imageUrl";
 import { IActivitySelect } from "../activity-package/ModalActivityPackage";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { AIRCRAFT_STATUS_VI } from "@/constants/airline";
+import { useAppSelector } from "@/redux/hooks";
+import { ROLE } from "@/constants/role";
 
 interface IProps {
     openModal: boolean;
@@ -20,6 +22,7 @@ interface IProps {
 }
 
 const ModalAircraft = (props: IProps) => {
+    const user = useAppSelector(state => state.account.user)
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
     const [airline, setAirline] = useState<IActivitySelect>({
         label: "",
@@ -54,7 +57,10 @@ const ModalAircraft = (props: IProps) => {
     }, [dataInit]);
 
     async function fetchAirlineList(): Promise<IActivitySelect[]> {
-        const query = ``
+        let query = ``
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            query += `&flight_operations_staff_id=${user.id}`
+        }
         const res: any = await callFetchAirline(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;

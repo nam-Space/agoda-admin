@@ -26,7 +26,7 @@ const ChatConversation = ({ selectedOtherUser, handleOpenChat }: any) => {
                             : "bg-white"
                             }`}
                     >
-                        {getOtherUser(conv, user)?.role === ROLE.STAFF ? (
+                        {getOtherUser(conv, user)?.role === ROLE.HOTEL_STAFF ? (
                             <>
                                 <div className="relative h-fit">
                                     <img

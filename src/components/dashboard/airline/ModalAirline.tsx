@@ -1,17 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProFormText } from "@ant-design/pro-components";
-import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
+import { ModalForm, ProForm, ProFormText } from "@ant-design/pro-components";
+import { Col, ConfigProvider, Form, Modal, Row, Upload } from "antd";
 import { isMobile } from 'react-device-detect';
-import { useEffect, useRef, useState } from "react";
-import { callCreateAirline, callCreateCountry, callUpdateAirline, callUpdateCountry, callUploadSingleImage } from "@/config/api";
-import { AdmonitionDirectiveDescriptor, BlockTypeSelect, BoldItalicUnderlineToggles, ChangeAdmonitionType, ChangeCodeMirrorLanguage, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertAdmonition, InsertCodeBlock, InsertFrontmatter, InsertImage, InsertSandpack, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, MDXEditorMethods, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
+import { useEffect, useState } from "react";
+import { callCreateAirline, callFetchUser, callUpdateAirline, callUploadSingleImage } from "@/config/api";
+import { BlockTypeSelect, BoldItalicUnderlineToggles, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, frontmatterPlugin, headingsPlugin, imagePlugin, InsertFrontmatter, InsertImage, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, quotePlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 import enUS from 'antd/lib/locale/en_US';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from "react-toastify";
+import { ICitySelect } from "../hotel/ModalHotel";
+import { ROLE } from "@/constants/role";
+import { useAppSelector } from "@/redux/hooks";
+import { getUserAvatar } from "@/utils/imageUrl";
+import { DebounceSelect } from "@/components/antd/DebounceSelect";
 
 interface IProps {
     openModal: boolean;
@@ -28,7 +33,14 @@ interface ICityImage {
 
 const ModalAirline = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
     const [description, setDescription] = useState("");
+
+    const [flightOperationsStaff, setFlightOperationsStaff] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
 
     const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
     const [dataImage, setDataImage] = useState<ICityImage[]>([]);
@@ -55,6 +67,34 @@ const ModalAirline = (props: IProps) => {
         return () => form.resetFields()
     }, [dataInit]);
 
+    async function fetchFlightOperationsStaffList(): Promise<ICitySelect[]> {
+        let query = ``
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            query += `&username=${user.username}`
+        }
+
+        const res: any = await callFetchUser(`current=1&pageSize=1000&role=${ROLE.FLIGHT_OPERATION_STAFF}${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(item.avatar)}
+                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const submitData = async (valuesForm: any) => {
         const { name, code } = valuesForm;
 
@@ -65,6 +105,7 @@ const ModalAirline = (props: IProps) => {
                 description,
                 code,
                 logo: (dataImage[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
+                flight_operations_staff: flightOperationsStaff.value || null
             }
 
             const res: any = await callUpdateAirline(dataInit.id, dataObj);
@@ -86,6 +127,7 @@ const ModalAirline = (props: IProps) => {
                 description,
                 code,
                 logo: (dataImage[0]?.name as any)?.replaceAll(`${import.meta.env.VITE_BE_URL}`, ""),
+                flight_operations_staff: flightOperationsStaff.value || null
             }
             const res: any = await callCreateAirline(dataObj);
             if (res.isSuccess) {
@@ -107,6 +149,11 @@ const ModalAirline = (props: IProps) => {
         setDataInit(null);
         setDescription("")
         setDataImage([])
+        setFlightOperationsStaff({
+            label: "",
+            value: 0,
+            key: 0,
+        })
         setOpenModal(false);
     }
 
@@ -202,6 +249,29 @@ const ModalAirline = (props: IProps) => {
             initialValues={dataInit?.id ? dataInit : {}}
         >
             <Row gutter={16}>
+                <Col lg={12} md={12} sm={24} xs={24}>
+                    <ProForm.Item
+                        name="flightOperationsStaff"
+                        label={"Nhân viên vận hành chuyến bay"}
+                        rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                    >
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={flightOperationsStaff}
+                            value={flightOperationsStaff}
+                            placeholder={<span>Chọn nhân viên vận hành chuyến bay</span>}
+                            fetchOptions={fetchFlightOperationsStaffList}
+                            onChange={(newValue: any) => {
+                                setFlightOperationsStaff({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            className="w-full !h-[60px]"
+                        />
+                    </ProForm.Item>
+                </Col>
                 <Col lg={24} md={24} sm={24} xs={24}>
                     <ProFormText
                         label={"Tên"}

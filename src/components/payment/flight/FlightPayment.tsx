@@ -19,8 +19,10 @@ import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightPayment from "./ModalFlightPayment";
 import { toast } from "react-toastify";
 import ModalFlightDetail from "./ModalFlightDetail";
+import { ROLE } from "@/constants/role";
 
 export default function FlightPayment() {
+    const user = useAppSelector(state => state.account.user)
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
@@ -304,6 +306,12 @@ export default function FlightPayment() {
         temp += `&booking__service_type=${SERVICE_TYPE.FLIGHT}`
         if (clone.transaction_id) {
             temp += `&transaction_id=${clone.transaction_id}`
+        }
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            temp += `&flight_operations_staff_id=${user.id}`
+        }
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            temp += `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
         }
 
         return temp;

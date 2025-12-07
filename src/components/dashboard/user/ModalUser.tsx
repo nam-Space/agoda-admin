@@ -4,7 +4,7 @@ import { ModalForm, ProForm, ProFormDatePicker, ProFormSelect, ProFormText } fro
 import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useState, useEffect } from "react";
-import { callCreateUser, callFetchHotel, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
+import { callCreateUser, callFetchAirline, callFetchHotel, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
@@ -60,6 +60,18 @@ const ModalUser = (props: IProps) => {
     });
 
     const [hotel, setHotel] = useState<IManagerSelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
+    const [flightOperationManager, setFlightOperationManager] = useState<IManagerSelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
+    const [airline, setAirline] = useState<IManagerSelect>({
         label: "",
         value: 0,
         key: 0,
@@ -131,6 +143,42 @@ const ModalUser = (props: IProps) => {
                     }
                 )
             }
+            if (dataInit?.flight_operation_manager?.id) {
+                setFlightOperationManager(
+                    {
+                        label: (<div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(dataInit.flight_operation_manager.avatar)}
+                                className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.flight_operation_manager.first_name} ${dataInit.flight_operation_manager.last_name}`}</p>
+                                <p className="leading-[20px] text-[#929292]">{`@${dataInit.flight_operation_manager.username}`}</p>
+                            </div>
+                        </div>),
+                        value: dataInit.flight_operation_manager.id,
+                        key: dataInit.flight_operation_manager.id,
+                    }
+                )
+            }
+
+            if (dataInit?.airline?.id) {
+                setAirline(
+                    {
+                        label: (<div className="flex items-center gap-[10px]">
+                            <img
+                                src={getImage(dataInit?.airline?.logo)}
+                                className="w-[70px] h-[50px] object-cover"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${dataInit.airline.name}`}</p>
+                            </div>
+                        </div>),
+                        value: dataInit.airline.id,
+                        key: dataInit.airline.id,
+                    }
+                )
+            }
         }
         return () => form.resetFields()
     }, [dataInit]);
@@ -152,12 +200,19 @@ const ModalUser = (props: IProps) => {
                 role: role.value,
                 manager: manager.value || null,
                 is_active,
-                hotel: hotel.value || null
+                hotel: hotel.value || null,
+                flight_operation_manager: flightOperationManager.value || null,
+                airline: airline.value || null
             }
 
-            if (role.value !== ROLE.STAFF) {
+            if (role.value !== ROLE.HOTEL_STAFF) {
                 userObj.manager = null
                 userObj.hotel = null
+            }
+
+            if (role.value !== ROLE.AIRLINE_TICKETING_STAFF) {
+                userObj.flight_operation_manager = null
+                userObj.airline = null
             }
 
             const res: any = await callUpdateUser(dataInit.id, userObj);
@@ -199,12 +254,19 @@ const ModalUser = (props: IProps) => {
                 role: role.value,
                 manager: manager.value || null,
                 is_active,
-                hotel: hotel.value || null
+                hotel: hotel.value || null,
+                flight_operation_manager: flightOperationManager.value || null,
+                airline: airline.value || null
             }
 
-            if (role.value !== ROLE.STAFF) {
+            if (role.value !== ROLE.HOTEL_STAFF) {
                 userObj.manager = null
                 userObj.hotel = null
+            }
+
+            if (role.value !== ROLE.AIRLINE_TICKETING_STAFF) {
+                userObj.flight_operation_manager = null
+                userObj.airline = null
             }
 
             const res: any = await callCreateUser(userObj);
@@ -223,7 +285,7 @@ const ModalUser = (props: IProps) => {
     }
 
     async function fetchManagerList(): Promise<IManagerSelect[]> {
-        const res: any = await callFetchUser(`current=1&pageSize=1000&role=owner`);
+        const res: any = await callFetchUser(`current=1&pageSize=1000&role=${ROLE.OWNER}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {
@@ -272,6 +334,56 @@ const ModalUser = (props: IProps) => {
         } else return [];
     }
 
+    async function fetchFlightOperationManagerList(): Promise<IManagerSelect[]> {
+        const res: any = await callFetchUser(`current=1&pageSize=1000&role=${ROLE.FLIGHT_OPERATION_STAFF}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getUserAvatar(item.avatar)}
+                            className="w-[40px] h-[40px] object-cover rounded-[50%]"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+                            <p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
+    async function fetchAirlineList(): Promise<IManagerSelect[]> {
+        let query = ``
+        if (flightOperationManager.value) {
+            query += `&flight_operations_staff_id=${flightOperationManager.value}`
+        }
+        else return [];
+        const res: any = await callFetchAirline(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex items-center gap-[10px]">
+                        <img
+                            src={getImage(item?.logo)}
+                            className="w-[70px] h-[50px] object-cover"
+                        />
+                        <div>
+                            <p className="leading-[20px]">{`${item.name}`}</p>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
@@ -289,6 +401,16 @@ const ModalUser = (props: IProps) => {
             key: 0,
         })
         setHotel({
+            label: "",
+            value: 0,
+            key: 0,
+        })
+        setFlightOperationManager({
+            label: "",
+            value: 0,
+            key: 0,
+        })
+        setAirline({
             label: "",
             value: 0,
             key: 0,
@@ -491,7 +613,7 @@ const ModalUser = (props: IProps) => {
                         rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                     />
                 </Col>
-                <Col lg={6} md={6} sm={24} xs={24}>
+                <Col lg={12} md={12} sm={24} xs={24}>
                     <ProForm.Item
                         name="role"
                         label={"Vai trò"}
@@ -504,32 +626,12 @@ const ModalUser = (props: IProps) => {
                             value={role}
                             placeholder={<span>Chọn vai trò</span>}
                             fetchOptions={async () => {
-                                return await [
-                                    {
-                                        label: "Quản trị viên",
-                                        value: ROLE.ADMIN
-                                    },
-                                    {
-                                        label: "Chủ khách sạn",
-                                        value: ROLE.OWNER
-                                    },
-                                    {
-                                        label: "Nhân viên",
-                                        value: ROLE.STAFF
-                                    },
-                                    {
-                                        label: "Người tổ chức sự kiện",
-                                        value: ROLE.EVENT_ORGANIZER
-                                    },
-                                    {
-                                        label: "Tài xế",
-                                        value: ROLE.DRIVER
-                                    },
-                                    {
-                                        label: "Khách hàng",
-                                        value: ROLE.CUSTOMER
-                                    },
-                                ]
+                                return await Object.entries(ROLE_VI).map(([val, key]) => {
+                                    return {
+                                        label: key,
+                                        value: val
+                                    }
+                                })
                             }}
                             onChange={(newValue: any) => {
                                 setRole({
@@ -542,11 +644,11 @@ const ModalUser = (props: IProps) => {
                         />
                     </ProForm.Item>
                 </Col>
-                {role.value === ROLE.STAFF && (
+                {role.value === ROLE.HOTEL_STAFF && (
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <ProForm.Item
                             name="manager"
-                            label={"Người quản lý"}
+                            label={"Người quản lý khách sạn"}
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         >
                             <DebounceSelect
@@ -574,6 +676,32 @@ const ModalUser = (props: IProps) => {
                     </Col>
 
                 )}
+                {role.value === ROLE.AIRLINE_TICKETING_STAFF && (
+                    <Col lg={12} md={12} sm={24} xs={24}>
+                        <ProForm.Item
+                            name="flight_operation_manager"
+                            label={"Người quản lý hãng hàng không"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                        >
+                            <DebounceSelect
+                                allowClear
+                                defaultValue={flightOperationManager}
+                                value={flightOperationManager}
+                                placeholder={<span>Chọn người quản lý hãng hàng không</span>}
+                                fetchOptions={fetchFlightOperationManagerList}
+                                onChange={(newValue: any) => {
+                                    setFlightOperationManager({
+                                        key: newValue?.key,
+                                        label: newValue?.label,
+                                        value: newValue?.value
+                                    });
+                                }}
+                                className="w-full !h-[60px]"
+                            />
+                        </ProForm.Item>
+                    </Col>
+
+                )}
 
                 {!!manager.value && (
                     <Col lg={12} md={12} sm={24} xs={24}>
@@ -590,6 +718,32 @@ const ModalUser = (props: IProps) => {
                                 fetchOptions={fetchHotelList}
                                 onChange={(newValue: any) => {
                                     setHotel({
+                                        key: newValue?.key,
+                                        label: newValue?.label,
+                                        value: newValue?.value
+                                    });
+                                }}
+                                className="w-full !h-[70px]"
+                            />
+                        </ProForm.Item>
+                    </Col>
+                )}
+
+                {!!flightOperationManager.value && (
+                    <Col lg={12} md={12} sm={24} xs={24}>
+                        <ProForm.Item
+                            name="airline"
+                            label={"Hãng hàng không"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                        >
+                            <DebounceSelect
+                                allowClear
+                                defaultValue={airline}
+                                value={airline}
+                                placeholder={<span>Chọn hãng hàng không</span>}
+                                fetchOptions={fetchAirlineList}
+                                onChange={(newValue: any) => {
+                                    setAirline({
                                         key: newValue?.key,
                                         label: newValue?.label,
                                         value: newValue?.value

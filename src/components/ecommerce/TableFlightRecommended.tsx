@@ -11,6 +11,8 @@ import { useRef, useState } from "react";
 import DataTable from "../antd/Table";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightDetail from "../payment/flight/ModalFlightDetail";
+import { Tag } from "antd";
+import { ROLE } from "@/constants/role";
 
 
 const TableFlightRecommended = () => {
@@ -89,6 +91,9 @@ const TableFlightRecommended = () => {
                         setIsModalOpen(true)
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
+                            <div>
+                                <Tag color="#2db7f5">1 chiều</Tag>
+                            </div>
                             <div>
                                 <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
                             </div>
@@ -180,6 +185,13 @@ const TableFlightRecommended = () => {
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
+        }
+
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            temp += `&flight_operations_staff_id=${user.id}`
+        }
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            temp += `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
         }
 
         temp += `&sort=id-desc`

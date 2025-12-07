@@ -14,6 +14,8 @@ import FlightLegTable from "../flight-leg/FlightLegTable";
 import FlightLegTableCreate from "../flight-leg/FlightLegTableCreate";
 import SeatClassPricingTableCreate from "../seat-class-pricing/SeatClassPricingTableCreate";
 import SeatClassPricingTable from "../seat-class-pricing/SeatClassPricingTable";
+import { useAppSelector } from "@/redux/hooks";
+import { ROLE } from "@/constants/role";
 
 interface IProps {
     openModal: boolean;
@@ -25,6 +27,7 @@ interface IProps {
 
 const ModalFlight = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
 
     const [airline, setAirline] = useState<IActivitySelect>({
         label: "",
@@ -82,7 +85,10 @@ const ModalFlight = (props: IProps) => {
     }, [dataInit]);
 
     async function fetchAirlineList(): Promise<IActivitySelect[]> {
-        const query = ``
+        let query = ``
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            query += `&flight_operations_staff_id=${user.id}`
+        }
         const res: any = await callFetchAirline(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;

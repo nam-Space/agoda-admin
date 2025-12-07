@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import FlightLegTable from "@/components/dashboard/flight-leg/FlightLegTable";
+import TableCustomerBooking from "@/components/dashboard/flight/TableCustomerBooking";
 import SeatClassPricingTable from "@/components/dashboard/seat-class-pricing/SeatClassPricingTable";
+import { SERVICE_TYPE } from "@/constants/booking";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDuration } from "@/utils/getDatesBetween";
 import { getImage } from "@/utils/imageUrl";
@@ -67,6 +69,7 @@ const ModalFlightDetail = (props: IProps) => {
                 </div>
                 <FlightLegTable flight={flight} />
                 <SeatClassPricingTable flight={flight} />
+                <TableCustomerBooking serviceType={SERVICE_TYPE.FLIGHT} flightId={flight?.id} />
             </Modal>
         </ConfigProvider>
     );

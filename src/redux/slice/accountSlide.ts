@@ -41,7 +41,7 @@ interface IState {
             phone_number: string;
             birthday: string;
         };
-        staffs?: {
+        hotel_staffs?: {
             id: number;
             username: string;
             first_name: string;
@@ -54,6 +54,31 @@ interface IState {
             birthday: string;
         }[];
         hotel?: any;
+        flight_operation_manager?: {
+            id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            avatar: string;
+            role: string;
+            gender: string;
+            phone_number: string;
+            birthday: string;
+        };
+        flight_staffs?: {
+            id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            avatar: string;
+            role: string;
+            gender: string;
+            phone_number: string;
+            birthday: string;
+        }[];
+        airline?: any;
     };
     activeMenu: string;
 }
@@ -76,7 +101,10 @@ const initialState: IState = {
         role: "",
         manager: undefined,
         hotel: undefined,
-        staffs: [],
+        hotel_staffs: [],
+        flight_operation_manager: undefined,
+        airline: undefined,
+        flight_staffs: [],
     },
 
     activeMenu: "home",
@@ -106,7 +134,11 @@ export const accountSlide = createSlice({
             state.user.role = action.payload.role;
             state.user.manager = action.payload.manager;
             state.user.hotel = action.payload.hotel;
-            state.user.staffs = action.payload.staffs;
+            state.user.hotel_staffs = action.payload.hotel_staffs;
+            state.user.flight_operation_manager =
+                action.payload.flight_operation_manager;
+            state.user.airline = action.payload.airline;
+            state.user.flight_staffs = action.payload.flight_staffs;
         },
         setLogoutAction: (state, action) => {
             localStorage.removeItem("access_token_agoda_admin");
@@ -125,7 +157,10 @@ export const accountSlide = createSlice({
                 role: "",
                 manager: undefined,
                 hotel: undefined,
-                staffs: [],
+                hotel_staffs: [],
+                flight_operation_manager: undefined,
+                airline: undefined,
+                flight_staffs: [],
             };
         },
         setRefreshTokenAction: (state, action) => {
@@ -156,7 +191,11 @@ export const accountSlide = createSlice({
                 state.user.role = action.payload.data?.role;
                 state.user.manager = action.payload.data?.manager;
                 state.user.hotel = action.payload.data?.hotel;
-                state.user.staffs = action.payload.data?.staffs;
+                state.user.hotel_staffs = action.payload.data?.hotel_staffs;
+                state.user.flight_operation_manager =
+                    action.payload.data?.flight_operation_manager;
+                state.user.airline = action.payload.data?.airline;
+                state.user.flight_staffs = action.payload.data?.flight_staffs;
             } else {
                 state.isAuthenticated = false;
                 state.isLoading = false;

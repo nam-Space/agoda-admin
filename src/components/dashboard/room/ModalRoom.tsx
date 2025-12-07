@@ -18,6 +18,8 @@ import { AVAILABLE_ROOM_VI } from "@/constants/hotel";
 import { getImage } from "@/utils/imageUrl";
 import RoomAmenityTable from "../room-amenity/RoomAmenityTable";
 import RoomAmenityTableCreate from "../room-amenity/RoomAmenityTableCreate";
+import { useAppSelector } from "@/redux/hooks";
+import { ROLE } from "@/constants/role";
 
 interface IProps {
     openModal: boolean;
@@ -40,6 +42,7 @@ export interface IHotelSelect {
 
 const ModalRoom = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
+    const user = useAppSelector(state => state.account.user)
 
     const [formMarkdown, setFormMarkdown] = useState({
         description: ''
@@ -101,7 +104,14 @@ const ModalRoom = (props: IProps) => {
     }, [dataInit]);
 
     async function fetchHotelList(): Promise<IHotelSelect[]> {
-        const res: any = await callFetchHotel(`current=1&pageSize=1000`);
+        let query = ``
+        if (user.role === ROLE.OWNER) {
+            query += `&ownerId=${user.id}`
+        }
+        else if (user.role === ROLE.HOTEL_STAFF) {
+            query += `&ownerId=${user.manager?.id}`
+        }
+        const res: any = await callFetchHotel(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;
             const temp = list.map((item: any) => {

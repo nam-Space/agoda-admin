@@ -3,7 +3,7 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
-import { callFetchActivity, callFetchCar, callFetchHotel, callFetchPaymentOverview, callFetchUser } from "@/config/api";
+import { callFetchActivity, callFetchAirline, callFetchCar, callFetchHotel, callFetchPaymentOverview, callFetchUser } from "@/config/api";
 import { SERVICE_TYPE, SERVICE_TYPE_VI } from "@/constants/booking";
 import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
@@ -12,10 +12,7 @@ import { DebounceSelect } from "../antd/DebounceSelect";
 import { Star } from "lucide-react";
 import ChartTab from "../common/ChartTab";
 import EcommerceMetrics from "./EcommerceMetrics";
-import MonthlyTarget from "./MonthlyTarget";
 import { TIME_STATISTIC } from "@/constants/time";
-import TableHotelRecommended from "./TableHotelRecommended";
-
 export interface ICitySelect {
 	label?: any;
 	value?: number;
@@ -50,7 +47,7 @@ export default function MonthlySalesChart({ serviceType }: any) {
 				<p className="leading-[20px]">{`${user.first_name} ${user.last_name}`}</p>
 				<p className="leading-[20px] text-[#929292]">{`@${user.username}`}</p>
 			</div>
-		</div> : user.role === ROLE.STAFF ? <div className="flex items-center gap-[10px]">
+		</div> : user.role === ROLE.HOTEL_STAFF ? <div className="flex items-center gap-[10px]">
 			<img
 				src={getUserAvatar(user.manager?.avatar)}
 				className="w-[40px] h-[40px] object-cover rounded-[50%]"
@@ -60,8 +57,8 @@ export default function MonthlySalesChart({ serviceType }: any) {
 				<p className="leading-[20px] text-[#929292]">{`@${user.manager?.username}`}</p>
 			</div>
 		</div> : "",
-		value: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.STAFF ? user.manager?.id : 0),
-		key: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.STAFF ? user.manager?.id : 0),
+		value: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.HOTEL_STAFF ? user.manager?.id : 0),
+		key: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.HOTEL_STAFF ? user.manager?.id : 0),
 	});
 
 	const [hotel, setHotel] = useState<ICitySelect>({
@@ -107,6 +104,36 @@ export default function MonthlySalesChart({ serviceType }: any) {
 	});
 
 	const [car, setCar] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [flightOperationManager, setFlightOperationManager] = useState<ICitySelect>({
+		label: user.role === ROLE.FLIGHT_OPERATION_STAFF ? <div className="flex items-center gap-[10px]">
+			<img
+				src={getUserAvatar(user.avatar)}
+				className="w-[40px] h-[40px] object-cover rounded-[50%]"
+			/>
+			<div>
+				<p className="leading-[20px]">{`${user.first_name} ${user.last_name}`}</p>
+				<p className="leading-[20px] text-[#929292]">{`@${user.username}`}</p>
+			</div>
+		</div> : user.role === ROLE.AIRLINE_TICKETING_STAFF ? <div className="flex items-center gap-[10px]">
+			<img
+				src={getUserAvatar(user.flight_operation_manager?.avatar)}
+				className="w-[40px] h-[40px] object-cover rounded-[50%]"
+			/>
+			<div>
+				<p className="leading-[20px]">{`${user.flight_operation_manager?.first_name} ${user.flight_operation_manager?.last_name}`}</p>
+				<p className="leading-[20px] text-[#929292]">{`@${user.flight_operation_manager?.username}`}</p>
+			</div>
+		</div> : "",
+		value: user.role === ROLE.FLIGHT_OPERATION_STAFF ? user.id : (user.role === ROLE.AIRLINE_TICKETING_STAFF ? user.flight_operation_manager?.id : 0),
+		key: user.role === ROLE.FLIGHT_OPERATION_STAFF ? user.id : (user.role === ROLE.AIRLINE_TICKETING_STAFF ? user.flight_operation_manager?.id : 0),
+	});
+
+	const [airline, setAirline] = useState<ICitySelect>({
 		label: "",
 		value: 0,
 		key: 0,
@@ -277,6 +304,33 @@ export default function MonthlySalesChart({ serviceType }: any) {
 			return temp;
 		} else return [];
 	}
+	async function fetchFlightOperationManagerList(): Promise<ICitySelect[]> {
+		let query = `&role=${ROLE.FLIGHT_OPERATION_STAFF}`
+		if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+			query = `&username=${user.username}`
+		}
+
+		const res: any = await callFetchUser(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label: <div className="flex items-center gap-[10px]">
+						<img
+							src={getUserAvatar(item.avatar)}
+							className="w-[40px] h-[40px] object-cover rounded-[50%]"
+						/>
+						<div>
+							<p className="leading-[20px]">{`${item.first_name} ${item.last_name}`}</p>
+							<p className="leading-[20px] text-[#929292]">{`@${item.username}`}</p>
+						</div>
+					</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
 
 	async function fetchHotelList(): Promise<ICitySelect[]> {
 		let query = ``
@@ -286,7 +340,7 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		else if (user.role === ROLE.OWNER) {
 			query = `&ownerId=${user.id}`
 		}
-		else if (user.role === ROLE.STAFF) {
+		else if (user.role === ROLE.HOTEL_STAFF) {
 			if (user.manager?.id) {
 				query = `&ownerId=${user.manager.id}`
 			}
@@ -334,9 +388,6 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		}
 		else if (user.role === ROLE.EVENT_ORGANIZER) {
 			query = `&event_organizer_id=${user.id}`
-		}
-		else if (user.role === ROLE.STAFF) {
-			query = `&event_organizer_id=${user.manager?.id}`
 		}
 		const res: any = await callFetchActivity(`current=1&pageSize=1000${query}`);
 		if (res?.isSuccess) {
@@ -424,6 +475,45 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		} else return [];
 	}
 
+	async function fetchAirlineList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (flightOperationManager.value) {
+			query = `&flight_operations_staff_id=${flightOperationManager.value}`
+		}
+		else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+			query = `&flight_operations_staff_id=${user.id}`
+		}
+		else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+			query = `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
+		}
+		const res: any = await callFetchAirline(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label:
+						<div className="flex gap-3">
+							<div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
+								<img
+									src={`${import.meta.env.VITE_BE_URL}${item?.logo}`}
+									className="w-full h-full object-cover"
+								/>
+							</div>
+							<div className="flex-1 min-w-0">
+								<h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
+									{
+										item?.name
+									}
+								</h4>
+							</div>
+						</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
 	useEffect(() => {
 		let bossQuery = ``
 		let serviceQuery = ``
@@ -435,6 +525,9 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		}
 		else if (driver.value) {
 			bossQuery = `&driver_id=${driver.value}`
+		}
+		else if (flightOperationManager.value) {
+			bossQuery = `&flight_operations_staff_id=${flightOperationManager.value}`
 		}
 
 		if (serviceType === SERVICE_TYPE.HOTEL) {
@@ -452,11 +545,16 @@ export default function MonthlySalesChart({ serviceType }: any) {
 				serviceQuery = `&car_id=${car.value}`
 			}
 		}
+		else if (serviceType === SERVICE_TYPE.FLIGHT) {
+			if (airline.value) {
+				serviceQuery = `&airline_id=${airline.value}`
+			}
+		}
 
 
 		handleGetPaymentOverview(`booking__service_type=${serviceType}${bossQuery}${serviceQuery}&statistic_by=${selectedTime}`)
 
-	}, [owner, eventOrganizer, driver, serviceType, hotel, activity, car, selectedTime])
+	}, [owner, eventOrganizer, driver, flightOperationManager, serviceType, hotel, activity, car, airline, selectedTime])
 	return (
 		<div>
 			<EcommerceMetrics statistic={statistic} serviceType={serviceType} />
@@ -605,6 +703,52 @@ export default function MonthlySalesChart({ serviceType }: any) {
 									</div>
 								</div>
 							</>}
+
+						{serviceType === SERVICE_TYPE.FLIGHT &&
+							<>
+								<div>
+									<label>Người vận hành chuyến bay</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={flightOperationManager}
+											value={flightOperationManager}
+											placeholder={<span>Chọn người vận hành chuyến bay</span>}
+											fetchOptions={fetchFlightOperationManagerList}
+											onChange={(newValue: any) => {
+												setFlightOperationManager({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											disabled={user.role === ROLE.FLIGHT_OPERATION_STAFF}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Hãng hàng không</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={airline}
+											value={airline}
+											placeholder={<span>Chọn hãng hàng không</span>}
+											fetchOptions={fetchAirlineList}
+											onChange={(newValue: any) => {
+												setAirline({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+							</>
+						}
 
 					</div>
 

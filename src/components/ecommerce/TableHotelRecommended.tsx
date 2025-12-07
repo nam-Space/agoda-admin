@@ -4,12 +4,16 @@ import { ROLE } from '@/constants/role';
 import { useAppSelector } from '@/redux/hooks';
 import { getUserAvatar } from '@/utils/imageUrl';
 import { ActionType, ProColumns } from '@ant-design/pro-components';
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import DataTable from '../antd/Table';
 import { callFetchHotel } from '@/config/api';
+import { HiOutlineCursorClick } from 'react-icons/hi';
+import ModalHotelDetail from '../dashboard/hotel/ModalHotelDetail';
 
 const TableHotelRecommended = () => {
     const user = useAppSelector(state => state.account.user)
+    const [dataInit, setDataInit] = useState(null);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
 
     const tableRef = useRef<ActionType>(null);
 
@@ -39,22 +43,38 @@ const TableHotelRecommended = () => {
                 )
             },
         },
+        // {
+        //     title: "Ảnh",
+        //     dataIndex: 'image',
+        //     sorter: true,
+        //     render: (text, record, index, action) => {
+        //         return (
+        //             <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+        //         )
+        //     },
+        //     hideInSearch: true,
+        //     width: 150
+        // },
         {
-            title: "Ảnh",
-            dataIndex: 'image',
+            title: "Khách sạn",
+            dataIndex: 'hotel',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+                        <p className="mt-[6px] font-semibold text-[16px]">{record?.name}</p>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
+                        </div>
+                    </div>
                 )
             },
-            hideInSearch: true,
-            width: 150
-        },
-        {
-            title: "Tên khách sạn",
-            dataIndex: 'name',
-            sorter: true,
+            width: 250
         },
         {
             title: 'Chủ khách sạn',
@@ -129,7 +149,7 @@ const TableHotelRecommended = () => {
         if (user.role === ROLE.OWNER) {
             temp += `&ownerId=${user.id}`
         }
-        else if (user.role === ROLE.STAFF) {
+        else if (user.role === ROLE.HOTEL_STAFF) {
             temp += `&ownerId=${user.manager?.id}`
         }
 
@@ -173,6 +193,11 @@ const TableHotelRecommended = () => {
                     }
                 }
                 rowSelection={false}
+            />
+            <ModalHotelDetail
+                hotel={dataInit}
+                isModalOpen={isModalDetailOpen}
+                setIsModalOpen={setIsModalDetailOpen}
             />
         </div>
     )
