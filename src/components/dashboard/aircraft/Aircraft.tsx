@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -14,8 +14,10 @@ import { callDeleteAircraft } from "@/config/api";
 import { fetchAircraft } from "@/redux/slice/aircraftSlide";
 import ModalAircraft from "./ModalAircraft";
 import { AIRCRAFT_STATUS_VI } from "@/constants/airline";
+import { ROLE } from "@/constants/role";
 
 export default function Aircraft() {
+    const user = useAppSelector(state => state.account.user)
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
 
@@ -82,24 +84,19 @@ export default function Aircraft() {
             sorter: true,
         },
         {
-            title: "Tổng số ghế",
+            title: "Ghế ngồi",
             dataIndex: 'total_seats',
             sorter: true,
-        },
-        {
-            title: "Số ghế phổ thông",
-            dataIndex: 'economy_seats',
-            sorter: true,
-        },
-        {
-            title: "Số ghế hạng thượng gia",
-            dataIndex: 'business_seats',
-            sorter: true,
-        },
-        {
-            title: "Số ghế hạng nhất",
-            dataIndex: 'first_class_seats',
-            sorter: true,
+            render: (text, record, index, action) => {
+                return (
+                    <div>
+                        <p className="leading-[20px]">- Tổng số ghế: {`${record?.total_seats}`}</p>
+                        <p className="leading-[20px]">- Số ghế phổ thông: {`${record?.economy_seats}`}</p>
+                        <p className="leading-[20px]">- Số ghế hạng thượng gia: {`${record?.business_seats}`}</p>
+                        <p className="leading-[20px]">- Số ghế hạng nhất: {`${record?.first_class_seats}`}</p>
+                    </div>
+                )
+            },
         },
         {
             title: "Năm sản xuất",
@@ -184,6 +181,10 @@ export default function Aircraft() {
         }
         if (clone.registration_number) {
             temp += `&registration_number=${clone.registration_number}`
+        }
+
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            temp += `&flight_operations_staff_id=${user.id}`
         }
 
         temp += `&sort=id-desc`

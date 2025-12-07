@@ -14,9 +14,12 @@ import ModalHotel from "./ModalHotel";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
+import { HiOutlineCursorClick } from "react-icons/hi";
+import ModalHotelDetail from "./ModalHotelDetail";
 export default function Hotel() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
     const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
@@ -64,21 +67,24 @@ export default function Hotel() {
             },
         },
         {
-            title: "Ảnh",
-            dataIndex: 'image',
+            title: "Khách sạn",
+            dataIndex: 'hotel',
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
+                        <p className="mt-[6px] font-semibold text-[16px]">{record?.name}</p>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
+                        </div>
+                    </div>
                 )
             },
-            hideInSearch: true,
-            width: 150
-        },
-        {
-            title: "Tên khách sạn",
-            dataIndex: 'name',
-            sorter: true,
         },
         {
             title: 'Chủ khách sạn',
@@ -254,6 +260,11 @@ export default function Hotel() {
                 reloadTable={reloadTable}
                 dataInit={dataInit}
                 setDataInit={setDataInit}
+            />
+            <ModalHotelDetail
+                hotel={dataInit}
+                isModalOpen={isModalDetailOpen}
+                setIsModalOpen={setIsModalDetailOpen}
             />
         </div>
     );

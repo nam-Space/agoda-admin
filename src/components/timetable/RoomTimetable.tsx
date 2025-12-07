@@ -25,7 +25,7 @@ const RoomTimetable = () => {
                 <p className="leading-[20px]">{`${user.first_name} ${user.last_name}`}</p>
                 <p className="leading-[20px] text-[#929292]">{`@${user.username}`}</p>
             </div>
-        </div> : user.role === ROLE.STAFF ? <div className="flex items-center gap-[10px]">
+        </div> : user.role === ROLE.HOTEL_STAFF ? <div className="flex items-center gap-[10px]">
             <img
                 src={getUserAvatar(user.manager?.avatar)}
                 className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
@@ -35,8 +35,8 @@ const RoomTimetable = () => {
                 <p className="leading-[20px] text-[#929292]">{`@${user.manager?.username}`}</p>
             </div>
         </div> : "",
-        value: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.STAFF ? user.manager?.id : 0),
-        key: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.STAFF ? user.manager?.id : 0),
+        value: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.HOTEL_STAFF ? user.manager?.id : 0),
+        key: user.role === ROLE.OWNER ? user.id : (user.role === ROLE.HOTEL_STAFF ? user.manager?.id : 0),
     });
 
     async function fetchOwnerList(): Promise<ICitySelect[]> {

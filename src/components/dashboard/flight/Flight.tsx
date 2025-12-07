@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space, Tag } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -17,8 +17,17 @@ import ModalFlight from "./ModalFlight";
 import dayjs from "dayjs";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightDetail from "@/components/payment/flight/ModalFlightDetail";
+import { ROLE } from "@/constants/role";
 
-export default function Flight() {
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function Flight(props: IProps) {
+    const { canCreate, canUpdate, canDelete } = props;
+    const user = useAppSelector(state => state.account.user)
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
     const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
@@ -60,7 +69,7 @@ export default function Flight() {
             title: "Hãng hàng không",
             dataIndex: 'airline',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -79,7 +88,7 @@ export default function Flight() {
             title: "Máy bay",
             dataIndex: 'aircraft',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -94,7 +103,7 @@ export default function Flight() {
             title: "Chuyến bay",
             dataIndex: 'flight',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 if (record.legs?.length === 0) return <div></div>
 
                 const recordLegSorted = [...record.legs].sort((a: any, b: any) =>
@@ -110,6 +119,9 @@ export default function Flight() {
                         setIsModalDetailOpen(true)
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
+                            <div>
+                                <Tag color="#2db7f5">1 chiều</Tag>
+                            </div>
                             <div>
                                 <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
                             </div>
@@ -135,7 +147,7 @@ export default function Flight() {
         {
             title: "Tổng thời gian",
             dataIndex: 'total_duration',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record.total_duration} phút
@@ -149,7 +161,7 @@ export default function Flight() {
             dataIndex: 'baggage_included',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {BAGGAGE_INCLUDED_VI[record.baggage_included]}
@@ -166,7 +178,7 @@ export default function Flight() {
             title: "Giá tiền cơ sở",
             dataIndex: 'base_price',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {formatCurrency(record?.base_price)}đ
@@ -179,20 +191,19 @@ export default function Flight() {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
             },
         },
-        {
-
+        ...((canUpdate || canDelete) ? [{
             title: "Hành động",
             hideInSearch: true,
             width: 50,
-            render: (_value, entity, _index, _action) => (
+            render: (_value: any, entity: any, _index: any, _action: any) => (
                 <Space>
-                    <EditOutlined
+                    {canUpdate && <EditOutlined
                         style={{
                             fontSize: 20,
                             color: '#ffa500',
@@ -202,9 +213,9 @@ export default function Flight() {
                             setOpenModal(true);
                             setDataInit(entity);
                         }}
-                    />
+                    />}
 
-                    <Popconfirm
+                    {canDelete && <Popconfirm
                         placement="leftTop"
                         title={"Xác nhận xóa flight"}
                         description={"Bạn chắc chắn muốn xóa flight"}
@@ -220,14 +231,15 @@ export default function Flight() {
                                 }}
                             />
                         </span>
-                    </Popconfirm>
+                    </Popconfirm>}
+
                 </Space>
             ),
 
-        },
+        }] : []),
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };
@@ -236,6 +248,15 @@ export default function Flight() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+
+        if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            temp += `&flight_operations_staff_id=${user.id}`
+        }
+
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            temp += `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
+        }
+
         temp += `&sort=id-desc`
 
         return temp;
@@ -267,7 +288,7 @@ export default function Flight() {
                 rowSelection={false}
                 toolBarRender={(_action, _rows): any => {
                     return (
-                        <Button
+                        canCreate ? <Button
                             icon={<PlusOutlined />}
                             type="primary"
                             onClick={() => setOpenModal(true)}
@@ -275,7 +296,8 @@ export default function Flight() {
                             <span>
                                 Thêm mới
                             </span>
-                        </Button>
+                        </Button> : null
+
                     );
                 }}
             />

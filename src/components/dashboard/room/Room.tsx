@@ -15,9 +15,13 @@ import { toast } from "react-toastify";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { fetchRoom } from "@/redux/slice/roomSlide";
 import ModalRoom from "./ModalRoom";
+import ModalRoomDetail from "./ModalRoomDetail";
+import { HiOutlineCursorClick } from "react-icons/hi";
+
 export default function Room() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
     const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
@@ -71,8 +75,10 @@ export default function Room() {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <div className="flex items-center gap-[10px]">
-
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
                             <p className="text-[18px] font-semibold">{`${record?.room_type}`}</p>
                             <p className="">Số giường: {`${record?.beds}`}</p>
@@ -81,10 +87,14 @@ export default function Room() {
                             {record.available ? <div>
                                 <Tag color="green">Có sẵn</Tag>
                             </div> : <div>
-                                <Tag color="red">Ngừng hoạt động</Tag>
+                                <Tag color="red">Hết chỗ</Tag>
                             </div>}
                             {record?.has_promotion && <div className="mt-[4px]"><Tag color="#87d068">Đang khuyến mãi</Tag></div>}
 
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
                         </div>
                     </div>
                 )
@@ -213,7 +223,7 @@ export default function Room() {
             temp += `&description=${clone.description}`
         }
         if (user.role === ROLE.OWNER) {
-            temp += `&ownerId=${user.id}`
+            temp += `&owner_id=${user.id}`
         }
 
         temp += `&sort=id-desc`
@@ -266,6 +276,7 @@ export default function Room() {
                 dataInit={dataInit}
                 setDataInit={setDataInit}
             />
+            <ModalRoomDetail room={dataInit} isModalOpen={isModalDetailOpen} setIsModalOpen={setIsModalDetailOpen} />
         </div>
     );
 }

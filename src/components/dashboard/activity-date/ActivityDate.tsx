@@ -126,7 +126,7 @@ export default function ActivityDate() {
                             className="w-[70px] h-[50px] object-cover"
                         />
                         <div>
-                            ({record?.activity_package?.activity?.name})
+                            {record?.activity_package?.activity?.name}
                         </div>
                     </div>
                 )
@@ -139,7 +139,7 @@ export default function ActivityDate() {
             hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
-                    <div>{record?.activity_package?.name}</div>
+                    <div className="font-semibold">{record?.activity_package?.name}</div>
                 )
             },
         },

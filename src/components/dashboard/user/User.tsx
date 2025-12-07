@@ -3,7 +3,7 @@
 
 import { useRef, useState } from "react";
 import { Avatar, Button, Popconfirm, Space } from "antd";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -12,7 +12,7 @@ import DataTable from "../../antd/Table";
 import { fetchUser } from "../../../redux/slice/userSlide";
 import { getUserAvatar } from "@/utils/imageUrl";
 import ModalUser from "./ModalUser";
-import { ROLE_VI, STATUS_USER_VI } from "@/constants/role";
+import { ROLE_UI, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
 import { toast } from "react-toastify";
 
@@ -59,9 +59,16 @@ export default function User() {
             hideInSearch: true,
             render: (text, record, index, action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <Avatar src={getUserAvatar(record.avatar)} />
-                        <p>{record.username}</p>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <Avatar src={getUserAvatar(record.avatar)} />
+                            <p>{record.username}</p>
+                        </div>
+                        {record.email && <div>- Email: {record.email}</div>}
+                        {record.gender && <div>- Giới tính: {(GENDER_VI as any)[record.gender]}</div>}
+                        {record.phone_number && <div>- SĐT: {record.phone_number}</div>}
+                        {record.birthday && <div>- Ngày sinh: {dayjs(record.birthday).format("YYYY-MM-DD")}</div>}
+
                     </div>
                 )
             },
@@ -91,65 +98,90 @@ export default function User() {
             },
             sorter: true,
         },
-        {
-            title: "Email",
-            dataIndex: 'email',
-            sorter: true,
-        },
-        {
-            title: 'Giới tính',
-            dataIndex: 'gender',
-            render: (text, record, index, action) => {
-                return (
-                    <>{(GENDER_VI as any)[record.gender]}</>
-                )
-            },
-            sorter: true,
-        },
-        {
-            title: "SĐT",
-            dataIndex: 'phone_number',
-            sorter: true,
-        },
-        {
-            title: "Ngày sinh",
-            dataIndex: 'birthDay',
-            render: (text, record, index, action) => {
-                return (
-                    <>{record.birthday}</>
-                )
-            },
-            hideInSearch: true,
-        },
+
         {
             title: "Vai trò",
             dataIndex: 'role',
             render: (text, record, index, action) => {
+                const roleInfo = (ROLE_UI as any)[record.role];
+                const Icon = roleInfo?.icon || UserOutlined;
+
                 return (
-                    <>{(ROLE_VI as any)[record.role]}</>
-                )
-            },
-            sorter: true,
-        },
-        {
-            title: "Người quản lý",
-            dataIndex: 'manager',
-            render: (text, record, index, action) => {
-                return (
-                    record?.manager ? <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getUserAvatar(record?.manager?.avatar)}
-                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-                        />
-                        <div>
-                            <p className="leading-[20px]">{`${record?.manager?.first_name} ${record?.manager?.last_name}`}</p>
-                            <p className="leading-[20px] text-[#929292]">{`@${record?.manager?.username}`}</p>
+                    <div className="flex flex-col gap-3 p-2">
+
+                        {/* Badge Vai trò */}
+                        <div
+                            className={`flex items-center gap-2 w-fit px-3 py-1 rounded-full text-white font-medium text-sm shadow-sm ${roleInfo?.color}`}
+                        >
+                            <Icon />
+                            <span>{(ROLE_VI as any)[record.role]}</span>
                         </div>
-                    </div> : <div></div>
-                )
+
+                        {/* Manager info card */}
+                        {record?.manager && (
+                            <div className="
+                        flex gap-3 items-center p-3 rounded-2xl border 
+                        shadow-sm bg-white hover:shadow-md 
+                        transition-all duration-200
+                    ">
+                                <img
+                                    src={getUserAvatar(record.manager.avatar)}
+                                    className="w-[45px] h-[45px] rounded-full object-cover
+                            hover:scale-105 transition-transform duration-200"
+                                />
+                                <div className="leading-tight">
+                                    <p className="font-semibold text-[14px]">
+                                        {record.manager.first_name} {record.manager.last_name}
+                                    </p>
+                                    <p className="text-gray-500 text-[13px]">@{record.manager.username}</p>
+                                    <p className="text-[12px] text-gray-400">Người quản lý trực tiếp</p>
+                                </div>
+                            </div>
+                        )}
+                        {record?.flight_operation_manager && (
+                            <div className="
+                        flex gap-3 items-center p-3 rounded-2xl border 
+                        shadow-sm bg-white hover:shadow-md 
+                        transition-all duration-200
+                    ">
+                                <img
+                                    src={getUserAvatar(record.flight_operation_manager.avatar)}
+                                    className="w-[45px] h-[45px] rounded-full object-cover
+                            hover:scale-105 transition-transform duration-200"
+                                />
+                                <div className="leading-tight">
+                                    <p className="font-semibold text-[14px]">
+                                        {record.flight_operation_manager.first_name} {record.flight_operation_manager.last_name}
+                                    </p>
+                                    <p className="text-gray-500 text-[13px]">@{record.flight_operation_manager.username}</p>
+                                    <p className="text-[12px] text-gray-400">Người quản lý trực tiếp</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
             },
             sorter: true,
         },
+        // {
+        //     title: "Người quản lý",
+        //     dataIndex: 'manager',
+        //     render: (text, record, index, action) => {
+        //         return (
+        //             record?.manager ? <div className="flex items-center gap-[10px]">
+        //                 <img
+        //                     src={getUserAvatar(record?.manager?.avatar)}
+        //                     className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+        //                 />
+        //                 <div>
+        //                     <p className="leading-[20px]">{`${record?.manager?.first_name} ${record?.manager?.last_name}`}</p>
+        //                     <p className="leading-[20px] text-[#929292]">{`@${record?.manager?.username}`}</p>
+        //                 </div>
+        //             </div> : <div></div>
+        //         )
+        //     },
+        //     sorter: true,
+        // },
         {
             title: "Trạng thái",
             dataIndex: 'is_active',

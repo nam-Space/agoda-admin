@@ -394,3 +394,110 @@ export const callUpdateHandbook = (id: number, data: any) => {
 export const callDeleteHandbook = (id: number) => {
     return axios.delete(`/api/handbooks/handbooks/${id}/delete/`);
 };
+
+// Promotion
+export const callFetchPromotion = (query: string) => {
+    return axios.get(`/api/promotions/promotions-admin/?${query}`);
+};
+
+export const callCreatePromotion = (data: any) => {
+    return axios.post("/api/promotions/create-details/", { ...data });
+};
+
+export const callUpdatePromotion = (id: number, data: any) => {
+    return axios.put(`/api/promotions/promotions/${id}/update/`, { ...data });
+};
+
+export const callDeletePromotion = (id: number) => {
+    return axios.delete(`/api/promotions/promotions/${id}/delete/`);
+};
+
+// Room Promotion
+export const callFetchRoomPromotion = (query: string) => {
+    return axios.get(`/api/promotions/room-promotions/?${query}`);
+};
+
+export const callCreateRoomPromotion = (data: any) => {
+    return axios.post("/api/promotions/room-promotions/create/", { ...data });
+};
+
+export const callUpdateRoomPromotion = (id: number, data: any) => {
+    return axios.put(`/api/promotions/room-promotions/${id}/update/`, {
+        ...data,
+    });
+};
+
+export const callDeleteRoomPromotion = (id: number) => {
+    return axios.delete(`/api/promotions/room-promotions/${id}/delete/`);
+};
+
+// Car Promotion
+export const callFetchCarPromotion = (query: string) => {
+    return axios.get(`/api/promotions/car-promotions/?${query}`);
+};
+
+export const callCreateCarPromotion = (data: any) => {
+    return axios.post("/api/promotions/car-promotions/create/", { ...data });
+};
+
+export const callUpdateCarPromotion = (id: number, data: any) => {
+    return axios.put(`/api/promotions/car-promotions/${id}/update/`, {
+        ...data,
+    });
+};
+
+export const callDeleteCarPromotion = (id: number) => {
+    return axios.delete(`/api/promotions/car-promotions/${id}/delete/`);
+};
+
+// Flight Promotion
+export const callFetchFlightPromotion = (query: string) => {
+    return axios.get(`/api/promotions/flight-promotions/?${query}`);
+};
+
+export const callCreateFlightPromotion = (data: any) => {
+    return axios.post("/api/promotions/flight-promotions/create/", { ...data });
+};
+
+export const callUpdateFlightPromotion = (id: number, data: any) => {
+    return axios.put(`/api/promotions/flight-promotions/${id}/update/`, {
+        ...data,
+    });
+};
+
+export const callDeleteFlightPromotion = (id: number) => {
+    return axios.delete(`/api/promotions/flight-promotions/${id}/delete/`);
+};
+
+// Activity Promotion
+export const callFetchActivityPromotion = (query: string) => {
+    return axios.get(`/api/promotions/activity-promotions/?${query}`);
+};
+
+export const callCreateActivityPromotion = (data: any) => {
+    return axios.post("/api/promotions/activity-promotions/create/", {
+        ...data,
+    });
+};
+
+export const callCreateBulkActivityPromotion = (data: any) => {
+    return axios.post("/api/promotions/activity-promotions/create/bulk/", {
+        ...data,
+    });
+};
+
+export const callUpdateActivityPromotion = (id: number, data: any) => {
+    return axios.put(`/api/promotions/activity-promotions/${id}/update/`, {
+        ...data,
+    });
+};
+
+export const callDeleteActivityPromotion = (id: number) => {
+    return axios.delete(`/api/promotions/activity-promotions/${id}/delete/`);
+};
+
+export const callDeleteBulkActivityPromotion = (ids: number[]) => {
+    return axios.delete(`/api/promotions/activity-promotions/bulk-delete/`, {
+        data: { ids },
+    });
+};

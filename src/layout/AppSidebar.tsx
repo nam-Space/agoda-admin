@@ -18,6 +18,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
 import { Badge } from "antd";
 import { useSocket } from "@/context/SocketProvider";
+import { CiDiscount1 } from "react-icons/ci";
 
 type NavItem = {
   name: string | React.ReactNode;
@@ -59,14 +60,14 @@ const AppSidebar: React.FC = () => {
         ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{ name: "Khách sạn", path: "/hotel", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{ name: "Phòng", path: "/room", pro: false }] : []),
         ...(user.role === ROLE.ADMIN ? [{ name: "Sân bay", path: "/airport", pro: false }] : []),
-        ...(user.role === ROLE.ADMIN ? [{ name: "Hãng hàng không", path: "/airline", pro: false }] : []),
-        ...(user.role === ROLE.ADMIN ? [{ name: "Máy bay", path: "/aircraft", pro: false }] : []),
-        ...(user.role === ROLE.ADMIN ? [{ name: "Chuyến bay", path: "/flight", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF) ? [{ name: "Hãng hàng không", path: "/airline", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF) ? [{ name: "Máy bay", path: "/aircraft", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF) ? [{ name: "Chuyến bay", path: "/flight", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Taxi", path: "/car", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Hoạt động", path: "/activity", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Gói hoạt động", path: "/activity-package", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Ngày của gói hoạt động", path: "/activity-date", pro: false }] : []),
-        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Cẩm nang", path: "/handbook", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF || user.role === ROLE.EVENT_ORGANIZER || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Cẩm nang", path: "/handbook", pro: false }] : []),
         ...(user.role !== ROLE.CUSTOMER ? [{
           name: <div className="flex items-center gap-[10px]">
             Tin nhắn
@@ -97,19 +98,30 @@ const AppSidebar: React.FC = () => {
       name: "Đơn thanh toán",
       icon: <ListIcon />,
       subItems: [
-        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF) ? [{ name: "Đơn thanh toán đặt phòng", path: "/room-payment", pro: false }] : []),
-        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Đơn thanh toán hoạt động", path: "/activity-payment", pro: false }] : []),
-        ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Đơn thanh toán taxi", path: "/car-payment", pro: false }] : []),
-        { name: "Đơn thanh toán chuyến bay", path: "/flight-payment", pro: false }
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Đơn thanh toán đặt phòng", path: "/room-payment", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Đơn thanh toán hoạt động", path: "/activity-payment", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Đơn thanh toán taxi", path: "/car-payment", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Đơn thanh toán chuyến bay", path: "/flight-payment", pro: false }] : [])
       ],
     },
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF || user.role === ROLE.DRIVER || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF || user.role === ROLE.EVENT_ORGANIZER || user.role === ROLE.MARKETING_MANAGER) ? [{
+      name: "Khuyến mãi",
+      icon: <CiDiscount1 />,
+      subItems: [
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Khuyến mãi phòng", path: "/room-promotion", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Khuyến mãi xe taxi", path: "/car-promotion", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Khuyến mãi chuyến bay", path: "/flight-promotion", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER || user.role === ROLE.MARKETING_MANAGER) ? [{ name: "Khuyến mãi hoạt động", path: "/activity-promotion", pro: false }] : []),
+      ],
+    }] : []),
     {
       name: "Thời khóa biểu",
       icon: <CalenderIcon />,
       subItems: [
-        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.STAFF) ? [{ name: "Thời khóa biểu khách sạn", path: "/room-timetable", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF) ? [{ name: "Thời khóa biểu khách sạn", path: "/room-timetable", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Thời khóa biểu taxi", path: "/car-timetable", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Thời khóa biểu sự kiện hoạt động", path: "/activity-timetable", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF) ? [{ name: "Thời khóa biểu chuyến bay", path: "/flight-timetable", pro: false }] : []),
       ],
     },
     // {

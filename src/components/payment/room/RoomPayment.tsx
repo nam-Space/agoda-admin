@@ -305,7 +305,7 @@ export default function RoomPayment() {
         if (user.role === ROLE.OWNER) {
             temp += `&owner_hotel_id=${user.id}`
         }
-        else if (user.role === ROLE.STAFF) {
+        else if (user.role === ROLE.HOTEL_STAFF) {
             temp += `&owner_hotel_id=${user.manager?.id || 0}`
         }
 
