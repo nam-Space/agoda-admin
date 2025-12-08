@@ -137,7 +137,7 @@ export default function ActivityPayment() {
 
                                         <span className="font-semibold">
                                             {
-                                                activity_date_booking?.avg_star
+                                                activity_date_booking?.avg_star?.toFixed(1)
                                             }
                                         </span>
                                         <span className="text-gray-500">
