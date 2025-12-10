@@ -11,7 +11,6 @@ import { useRef, useState } from "react";
 import DataTable from "../antd/Table";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightDetail from "../payment/flight/ModalFlightDetail";
-import { Tag } from "antd";
 import { ROLE } from "@/constants/role";
 
 
@@ -41,7 +40,7 @@ const TableFlightRecommended = () => {
             title: "Hãng hàng không",
             dataIndex: 'airline',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -60,7 +59,7 @@ const TableFlightRecommended = () => {
             title: "Máy bay",
             dataIndex: 'aircraft',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -75,7 +74,7 @@ const TableFlightRecommended = () => {
             title: "Chuyến bay",
             dataIndex: 'flight',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 if (record.legs?.length === 0) return <div></div>
 
                 const recordLegSorted = [...record.legs].sort((a: any, b: any) =>
@@ -91,8 +90,9 @@ const TableFlightRecommended = () => {
                         setIsModalOpen(true)
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
-                            <div>
-                                <Tag color="#2db7f5">1 chiều</Tag>
+                            <div className="flex items-center gap-[6px]">
+                                <img src={getImage(record?.airline?.logo)} alt={record?.airline?.name} className="w-[24px]" />
+                                <p className="text-[12px] text-gray-500">{record?.airline?.name}</p>
                             </div>
                             <div>
                                 <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
@@ -119,7 +119,7 @@ const TableFlightRecommended = () => {
         {
             title: "Tổng thời gian",
             dataIndex: 'total_duration',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record.total_duration} phút
@@ -133,7 +133,7 @@ const TableFlightRecommended = () => {
             dataIndex: 'baggage_included',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {BAGGAGE_INCLUDED_VI[record.baggage_included]}
@@ -150,7 +150,7 @@ const TableFlightRecommended = () => {
             title: "Giá tiền cơ sở",
             dataIndex: 'base_price',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {formatCurrency(record?.base_price)}đ
@@ -163,7 +163,7 @@ const TableFlightRecommended = () => {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -171,7 +171,7 @@ const TableFlightRecommended = () => {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

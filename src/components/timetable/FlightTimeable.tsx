@@ -3,10 +3,10 @@ import { useAppSelector } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import { ICitySelect } from "../ecommerce/MonthlySalesChart";
 import { ROLE } from "@/constants/role";
-import { getUserAvatar } from "@/utils/imageUrl";
+import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { callFetchAirline, callFetchFlight, callFetchUser } from "@/config/api";
 import dayjs, { Dayjs } from "dayjs";
-import { Calendar, CalendarProps, Popover, Tag } from "antd";
+import { Calendar, CalendarProps, Popover } from "antd";
 import { DebounceSelect } from "../antd/DebounceSelect";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightDetail from "../payment/flight/ModalFlightDetail";
@@ -182,8 +182,9 @@ const FlightTimetable = () => {
                     }} className="flex flex-col gap-[10px]">
                         <div className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                             <div>
-                                <div>
-                                    <Tag color="#2db7f5">1 chiều</Tag>
+                                <div className="flex items-center gap-[6px]">
+                                    <img src={getImage(flight?.airline?.logo)} alt={flight?.airline?.name} className="w-[24px]" />
+                                    <p className="text-[12px] text-gray-500">{flight?.airline?.name}</p>
                                 </div>
                                 <div>
                                     <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
@@ -227,8 +228,9 @@ const FlightTimetable = () => {
                             }} className="flex flex-col gap-[10px]">
                                 <div className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                                     <div>
-                                        <div>
-                                            <Tag color="#2db7f5">1 chiều</Tag>
+                                        <div className="flex items-center gap-[6px]">
+                                            <img src={getImage(flight?.airline?.logo)} alt={flight?.airline?.name} className="w-[24px]" />
+                                            <p className="text-[12px] text-gray-500">{flight?.airline?.name}</p>
                                         </div>
                                         <div>
                                             <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>

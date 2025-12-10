@@ -25,3 +25,12 @@ export const PAYMENT_STATUS_VI = {
     [PAYMENT_STATUS.UNPAID + ""]: "Chưa thanh toán",
     [PAYMENT_STATUS.PAID + ""]: "Đã thanh toán",
 };
+
+export const PAYMENT_STATUS_COLOR = {
+    [PAYMENT_STATUS.PENDING]: "blue",
+    [PAYMENT_STATUS.SUCCESS]: "green",
+    [PAYMENT_STATUS.FAILED]: "red",
+    [PAYMENT_STATUS.CANCELLED]: "default",
+    [PAYMENT_STATUS.UNPAID]: "orange",
+    [PAYMENT_STATUS.PAID]: "green",
+};

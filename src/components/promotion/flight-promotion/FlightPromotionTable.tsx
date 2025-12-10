@@ -1,6 +1,6 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, ConfigProvider, Popconfirm, Space, Table, Tag } from "antd";
+import { Button, ConfigProvider, Popconfirm, Space, Table } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { DeleteOutlined, EditOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -71,7 +71,7 @@ const FlightPromotionTable = (props: IProps) => {
         {
             title: "Hãng hàng không",
             dataIndex: 'airline',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -88,7 +88,7 @@ const FlightPromotionTable = (props: IProps) => {
         {
             title: "Chuyến bay",
             dataIndex: 'flight',
-            render: (text, record) => {
+            render: (_text, record) => {
                 if (record?.flight?.legs?.length === 0) return <div></div>
 
                 const recordLegSorted = [...record.flight.legs].sort((a: any, b: any) =>
@@ -104,8 +104,9 @@ const FlightPromotionTable = (props: IProps) => {
                         setIsModalDetailOpen(true)
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
-                            <div>
-                                <Tag color="#2db7f5">1 chiều</Tag>
+                            <div className="flex items-center gap-[6px]">
+                                <img src={getImage(record.flight?.airline?.logo)} alt={record.flight?.airline?.name} className="w-[24px]" />
+                                <p className="text-[12px] text-gray-500">{record.flight?.airline?.name}</p>
                             </div>
                             <div>
                                 <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>

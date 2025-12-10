@@ -2,16 +2,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space, Tag } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { callDeletePayment } from "../../../config/api";
 import DataTable from "../../antd/Table";
-// import ModalCity from "./ModalCity";
 import { formatCurrency } from "@/utils/formatCurrency";
-import { PAYMENT_METHOD_VI, PAYMENT_STATUS_VI } from "@/constants/payment";
+import { PAYMENT_METHOD_VI, PAYMENT_STATUS_COLOR, PAYMENT_STATUS_VI } from "@/constants/payment";
 import { fetchPayment } from "@/redux/slice/paymentSlide";
 import { SERVICE_TYPE } from "@/constants/booking";
 import { getUserAvatar } from "@/utils/imageUrl";
@@ -74,7 +73,7 @@ export default function RoomPayment() {
             title: "Mã code",
             dataIndex: 'booking_code',
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="break-all">{record?.booking?.booking_code}</div>
                 )
@@ -84,7 +83,7 @@ export default function RoomPayment() {
             title: "Mã giao dịch",
             dataIndex: 'transaction_id',
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="w-[120px] break-all">{record?.transaction_id}</div>
                 )
@@ -94,7 +93,7 @@ export default function RoomPayment() {
             title: "Thông tin khách hàng",
             dataIndex: 'method',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>
                         {record?.booking?.user && <div className="mb-[14px]">
@@ -121,7 +120,7 @@ export default function RoomPayment() {
             title: "Thông tin đơn hàng",
             dataIndex: 'method',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 const room_booking = record?.booking?.room_details?.[0]
                 return (
                     <div>
@@ -178,68 +177,32 @@ export default function RoomPayment() {
                     </div>
                 )
             },
-            width: 250,
         },
         {
-            title: "Tổng tiền",
-            dataIndex: 'amount',
+            title: "Giao dịch",
+            dataIndex: 'transaction',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
-                    <div>{formatCurrency(record?.amount)}</div>
+                    <div>
+                        <Tag color={PAYMENT_STATUS_COLOR[record.status]}>
+                            {PAYMENT_STATUS_VI[record.status]}
+                        </Tag>
+                        <p>- Phương thức: <span className="font-bold">{PAYMENT_METHOD_VI[record.method]}</span></p>
+                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount)}đ</span></p>
+                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount)}đ</span></p>
+                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price)}đ</span></p>
+                    </div>
                 )
             },
-        },
-        {
-            title: "Giảm giá",
-            dataIndex: 'amount',
-            sorter: true,
-            hideInSearch: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div>{formatCurrency(record?.booking?.discount_amount)}</div>
-                )
-            },
-        },
-        {
-            title: "Thành tiền",
-            dataIndex: 'final_price',
-            sorter: true,
-            hideInSearch: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div>{formatCurrency(record?.booking?.final_price)}</div>
-                )
-            },
-        },
-        {
-            title: "Phương thức thanh toán",
-            dataIndex: 'method',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div>{PAYMENT_METHOD_VI[record.method]}</div>
-                )
-            },
-
-        },
-
-        {
-            title: 'Trạng thái',
-            dataIndex: 'status',
-            sorter: true,
-            render: (text, record, index, action) => {
-                return (
-                    <div>{PAYMENT_STATUS_VI[record.status]}</div>
-                )
-            },
+            width: 200
         },
         {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -288,7 +251,7 @@ export default function RoomPayment() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

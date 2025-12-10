@@ -1,7 +1,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { callUpdateFlightPromotion, callFetchFlight, callFetchAirline, callCreateFlightPromotion } from "@/config/api";
-import { ConfigProvider, InputNumber, Modal, Select, Tag } from "antd";
+import { ConfigProvider, InputNumber, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import vi_VN from 'antd/locale/vi_VN';
@@ -202,8 +202,9 @@ const ModalFlightPromotionUpsert = (props: IProps) => {
                                     return {
                                         label: <div className="p-[10px] rounded-[10px] cursor-pointer">
                                             <div>
-                                                <div>
-                                                    <Tag color="#87d068">Khứ hồi</Tag>
+                                                <div className="flex items-center gap-[6px]">
+                                                    <img src={getImage(item?.airline?.logo)} alt={item?.airline?.name} className="w-[24px]" />
+                                                    <p className="text-[12px] text-gray-500">{item?.airline?.name}</p>
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
