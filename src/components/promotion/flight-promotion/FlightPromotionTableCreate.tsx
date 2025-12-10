@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, ConfigProvider, InputNumber, Popconfirm, Select, Space, Table, Tag } from "antd";
+import { Button, ConfigProvider, InputNumber, Popconfirm, Select, Space, Table } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
@@ -49,7 +49,7 @@ const FlightPromotionTableCreate = (props: IProps) => {
         {
             title: "STT",
             dataIndex: 'stt',
-            render: (text, record, index) => {
+            render: (_text, _record, index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {data.length - index}
@@ -60,7 +60,7 @@ const FlightPromotionTableCreate = (props: IProps) => {
         {
             title: "Hãng hàng không",
             dataIndex: 'airline',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -77,7 +77,7 @@ const FlightPromotionTableCreate = (props: IProps) => {
         {
             title: "Chuyến bay",
             dataIndex: 'flight',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 if (!(record?.flight?.legs)) return <div></div>
                 const recordLegSorted = [...record.flight.legs].sort((a: any, b: any) =>
                     new Date(a.departure_time).getTime() - new Date(b.departure_time).getTime() // giảm dần
@@ -92,8 +92,9 @@ const FlightPromotionTableCreate = (props: IProps) => {
                         setIsModalDetailOpen(true)
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
-                            <div>
-                                <Tag color="#2db7f5">1 chiều</Tag>
+                            <div className="flex items-center gap-[6px]">
+                                <img src={getImage(record.flight?.airline?.logo)} alt={record.flight?.airline?.name} className="w-[24px]" />
+                                <p className="text-[12px] text-gray-500">{record.flight?.airline?.name}</p>
                             </div>
                             <div>
                                 <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
@@ -118,7 +119,7 @@ const FlightPromotionTableCreate = (props: IProps) => {
         {
             title: "Phần trăm giảm giá",
             dataIndex: 'discount_percent',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record?.discount_percent}%
@@ -129,7 +130,7 @@ const FlightPromotionTableCreate = (props: IProps) => {
         {
             title: "Tiền giảm giá",
             dataIndex: 'discount_amount',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record?.discount_amount}đ
@@ -141,7 +142,7 @@ const FlightPromotionTableCreate = (props: IProps) => {
 
             title: "Hành động",
             width: 50,
-            render: (text, record) => (
+            render: (_text, record) => (
                 <Space>
                     <EditOutlined
                         style={{
@@ -322,8 +323,9 @@ const FlightPromotionTableCreate = (props: IProps) => {
                                             return {
                                                 label: <div className="p-[10px] rounded-[10px] cursor-pointer">
                                                     <div>
-                                                        <div>
-                                                            <Tag color="#2db7f5">1 chiều</Tag>
+                                                        <div className="flex items-center gap-[6px]">
+                                                            <img src={getImage(item?.airline?.logo)} alt={item?.airline?.name} className="w-[24px]" />
+                                                            <p className="text-[12px] text-gray-500">{item?.airline?.name}</p>
                                                         </div>
                                                         <div>
                                                             <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>

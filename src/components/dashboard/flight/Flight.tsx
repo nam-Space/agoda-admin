@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, Popconfirm, Space, Tag } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
@@ -119,8 +119,9 @@ export default function Flight(props: IProps) {
                         setIsModalDetailOpen(true)
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
-                            <div>
-                                <Tag color="#2db7f5">1 chiều</Tag>
+                            <div className="flex items-center gap-[6px]">
+                                <img src={getImage(record?.airline?.logo)} alt={record?.airline?.name} className="w-[24px]" />
+                                <p className="text-[12px] text-gray-500">{record?.airline?.name}</p>
                             </div>
                             <div>
                                 <p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
