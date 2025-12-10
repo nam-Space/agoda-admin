@@ -115,64 +115,6 @@ export default function NotificationDropdown() {
 								</div>
 							</div>
 						</div>
-					</div>
-					<div className="bg-gray-100 hover:bg-gray-200  cursor-pointer">
-						<div className="border-t-[1px] border-[#f0f0f0] px-[10px] py-[10px] flex gap-[10px]">
-							<div className="flex-shrink-0"><img src="http://localhost:8000/media/airline_logo_images/bamboo-airways.png" alt="Xe manivan độc nhất" className="w-[50px] h-[50px] object-cover rounded-lg" /></div>
-							<div className="flex-grow">
-								<h3 className="text-gray-900 mb-[6px] leading-[18px]">
-									<div>Mã:<span className="text-blue-500 font-semibold"> AGD9E3286</span></div>
-									<span>Khách hàng </span><span className="font-bold text-blue-700">Nguyễn Dũng </span><span>đã đặt chuyến bay </span><span className="font-bold text-green-600">khứ hồi</span>: <span className="font-bold">Tân Sơn Nhất</span> → <span className="font-bold">Đà Nẵng</span>
-								</h3>
-								<div>
-									<div className="flex items-center gap-[10px]">
-										<p className="font-semibold text-[14px] text-blue-600">Chiều đi:</p>
-										<div className="flex items-center gap-[2px]">
-											<img src={"http://localhost:8000/media/airline_logo_images/bamboo-airways.png"} alt={'Bamboo Airways'} className="w-[24px]" />
-											<p className="text-[12px] text-gray-500">Bamboo Airways</p>
-										</div>
-									</div>
-									<div className="flex gap-[20px]">
-										<div className="flex items-center gap-[4px]">
-											<img alt="hao2003" className="w-[24px] h-[24px] object-cover rounded-[50%]" src="http://localhost:8000/media/user_images/default-avatar.png"></img>
-											<div>
-												<p className="text-gray-600 text-[12px]">Thời điểm cất cánh</p>
-												<p className="font-semibold text-[12px] text-gray-900">2025-12-04 00:00:00</p>
-											</div>
-										</div>
-
-
-										<div>
-											<p className="text-gray-600 text-[12px]">Thời gian hạ cánh</p>
-											<p className="font-semibold text-[12px] text-gray-900">2025-12-04 02:00:00</p>
-										</div>
-									</div>
-								</div>
-								<div className="mt-[14px]">
-									<div className="flex items-center gap-[10px]">
-										<p className="font-semibold text-[14px] text-red-600">Chiều về:</p>
-										<div className="flex items-center gap-[2px]">
-											<img src={"http://localhost:8000/media/airline_logo_images/vietravel-airline.png"} alt={'Vietravel Airlines'} className="w-[24px]" />
-											<p className="text-[12px] text-gray-500">Vietravel Airlines</p>
-										</div>
-									</div>
-									<div className="flex gap-[20px]">
-										<div className="flex items-center gap-[4px]">
-											<img alt="hao2003" className="w-[24px] h-[24px] object-cover rounded-[50%]" src="http://localhost:8000/media/user_images/default-avatar.png"></img>
-											<div>
-												<p className="text-gray-600 text-[12px]">Thời điểm cất cánh</p>
-												<p className="font-semibold text-[12px] text-gray-900">2025-12-04 00:00:00</p>
-											</div>
-										</div>
-
-										<div>
-											<p className="text-gray-600 text-[12px]">Thời gian hạ cánh</p>
-											<p className="font-semibold text-[12px] text-gray-900">2025-12-04 02:00:00</p>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
 					</div> */}
 					{!loadingNotifications && notifications.length === 0 && < Empty
 						description="Chưa có thông báo"
