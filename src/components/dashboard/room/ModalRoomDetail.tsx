@@ -109,7 +109,7 @@ const ModalRoomDetail = (props: IProps) => {
                                 </div>
                                 <div className="mt-[10px]">
                                     <p><strong>Mô tả:</strong></p>
-                                    <div dangerouslySetInnerHTML={{ __html: room?.description || "" }}></div>
+                                    <div className="markdown-container" dangerouslySetInnerHTML={{ __html: room?.description || "" }}></div>
                                 </div>
                             </div>
                         </div>
