@@ -107,7 +107,7 @@ const ModalHotelDetail = (props: IProps) => {
                                 </div>
                                 <div className="mt-[10px]">
                                     <p><strong>Mô tả:</strong></p>
-                                    <div dangerouslySetInnerHTML={{ __html: hotel?.description || "" }}></div>
+                                    <div className="markdown-container" dangerouslySetInnerHTML={{ __html: hotel?.description || "" }}></div>
                                 </div>
                                 <div className="mt-[10px]">
                                     <p><strong>Tiện nghi và cơ sở vật chất:</strong></p>
