@@ -8,6 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { getImage } from "@/utils/imageUrl";
 import { HomeOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
 
 interface IProps {
     room?: any | null;
@@ -17,6 +18,17 @@ interface IProps {
 
 const ModalRoomDetail = (props: IProps) => {
     const { room, isModalOpen, setIsModalOpen } = props;
+    const [isExpanded, setIsExpanded] = useState({
+        description: false,
+    });
+
+    useEffect(() => {
+        if (!isModalOpen) {
+            setIsExpanded({
+                description: false,
+            })
+        }
+    }, [isModalOpen])
 
     return (
         <ConfigProvider locale={vi_VN}>
@@ -109,7 +121,20 @@ const ModalRoomDetail = (props: IProps) => {
                                 </div>
                                 <div className="mt-[10px]">
                                     <p><strong>Mô tả:</strong></p>
-                                    <div className="markdown-container" dangerouslySetInnerHTML={{ __html: room?.description || "" }}></div>
+                                    {room?.description && <div className="markdown-container" dangerouslySetInnerHTML={{
+                                        __html: room.description.length > 150 ? (isExpanded.description
+                                            ? room.description
+                                            : `${room.description.substring(0, 150)}...`) : room.description
+                                    }}></div>}
+                                    {room?.description?.length > 150 && <button
+                                        onClick={() => setIsExpanded({
+                                            ...isExpanded,
+                                            description: !isExpanded.description
+                                        })}
+                                        className="text-blue-600 hover:underline text-sm inline-block"
+                                    >
+                                        {isExpanded.description ? "Ẩn" : "Xem tiếp"}
+                                    </button>}
                                 </div>
                             </div>
                         </div>
