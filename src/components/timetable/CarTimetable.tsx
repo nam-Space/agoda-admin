@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
 import { getUserAvatar } from "@/utils/imageUrl";
-import { callFetchPayment, callFetchUser } from "@/config/api";
+import { callFetchCar, callFetchPayment, callFetchUser } from "@/config/api";
 import { DebounceSelect } from "../antd/DebounceSelect";
 import { SERVICE_TYPE } from "@/constants/booking";
 import { PAYMENT_STATUS } from "@/constants/payment";
@@ -28,6 +28,12 @@ const CarTimetable = () => {
         </div> : "",
         value: user.role === ROLE.DRIVER ? user.id : 0,
         key: user.role === ROLE.DRIVER ? user.id : 0,
+    });
+
+    const [car, setCar] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
     });
 
     async function fetchDriverList(): Promise<ICitySelect[]> {
@@ -58,6 +64,50 @@ const CarTimetable = () => {
         } else return [];
     }
 
+    async function fetchCarList(): Promise<ICitySelect[]> {
+        let query = ``
+        if (driver.value) {
+            query = `&user_id=${driver.value}`
+        }
+        else if (user.role === ROLE.DRIVER) {
+            query = `&user_id=${user.id}`
+        }
+        const res: any = await callFetchCar(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label:
+                        <div className="flex gap-3">
+                            <img
+                                src={`${import.meta.env.VITE_BE_URL}${item?.image}`}
+                                alt={item.name}
+                                width={60}
+                                height={40}
+                                className="object-contain"
+                            />
+                            <div>
+                                <div className="font-medium text-sm">
+                                    {
+                                        item
+                                            ?.name
+                                    }
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                    {
+                                        item
+                                            ?.description
+                                    }
+                                </div>
+                            </div>
+                        </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleGetPayment = async (query: string) => {
         const res: any = await callFetchPayment(query)
         if (res.isSuccess) {
@@ -66,10 +116,18 @@ const CarTimetable = () => {
     }
 
     useEffect(() => {
-        if (driver.value) {
-            handleGetPayment(`current=1&pageSize=1000&driver_id=${driver.value}&booking__service_type=${SERVICE_TYPE.CAR}&status=${PAYMENT_STATUS.SUCCESS}&sort=booking__car_detail__pickup_datetime-asc`)
+        if (driver.value || car.value) {
+            let bossQuery = ``
+            let serviceQuery = ``
+            if (driver.value) {
+                bossQuery = `&driver_id=${driver.value}`
+            }
+            if (car.value) {
+                serviceQuery = `&car_id=${car.value}`
+            }
+            handleGetPayment(`current=1&pageSize=1000${bossQuery}&booking__service_type=${SERVICE_TYPE.CAR}${serviceQuery}&status=${PAYMENT_STATUS.SUCCESS}&sort=booking__car_detail__pickup_datetime-asc`)
         }
-    }, [driver])
+    }, [driver, car])
 
     const getListData = (value: Dayjs) => {
         const listPayment = payments.filter(
@@ -101,27 +159,83 @@ const CarTimetable = () => {
             {listPayment.map((payment: any) => (
                 payment?.booking?.user?.id ? (<div>
                     <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail[0].pickup_datetime).format("HH:mm")} (${payment.booking.car_detail[0].pickup_location} → ${payment.booking.car_detail[0].dropoff_location})`} />
-                    <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getUserAvatar(payment.booking.user.avatar)}
-                            className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-                        />
-                        <div>
-                            <p className="leading-[20px]">{`${payment.booking.user.first_name} ${payment.booking.user.last_name}`}</p>
-                            <p className="leading-[20px] text-[#929292]">{`@${payment.booking.user.username}`}</p>
+                    <div className="flex items-center gap-[20px] mt-[4px]">
+                        <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getUserAvatar(payment.booking.user.avatar)}
+                                className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${payment.booking.user.first_name} ${payment.booking.user.last_name}`}</p>
+                                <p className="leading-[20px] text-[#929292]">{`@${payment.booking.user.username}`}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded">
+                            <img
+                                src={`${import.meta.env.VITE_BE_URL}${payment.booking?.car_detail?.[0]?.car?.image}`}
+                                alt={
+                                    payment.booking?.car_detail?.[0]?.car
+                                        ?.name
+                                }
+                                width={60}
+                                height={40}
+                                className="object-contain"
+                            />
+                            <div>
+                                <div className="font-medium text-sm">
+                                    {
+                                        payment.booking?.car_detail?.[0]?.car
+                                            ?.name
+                                    }
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                    {
+                                        payment.booking?.car_detail?.[0]?.car
+                                            ?.description
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>) : (
                     <div>
                         <Badge status={"success"} className="font-semibold" text={`${dayjs(payment.booking.car_detail[0].pickup_datetime).format("HH:mm")} (${payment.booking.car_detail[0].pickup_location} → ${payment.booking.car_detail[0].dropoff_location})`} />
-                        <div className="flex items-center gap-[10px]">
-                            <img
-                                src={getUserAvatar(payment.booking.guest_info.avatar)}
-                                className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-                            />
-                            <div>
-                                <p className="leading-[20px]"><span className="font-bold">Khách ngoài:</span> {payment.booking.guest_info.full_name}</p>
-                                <p className="leading-[20px] text-[#929292]">{payment.booking.guest_info.email}</p>
+                        <div className="flex items-center gap-[20px] mt-[4px]">
+                            <div className="flex items-center gap-[10px]">
+                                <img
+                                    src={getUserAvatar(payment.booking.guest_info.avatar)}
+                                    className="w-[40px] min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                />
+                                <div>
+                                    <p className="leading-[20px]"><span className="font-bold">Khách ngoài:</span> {payment.booking.guest_info.full_name}</p>
+                                    <p className="leading-[20px] text-[#929292]">{payment.booking.guest_info.email}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded">
+                                <img
+                                    src={`${import.meta.env.VITE_BE_URL}${payment.booking?.car_detail?.[0]?.car?.image}`}
+                                    alt={
+                                        payment.booking?.car_detail?.[0]?.car
+                                            ?.name
+                                    }
+                                    width={60}
+                                    height={40}
+                                    className="object-contain"
+                                />
+                                <div>
+                                    <div className="font-medium text-sm">
+                                        {
+                                            payment.booking?.car_detail?.[0]?.car
+                                                ?.name
+                                        }
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        {
+                                            payment.booking?.car_detail?.[0]?.car
+                                                ?.description
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -199,6 +313,26 @@ const CarTimetable = () => {
                                 });
                             }}
                             disabled={user.role === ROLE.DRIVER}
+                            className="w-full !h-[60px]"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label>Xe taxi</label>
+                    <div className="mt-2">
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={car}
+                            value={car}
+                            placeholder={<span>Chọn xe taxi</span>}
+                            fetchOptions={fetchCarList}
+                            onChange={(newValue: any) => {
+                                setCar({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
                             className="w-full !h-[60px]"
                         />
                     </div>

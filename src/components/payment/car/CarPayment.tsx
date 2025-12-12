@@ -180,7 +180,10 @@ export default function CarPayment() {
                             <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded">
                                 <img
                                     src={`${import.meta.env.VITE_BE_URL}${car_booking?.car?.image}`}
-                                    alt="Economy sedan"
+                                    alt={
+                                        car_booking?.car
+                                            ?.name
+                                    }
                                     width={60}
                                     height={40}
                                     className="object-contain"
