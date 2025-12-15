@@ -138,7 +138,9 @@ const ModalRoomPromotionUpsert = (props: IProps) => {
     }, []);
 
     useEffect(() => {
-        handleGetRoom(`current=1&pageSize=1000&hotel_id=${form.hotel_id}`)
+        if (form.hotel_id) {
+            handleGetRoom(`current=1&pageSize=1000&hotel_id=${form.hotel_id}`)
+        }
     }, [form.hotel_id])
 
     return (
