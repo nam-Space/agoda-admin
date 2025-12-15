@@ -131,7 +131,7 @@ const ModalUser = (props: IProps) => {
                     {
                         label: (<div className="flex items-center gap-[10px]">
                             <img
-                                src={getImage(dataInit.hotel?.images?.[0]?.image)}
+                                src={getImage(dataInit.hotel?.thumbnail)}
                                 className="w-[70px] h-[50px] object-cover"
                             />
                             <div>
