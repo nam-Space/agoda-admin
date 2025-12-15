@@ -57,7 +57,7 @@ export default function User() {
             title: "Tên đăng nhập",
             dataIndex: 'username',
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -77,7 +77,7 @@ export default function User() {
         {
             title: "Tên",
             dataIndex: 'first_name',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                         <p>{record.first_name}</p>
@@ -89,7 +89,7 @@ export default function User() {
         {
             title: "Họ",
             dataIndex: 'last_name',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                         <p>{record.last_name}</p>
@@ -102,7 +102,7 @@ export default function User() {
         {
             title: "Vai trò",
             dataIndex: 'role',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 const roleInfo = (ROLE_UI as any)[record.role];
                 const Icon = roleInfo?.icon || UserOutlined;
 
@@ -185,7 +185,7 @@ export default function User() {
         {
             title: "Trạng thái",
             dataIndex: 'is_active',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{STATUS_USER_VI[record.is_active]}</>
                 )
@@ -196,7 +196,7 @@ export default function User() {
             title: "Ngày tạo",
             dataIndex: 'date_joined',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.date_joined).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -245,7 +245,7 @@ export default function User() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

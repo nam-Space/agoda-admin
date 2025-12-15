@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ModalForm, ProForm, ProFormDigit, ProFormMoney, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
-import { Col, ConfigProvider, DatePicker, Form, Modal, Row, Upload, message, notification } from "antd";
+import { Col, ConfigProvider, Form, Modal, Row, Upload } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect, useState } from "react";
 import { callCreateCar, callFetchUser, callUpdateCar, callUploadSingleImage } from "@/config/api";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppSelector } from "@/redux/hooks";
 import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
-import { getDatesBetween } from "@/utils/getDatesBetween";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
@@ -194,7 +193,7 @@ const ModalCar = (props: IProps) => {
         })
     }
 
-    const handleRemoveFile = (file: any) => {
+    const handleRemoveFile = (_file: any) => {
         setDataImage([])
     }
 
@@ -218,7 +217,7 @@ const ModalCar = (props: IProps) => {
         reader.readAsDataURL(img);
     };
 
-    const beforeUpload = (file: any) => {
+    const beforeUpload = (_file: any) => {
         return true;
     };
 

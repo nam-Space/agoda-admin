@@ -37,7 +37,7 @@ const TableHotelRecommended = () => {
             dataIndex: 'city',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{record?.city?.name}</div>
                 )
@@ -59,7 +59,7 @@ const TableHotelRecommended = () => {
             title: "Khách sạn",
             dataIndex: 'hotel',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div onClick={() => {
                         setDataInit(record)
@@ -80,7 +80,7 @@ const TableHotelRecommended = () => {
             title: 'Chủ khách sạn',
             dataIndex: 'owner',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     record?.owner ? <div className="flex items-center gap-[10px]">
                         <img
@@ -105,7 +105,7 @@ const TableHotelRecommended = () => {
             title: 'Vị trí',
             dataIndex: 'google-map',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 const mapUrl = `https://maps.google.com/maps?q=${record.lat},${record.lng}&hl=vi&z=18&output=embed`;
 
                 return (
@@ -131,7 +131,7 @@ const TableHotelRecommended = () => {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

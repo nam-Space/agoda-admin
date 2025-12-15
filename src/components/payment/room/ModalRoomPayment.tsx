@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProFormDigit, ProFormMoney, ProFormSelect, ProFormText } from "@ant-design/pro-components";
-import { Col, Form, Row, message, notification } from "antd";
+import { ModalForm, ProFormMoney, ProFormSelect, ProFormText } from "@ant-design/pro-components";
+import { Col, Form, Row } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect } from "react";
 import { callCreatePayment, callUpdatePayment } from "@/config/api";
 import { PAYMENT_METHOD_VI, PAYMENT_STATUS_VI } from "@/constants/payment";
-import vi_VN from 'antd/locale/vi_VN';
 import { toast } from "react-toastify";
 
 interface IProps {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProFormDigit, ProFormMoney, ProFormSelect, ProFormText } from "@ant-design/pro-components";
-import { Col, Form, Row, message, notification } from "antd";
+import { ModalForm, ProFormMoney, ProFormSelect, ProFormText } from "@ant-design/pro-components";
+import { Col, Form, Row } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect } from "react";
 import { callCreatePayment, callUpdatePayment } from "@/config/api";

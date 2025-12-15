@@ -64,7 +64,7 @@ export default function Aircraft() {
             dataIndex: 'airline',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -87,7 +87,7 @@ export default function Aircraft() {
             title: "Ghế ngồi",
             dataIndex: 'total_seats',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>
                         <p className="leading-[20px]">- Tổng số ghế: {`${record?.total_seats}`}</p>
@@ -107,7 +107,7 @@ export default function Aircraft() {
             title: "Trạng thái",
             dataIndex: 'is_active',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{AIRCRAFT_STATUS_VI[record.is_active]}</>
                 )
@@ -118,7 +118,7 @@ export default function Aircraft() {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -167,7 +167,7 @@ export default function Aircraft() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

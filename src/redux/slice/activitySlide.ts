@@ -38,19 +38,19 @@ export const activitySlide = createSlice({
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
         // Use the PayloadAction type to declare the contents of `action.payload`
-        setActiveMenu: (state, action) => {
+        setActiveMenu: (_state, _action) => {
             // state.activeMenu = action.payload;
         },
     },
     extraReducers: (builder) => {
         // Add reducers for additional action types here, and handle loading state as needed
-        builder.addCase(fetchActivity.pending, (state, action) => {
+        builder.addCase(fetchActivity.pending, (state, _action) => {
             state.isFetching = true;
             // Add user to the state array
             // state.courseOrder = action.payload;
         });
 
-        builder.addCase(fetchActivity.rejected, (state, action) => {
+        builder.addCase(fetchActivity.rejected, (state, _action) => {
             state.isFetching = false;
             // Add user to the state array
             // state.courseOrder = action.payload;

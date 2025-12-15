@@ -59,7 +59,7 @@ export default function ActivityPromotion() {
             dataIndex: 'promotion',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div onClick={() => {
                         setDataInit(record)
@@ -79,7 +79,7 @@ export default function ActivityPromotion() {
             title: 'Mô tả',
             dataIndex: 'description',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="line-clamp-6 w-[200px]">{record.description}</div>
                 )
@@ -90,7 +90,7 @@ export default function ActivityPromotion() {
             title: 'Giảm giá',
             dataIndex: 'discount_percent',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record?.discount_percent}%
@@ -102,7 +102,7 @@ export default function ActivityPromotion() {
             title: 'Tiền giảm giá',
             dataIndex: 'discount_percent',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {formatCurrency(record?.discount_amount)}đ
@@ -114,7 +114,7 @@ export default function ActivityPromotion() {
             title: 'Trạng thái',
             dataIndex: 'is_active',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {PROMOTION_STATUS_VI[record?.is_active]}
@@ -126,7 +126,7 @@ export default function ActivityPromotion() {
             title: "Thời gian",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <ul>
@@ -181,7 +181,7 @@ export default function ActivityPromotion() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

@@ -61,7 +61,7 @@ export default function Room() {
             title: "Ảnh",
             dataIndex: 'image',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
                 )
@@ -73,7 +73,7 @@ export default function Room() {
             title: 'Loại phòng',
             dataIndex: 'room_type',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div onClick={() => {
                         setDataInit(record)
@@ -105,7 +105,7 @@ export default function Room() {
             title: 'Khách sạn',
             dataIndex: 'hotel',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -124,7 +124,7 @@ export default function Room() {
             title: 'Mô tả',
             dataIndex: 'description',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="line-clamp-6 w-[200px]">{record.description}</div>
                 )
@@ -135,7 +135,7 @@ export default function Room() {
             title: 'Không gian',
             dataIndex: 'space',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <ul>
@@ -152,7 +152,7 @@ export default function Room() {
             title: "Thời gian",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <ul>
@@ -207,7 +207,7 @@ export default function Room() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

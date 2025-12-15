@@ -66,7 +66,7 @@ const ActivityPromotionTable = (props: IProps) => {
         {
             title: "Hoạt động",
             dataIndex: 'activity',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -83,7 +83,7 @@ const ActivityPromotionTable = (props: IProps) => {
         {
             title: "Gói hoạt động",
             dataIndex: 'activity_package',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -96,7 +96,7 @@ const ActivityPromotionTable = (props: IProps) => {
         {
             title: "Ngày tổ chức",
             dataIndex: 'activity_date',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>

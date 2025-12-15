@@ -42,7 +42,7 @@ const FlightLegTableCreate = (props: IProps) => {
         {
             title: "STT",
             dataIndex: 'stt',
-            render: (text, record, index) => {
+            render: (_text, _record, index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {data.length - index}
@@ -57,7 +57,7 @@ const FlightLegTableCreate = (props: IProps) => {
         {
             title: "Thời gian khởi hành",
             dataIndex: 'departure_time',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {dayjs(record.departure_time).format("YYYY-MM-DD HH:mm:ss")}
@@ -79,7 +79,7 @@ const FlightLegTableCreate = (props: IProps) => {
         {
             title: "Tổng thời gian",
             dataIndex: 'duration_minutes',
-            render: (text, record) => {
+            render: (_text, record) => {
                 const start = dayjs(record.departure_time);
                 const end = dayjs(record.arrival_time);
                 return (
@@ -92,7 +92,7 @@ const FlightLegTableCreate = (props: IProps) => {
         {
             title: "Địa điểm khởi hành",
             dataIndex: 'departure_airport_name',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -105,7 +105,7 @@ const FlightLegTableCreate = (props: IProps) => {
         {
             title: "Địa điểm hạ cánh",
             dataIndex: 'arrival_airport_name',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -120,7 +120,7 @@ const FlightLegTableCreate = (props: IProps) => {
 
             title: "Hành động",
             width: 50,
-            render: (text, record) => (
+            render: (_text, record) => (
                 <Space>
                     <EditOutlined
                         style={{
@@ -274,7 +274,7 @@ const FlightLegTableCreate = (props: IProps) => {
                                 <ConfigProvider locale={vi_VN}>
                                     <RangePicker
                                         showTime
-                                        onChange={(dates: any, dateStrings: [string, string]) => {
+                                        onChange={(dates: any, _dateStrings: [string, string]) => {
                                             if (!dates) {
                                                 setForm({
                                                     ...form,

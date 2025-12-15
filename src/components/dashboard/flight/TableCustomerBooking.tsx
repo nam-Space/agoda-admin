@@ -23,7 +23,7 @@ const TableCustomerBooking = (props: IProps) => {
         {
             title: "STT",
             dataIndex: 'stt',
-            render: (text, record, index) => {
+            render: (_text, _record, index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {index + 1}
@@ -34,7 +34,7 @@ const TableCustomerBooking = (props: IProps) => {
         {
             title: "Tên",
             dataIndex: 'full_name',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     record?.booking?.user ? <div className="flex items-center gap-[10px]">
                         <img
@@ -62,7 +62,7 @@ const TableCustomerBooking = (props: IProps) => {
         {
             title: "Email",
             dataIndex: 'email',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <p>{`${record.booking?.guest_info?.email}`}</p>
@@ -73,7 +73,7 @@ const TableCustomerBooking = (props: IProps) => {
         {
             title: "SĐT",
             dataIndex: 'phone_number',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <p>{`${record.booking?.guest_info?.phone}`}</p>
@@ -84,7 +84,7 @@ const TableCustomerBooking = (props: IProps) => {
         {
             title: "Thời gian đặt",
             dataIndex: 'created_at',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )

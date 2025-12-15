@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -76,7 +76,7 @@ export default function ActivityDate() {
             title: "Ngày tổ chức",
             dataIndex: 'date_launch',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.date_launch).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -87,7 +87,7 @@ export default function ActivityDate() {
             title: 'Giá người lớn',
             dataIndex: 'price_adult',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{formatCurrency(record?.price_adult)}đ</div>
                 )
@@ -97,7 +97,7 @@ export default function ActivityDate() {
             title: 'Giá trẻ em',
             dataIndex: 'price_child',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{formatCurrency(record?.price_child)}đ</div>
                 )
@@ -118,7 +118,7 @@ export default function ActivityDate() {
             dataIndex: 'activity',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -137,7 +137,7 @@ export default function ActivityDate() {
             dataIndex: 'activity_package',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="font-semibold">{record?.activity_package?.name}</div>
                 )
@@ -147,7 +147,7 @@ export default function ActivityDate() {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -196,7 +196,7 @@ export default function ActivityDate() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

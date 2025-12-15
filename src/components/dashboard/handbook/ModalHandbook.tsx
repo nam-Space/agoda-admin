@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ModalForm, ProForm, ProFormSelect, ProFormText } from "@ant-design/pro-components";
-import { Col, ConfigProvider, Form, Modal, Row, Upload, message } from "antd";
+import { Col, ConfigProvider, Form, Modal, Row, Upload } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useEffect, useState } from "react";
 import { callCreateHandbook, callFetchCity, callUpdateHandbook, callUploadSingleImage } from "@/config/api";
-import { BlockTypeSelect, BoldItalicUnderlineToggles, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertFrontmatter, InsertImage, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, quotePlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
+import { BlockTypeSelect, BoldItalicUnderlineToggles, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, frontmatterPlugin, headingsPlugin, imagePlugin, InsertFrontmatter, InsertImage, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, quotePlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 import { toast } from "react-toastify";
@@ -171,7 +171,7 @@ const ModalHandbook = (props: IProps) => {
         setOpenModal(false);
     }
 
-    const handleRemoveFile = (file: any) => {
+    const handleRemoveFile = (_file: any) => {
         setDataImage([])
     }
 
@@ -195,7 +195,7 @@ const ModalHandbook = (props: IProps) => {
         reader.readAsDataURL(img);
     };
 
-    const beforeUpload = (file: any) => {
+    const beforeUpload = (_file: any) => {
         return true;
     };
 

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -59,7 +59,7 @@ export default function Handbook() {
             title: 'Tác giả',
             dataIndex: 'author',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     record?.author ? <div className="flex items-center gap-[10px]">
                         <img
@@ -78,7 +78,7 @@ export default function Handbook() {
             title: "Tiêu đề",
             dataIndex: 'title',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="font-bold">
                         {record?.title}
@@ -90,7 +90,7 @@ export default function Handbook() {
             title: "Ảnh thumnail",
             dataIndex: 'image',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${getImage(record.image)}`} />
                 )
@@ -102,7 +102,7 @@ export default function Handbook() {
             title: "Danh mục",
             dataIndex: 'category',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{(CATEGORY_HANDBOOK_VI as any)[record.category]}</div>
                 )
@@ -113,7 +113,7 @@ export default function Handbook() {
             title: 'Mô tả ngắn',
             dataIndex: 'short_description',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="line-clamp-6 w-[200px]">{record.short_description}</div>
                 )
@@ -124,7 +124,7 @@ export default function Handbook() {
             title: 'Mô tả',
             dataIndex: 'description',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="line-clamp-6 w-[200px]">{record.description}</div>
                 )
@@ -135,7 +135,7 @@ export default function Handbook() {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -184,7 +184,7 @@ export default function Handbook() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

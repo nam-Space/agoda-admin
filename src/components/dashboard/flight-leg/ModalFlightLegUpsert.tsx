@@ -178,7 +178,7 @@ const ModalFlightLegUpsert = (props: IProps) => {
                             <ConfigProvider locale={vi_VN}>
                                 <RangePicker
                                     showTime
-                                    onChange={(dates: any, dateStrings: [string, string]) => {
+                                    onChange={(dates: any, _dateStrings: [string, string]) => {
                                         if (!dates) {
                                             setForm({
                                                 ...form,

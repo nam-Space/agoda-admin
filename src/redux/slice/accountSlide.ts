@@ -140,7 +140,7 @@ export const accountSlide = createSlice({
             state.user.airline = action.payload.airline;
             state.user.flight_staffs = action.payload.flight_staffs;
         },
-        setLogoutAction: (state, action) => {
+        setLogoutAction: (state, _action) => {
             localStorage.removeItem("access_token_agoda_admin");
             Cookies.remove("refresh_token_agoda_admin");
             state.isAuthenticated = false;
@@ -170,7 +170,7 @@ export const accountSlide = createSlice({
     },
     extraReducers: (builder) => {
         // Add reducers for additional action types here, and handle loading state as needed
-        builder.addCase(fetchAccount.pending, (state, action) => {
+        builder.addCase(fetchAccount.pending, (state, _action) => {
             state.isAuthenticated = false;
             state.isLoading = true;
         });
