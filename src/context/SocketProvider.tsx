@@ -14,7 +14,10 @@ const SocketContext = createContext<any>(null);
 export const SocketProvider = ({ children }: any) => {
     const user = useAppSelector((state) => state.account.user);
     const BE_URL = import.meta.env.VITE_BE_URL;
-    const WS_URL = (BE_URL as string).replace("http://", "ws://").replace("https://", "wss://");
+    const WS_URL = BE_URL?.startsWith("https")
+        ? BE_URL.replace("https://", "wss://")
+        : BE_URL.replace("http://", "ws://");
+
 
     const userSocketRef = useRef<WebSocket | null>(null);
     const chatSocketRef = useRef<WebSocket | null>(null);
