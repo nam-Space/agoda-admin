@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { callFetchRoom } from "@/config/api";
+import { callFetchRoomAdmin } from "@/config/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 interface IState {
     isFetching: boolean;
@@ -16,7 +16,7 @@ interface IState {
 export const fetchRoom = createAsyncThunk(
     "room/fetchRoom",
     async ({ query }: { query: string }) => {
-        const response = await callFetchRoom(query);
+        const response = await callFetchRoomAdmin(query);
         return response;
     }
 );

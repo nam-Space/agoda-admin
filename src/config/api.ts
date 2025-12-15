@@ -117,8 +117,8 @@ export const callDeleteHotelImage = (id: number) => {
 };
 
 // Room
-export const callFetchRoom = (query: string) => {
-    return axios.get(`/api/rooms/rooms/?${query}`);
+export const callFetchRoomAdmin = (query: string) => {
+    return axios.get(`/api/rooms/rooms-admin/?${query}`);
 };
 
 export const callCreateRoom = (data: any) => {

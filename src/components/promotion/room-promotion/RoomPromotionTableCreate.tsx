@@ -7,7 +7,7 @@ import type { TableProps } from 'antd';
 import { toast } from "react-toastify";
 import vi_VN from 'antd/locale/vi_VN';
 import { nanoid } from 'nanoid';
-import { callFetchHotel, callFetchRoom } from "@/config/api";
+import { callFetchHotel, callFetchRoomAdmin } from "@/config/api";
 import { getImage } from "@/utils/imageUrl";
 import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
@@ -162,7 +162,7 @@ const RoomPromotionTableCreate = (props: IProps) => {
     }
 
     const handleGetRoom = async (query: string) => {
-        const res = await callFetchRoom(query)
+        const res = await callFetchRoomAdmin(query)
         if (res.data) {
             setRooms(res.data)
         }

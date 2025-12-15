@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { ReloadOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
-import { callFetchRoom } from "@/config/api";
+import { callFetchRoomAdmin } from "@/config/api";
 import { toast } from "react-toastify";
 import vi_VN from 'antd/locale/vi_VN';
 import { formatCurrency } from "@/utils/formatCurrency";
@@ -128,7 +128,7 @@ const RoomTable = (props: IProps) => {
     const handleGetRoom = async (query: string) => {
         setIsLoading(true);
         try {
-            const res: any = await callFetchRoom(query);
+            const res: any = await callFetchRoomAdmin(query);
             setData(res.data);
             setMeta(res.meta);
         } catch (error: any) {
