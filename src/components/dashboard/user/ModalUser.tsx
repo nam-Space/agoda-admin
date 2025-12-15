@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ModalForm, ProForm, ProFormDatePicker, ProFormSelect, ProFormText } from "@ant-design/pro-components";
-import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
+import { Col, ConfigProvider, Form, Modal, Row, Upload } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useState, useEffect } from "react";
 import { callCreateUser, callFetchAirline, callFetchHotel, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
@@ -417,7 +417,7 @@ const ModalUser = (props: IProps) => {
         })
     }
 
-    const handleRemoveFile = (file: any) => {
+    const handleRemoveFile = (_file: any) => {
         setDataAvatar([])
     }
 
@@ -441,7 +441,7 @@ const ModalUser = (props: IProps) => {
         reader.readAsDataURL(img);
     };
 
-    const beforeUpload = (file: any) => {
+    const beforeUpload = (_file: any) => {
         return true;
     };
 

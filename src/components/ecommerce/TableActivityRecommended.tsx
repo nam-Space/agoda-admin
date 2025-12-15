@@ -4,9 +4,9 @@ import { ROLE } from '@/constants/role';
 import { useAppSelector } from '@/redux/hooks';
 import { getUserAvatar } from '@/utils/imageUrl';
 import { ActionType, ProColumns } from '@ant-design/pro-components';
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import DataTable from '../antd/Table';
-import { callFetchActivity, callFetchHotel } from '@/config/api';
+import { callFetchActivity } from '@/config/api';
 import { CATEGORY_ACTIVITY } from '@/constants/activity';
 import { formatCurrency } from '@/utils/formatCurrency';
 
@@ -34,7 +34,7 @@ const TableActivityRecommended = () => {
             title: 'Người tổ chức sự kiện',
             dataIndex: 'event_organizer',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     record?.event_organizer ? <div className="flex items-center gap-[10px]">
                         <img
@@ -54,7 +54,7 @@ const TableActivityRecommended = () => {
             dataIndex: 'city',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{record?.city?.name}</div>
                 )
@@ -64,7 +64,7 @@ const TableActivityRecommended = () => {
             title: "Ảnh",
             dataIndex: 'image',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
                 )
@@ -81,7 +81,7 @@ const TableActivityRecommended = () => {
         {
             title: 'Danh mục',
             dataIndex: 'category',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <span>{(CATEGORY_ACTIVITY as any)[record.category]}</span>
                 )
@@ -92,7 +92,7 @@ const TableActivityRecommended = () => {
             title: 'Giá trung bình',
             dataIndex: 'avg_price',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{formatCurrency(record?.avg_price)}đ</div>
                 )
@@ -110,7 +110,7 @@ const TableActivityRecommended = () => {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

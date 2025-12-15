@@ -32,7 +32,7 @@ const RoomAmenityTableCreate = (props: IProps) => {
         {
             title: "STT",
             dataIndex: 'stt',
-            render: (text, record, index) => {
+            render: (_text, _record, index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {data.length - index}
@@ -48,7 +48,7 @@ const RoomAmenityTableCreate = (props: IProps) => {
 
             title: "Hành động",
             width: 50,
-            render: (text, record) => (
+            render: (_text, record) => (
                 <Space>
                     <EditOutlined
                         style={{

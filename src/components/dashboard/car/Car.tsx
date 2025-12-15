@@ -2,14 +2,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Avatar, Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { callDeleteCar } from "../../../config/api";
 import DataTable from "../../antd/Table";
-import { fetchCity } from "@/redux/slice/citySlide";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { fetchCar } from "@/redux/slice/carSlide";
 import ModalCar from "./ModalCar";
@@ -64,7 +63,7 @@ export default function Car() {
             title: 'Mô tả',
             dataIndex: 'description',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="line-clamp-6">{record.description}</div>
                 )
@@ -75,7 +74,7 @@ export default function Car() {
             title: "Ảnh",
             dataIndex: 'image',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
                 )
@@ -88,7 +87,7 @@ export default function Car() {
             title: "Tài xế",
             dataIndex: 'user',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     record?.user ?
                         <div className="flex items-center gap-[10px]">
@@ -115,7 +114,7 @@ export default function Car() {
             title: 'Giá mỗi km',
             dataIndex: 'price_per_km',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                         <p>{formatCurrency(record.price_per_km)}đ</p>
@@ -127,7 +126,7 @@ export default function Car() {
             title: 'Tốc độ trung bình',
             dataIndex: 'avg_speed',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                         <p>{record.avg_speed} km/h</p>
@@ -139,7 +138,7 @@ export default function Car() {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -188,7 +187,7 @@ export default function Car() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

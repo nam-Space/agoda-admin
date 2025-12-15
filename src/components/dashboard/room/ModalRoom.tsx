@@ -244,7 +244,7 @@ const ModalRoom = (props: IProps) => {
         reader.readAsDataURL(img);
     };
 
-    const beforeUpload = (file: any) => {
+    const beforeUpload = (_file: any) => {
         return true;
     };
 

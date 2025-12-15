@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -58,7 +58,7 @@ export default function Activity() {
             title: 'Người tổ chức sự kiện',
             dataIndex: 'event_organizer',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     record?.event_organizer ? <div className="flex items-center gap-[10px]">
                         <img
@@ -78,7 +78,7 @@ export default function Activity() {
             dataIndex: 'city',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{record?.city?.name}</div>
                 )
@@ -88,7 +88,7 @@ export default function Activity() {
             title: "Ảnh",
             dataIndex: 'image',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
                 )
@@ -105,7 +105,7 @@ export default function Activity() {
         {
             title: 'Danh mục',
             dataIndex: 'category',
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <span>{(CATEGORY_ACTIVITY as any)[record.category]}</span>
                 )
@@ -116,7 +116,7 @@ export default function Activity() {
             title: 'Giá trung bình',
             dataIndex: 'avg_price',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{formatCurrency(record?.avg_price)}đ</div>
                 )
@@ -136,7 +136,7 @@ export default function Activity() {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -185,7 +185,7 @@ export default function Activity() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

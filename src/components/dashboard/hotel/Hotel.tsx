@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, message, notification, Popconfirm, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -60,7 +60,7 @@ export default function Hotel() {
             dataIndex: 'city',
             sorter: true,
             hideInSearch: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div>{record?.city?.name}</div>
                 )
@@ -70,7 +70,7 @@ export default function Hotel() {
             title: "Khách sạn",
             dataIndex: 'hotel',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div onClick={() => {
                         setDataInit(record)
@@ -90,7 +90,7 @@ export default function Hotel() {
             title: 'Chủ khách sạn',
             dataIndex: 'owner',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     record?.owner ? <div className="flex items-center gap-[10px]">
                         <img
@@ -115,7 +115,7 @@ export default function Hotel() {
             title: 'Vị trí',
             dataIndex: 'google-map',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 const mapUrl = `https://maps.google.com/maps?q=${record.lat},${record.lng}&hl=vi&z=18&output=embed`;
 
                 return (
@@ -143,7 +143,7 @@ export default function Hotel() {
             title: "Ngày tạo",
             dataIndex: 'created_at',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <>{dayjs(record.created_at).format('DD-MM-YYYY HH:mm:ss')}</>
                 )
@@ -192,7 +192,7 @@ export default function Hotel() {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

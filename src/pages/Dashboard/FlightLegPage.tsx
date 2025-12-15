@@ -1,5 +1,5 @@
 
-import FlightLeg from "@/components/dashboard/flight-leg/FlightLeg";
+// import FlightLeg from "@/components/dashboard/flight-leg/FlightLeg";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 
@@ -12,7 +12,7 @@ export default function FlightLegPage() {
                 description="Đây là trang quản lý chặng bay"
             />
             <PageBreadcrumb pageTitle="Quản lý chặng bay" />
-            <FlightLeg />
+            {/* <FlightLeg /> */}
         </>
     );
 }

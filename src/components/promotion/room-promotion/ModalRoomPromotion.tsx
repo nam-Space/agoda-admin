@@ -135,7 +135,7 @@ const ModalRoomPromotion = (props: IProps) => {
         setOpenModal(false);
     }
 
-    const handleRemoveFile = (file: any) => {
+    const handleRemoveFile = (_file: any) => {
         setDataImage([])
     }
 
@@ -159,7 +159,7 @@ const ModalRoomPromotion = (props: IProps) => {
         reader.readAsDataURL(img);
     };
 
-    const beforeUpload = (file: any) => {
+    const beforeUpload = (_file: any) => {
         return true;
     };
 

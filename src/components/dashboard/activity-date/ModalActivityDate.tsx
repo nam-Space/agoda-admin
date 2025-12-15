@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ModalForm, ProForm, ProFormDatePicker, ProFormDateRangePicker, ProFormDateTimeRangePicker, ProFormDigit, ProFormMoney, ProFormText } from "@ant-design/pro-components";
-import { Col, ConfigProvider, DatePicker, Form, Row, message, notification } from "antd";
+import { ModalForm, ProForm, ProFormDatePicker, ProFormDateRangePicker, ProFormDigit, ProFormMoney } from "@ant-design/pro-components";
+import { Col, ConfigProvider, Form, Row } from "antd";
 import { isMobile } from 'react-device-detect';
-import { useEffect, useRef, useState } from "react";
-import { callCreateActivityPackage, callCreateBulkActivityDate, callFetchActivity, callFetchActivityPackage, callUpdateActivityDate, callUpdateActivityPackage } from "@/config/api";
+import { useEffect, useState } from "react";
+import { callCreateBulkActivityDate, callFetchActivityPackage, callUpdateActivityDate } from "@/config/api";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { toast } from "react-toastify";
 import vi_VN from 'antd/locale/vi_VN';
@@ -17,7 +17,6 @@ import { ROLE } from "@/constants/role";
 
 dayjs.locale("vi");
 
-const { RangePicker } = DatePicker;
 
 interface IProps {
     openModal: boolean;

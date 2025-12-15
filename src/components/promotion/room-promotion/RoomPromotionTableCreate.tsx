@@ -46,7 +46,7 @@ const RoomPromotionTableCreate = (props: IProps) => {
         {
             title: "STT",
             dataIndex: 'stt',
-            render: (text, record, index) => {
+            render: (_text, _record, index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {data.length - index}
@@ -57,7 +57,7 @@ const RoomPromotionTableCreate = (props: IProps) => {
         {
             title: "Khách sạn",
             dataIndex: 'hotel',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -74,7 +74,7 @@ const RoomPromotionTableCreate = (props: IProps) => {
         {
             title: "Phòng",
             dataIndex: 'room',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -91,7 +91,7 @@ const RoomPromotionTableCreate = (props: IProps) => {
         {
             title: "Phần trăm giảm giá",
             dataIndex: 'discount_percent',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record?.discount_percent}%
@@ -102,7 +102,7 @@ const RoomPromotionTableCreate = (props: IProps) => {
         {
             title: "Tiền giảm giá",
             dataIndex: 'discount_amount',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record?.discount_amount}đ
@@ -114,7 +114,7 @@ const RoomPromotionTableCreate = (props: IProps) => {
 
             title: "Hành động",
             width: 50,
-            render: (text, record) => (
+            render: (_text, record) => (
                 <Space>
                     <EditOutlined
                         style={{

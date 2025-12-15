@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, ConfigProvider, Input, Popconfirm, Select, Space, Table } from "antd";
-import dayjs from "dayjs";
 import { useRef, useState } from "react";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
@@ -41,7 +40,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
         {
             title: "STT",
             dataIndex: 'stt',
-            render: (text, record, index) => {
+            render: (_text, _record, index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {data.length - index}
@@ -52,7 +51,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
         {
             title: "Loại ghế",
             dataIndex: 'seat_class',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {SEAT_CLASS_VI[record.seat_class]}
@@ -82,7 +81,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
         {
             title: "Đồ ăn",
             dataIndex: 'has_meal',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {HAS_MEAL_VI[record.has_meal]}
@@ -93,7 +92,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
         {
             title: "Đồ uông miễn phí",
             dataIndex: 'has_free_drink',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {HAS_FREE_DRINK_VI[record.has_free_drink]}
@@ -104,7 +103,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
         {
             title: "Phòng chờ",
             dataIndex: 'has_lounge_access',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {HAS_LOUNGE_ACCESS_VI[record.has_lounge_access]}
@@ -115,7 +114,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
         {
             title: "Ổ cắm điện",
             dataIndex: 'has_power_outlet',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {HAS_POWER_OUTLET_VI[record.has_power_outlet]}
@@ -126,7 +125,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
         {
             title: "Ưu tiên lên máy bay",
             dataIndex: 'has_priority_boarding',
-            render: (text, record) => {
+            render: (_text, record) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {HAS_PRIORITY_BOARDING_VI[record.has_priority_boarding]}
@@ -138,7 +137,7 @@ const SeatClassPricingTableCreate = (props: IProps) => {
 
             title: "Hành động",
             width: 50,
-            render: (text, record) => (
+            render: (_text, record) => (
                 <Space>
                     <EditOutlined
                         style={{

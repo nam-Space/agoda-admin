@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ModalForm, ProFormText } from "@ant-design/pro-components";
-import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
+import { Col, ConfigProvider, Form, Modal, Row, Upload } from "antd";
 import { isMobile } from 'react-device-detect';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { callCreateCountry, callUpdateCountry, callUploadSingleImage } from "@/config/api";
-import { AdmonitionDirectiveDescriptor, BlockTypeSelect, BoldItalicUnderlineToggles, ChangeAdmonitionType, ChangeCodeMirrorLanguage, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, InsertAdmonition, InsertCodeBlock, InsertFrontmatter, InsertImage, InsertSandpack, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, MDXEditorMethods, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
+import { BlockTypeSelect, BoldItalicUnderlineToggles, CodeToggle, CreateLink, diffSourcePlugin, DiffSourceToggleWrapper, frontmatterPlugin, headingsPlugin, imagePlugin, InsertFrontmatter, InsertImage, InsertTable, InsertThematicBreak, linkDialogPlugin, linkPlugin, listsPlugin, ListsToggle, markdownShortcutPlugin, MDXEditor, quotePlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin, UndoRedo } from '@mdxeditor/editor';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { marked } from 'marked';
 import TurndownService from 'turndown';
@@ -108,7 +108,7 @@ const ModalCountry = (props: IProps) => {
         setOpenModal(false);
     }
 
-    const handleRemoveFile = (file: any) => {
+    const handleRemoveFile = (_file: any) => {
         setDataImage([])
     }
 
@@ -132,7 +132,7 @@ const ModalCountry = (props: IProps) => {
         reader.readAsDataURL(img);
     };
 
-    const beforeUpload = (file: any) => {
+    const beforeUpload = (_file: any) => {
         return true;
     };
 

@@ -4,9 +4,9 @@ import { ROLE } from '@/constants/role';
 import { useAppSelector } from '@/redux/hooks';
 import { getUserAvatar } from '@/utils/imageUrl';
 import { ActionType, ProColumns } from '@ant-design/pro-components';
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import DataTable from '../antd/Table';
-import { callFetchCar, callFetchHotel } from '@/config/api';
+import { callFetchCar } from '@/config/api';
 import { formatCurrency } from '@/utils/formatCurrency';
 
 const TableCarRecommended = () => {
@@ -39,7 +39,7 @@ const TableCarRecommended = () => {
             title: 'Mô tả',
             dataIndex: 'description',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div className="line-clamp-6">{record.description}</div>
                 )
@@ -50,7 +50,7 @@ const TableCarRecommended = () => {
             title: "Ảnh",
             dataIndex: 'image',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
                 )
@@ -63,7 +63,7 @@ const TableCarRecommended = () => {
             title: "Tài xế",
             dataIndex: 'user',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     record?.user ?
                         <div className="flex items-center gap-[10px]">
@@ -85,7 +85,7 @@ const TableCarRecommended = () => {
             title: 'Giá mỗi km',
             dataIndex: 'price_per_km',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                         <p>{formatCurrency(record.price_per_km)}đ</p>
@@ -97,7 +97,7 @@ const TableCarRecommended = () => {
             title: 'Tốc độ trung bình',
             dataIndex: 'avg_speed',
             sorter: true,
-            render: (text, record, index, action) => {
+            render: (_text, record, _index, _action) => {
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                         <p>{record.avg_speed} km/h</p>
@@ -107,7 +107,7 @@ const TableCarRecommended = () => {
         },
     ];
 
-    const buildQuery = (params: any, sort: any, filter: any) => {
+    const buildQuery = (params: any, _sort: any, _filter: any) => {
         let temp = ""
 
         const clone = { ...params, currentPage: params.current, limit: params.pageSize };

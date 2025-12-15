@@ -59,7 +59,7 @@ const ActivityPromotionTableCreate = (props: IProps) => {
         {
             title: "STT",
             dataIndex: 'stt',
-            render: (text, record, index) => {
+            render: (_text, _record, index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {data.length - index}
@@ -70,7 +70,7 @@ const ActivityPromotionTableCreate = (props: IProps) => {
         {
             title: "Hoạt động",
             dataIndex: 'activity',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <img
@@ -87,7 +87,7 @@ const ActivityPromotionTableCreate = (props: IProps) => {
         {
             title: "Gói hoạt động",
             dataIndex: 'activity_package',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -100,7 +100,7 @@ const ActivityPromotionTableCreate = (props: IProps) => {
         {
             title: "Ngày tổ chức",
             dataIndex: 'activity_date',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         <div>
@@ -113,7 +113,7 @@ const ActivityPromotionTableCreate = (props: IProps) => {
         {
             title: "Phần trăm giảm giá",
             dataIndex: 'discount_percent',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record?.discount_percent}%
@@ -124,7 +124,7 @@ const ActivityPromotionTableCreate = (props: IProps) => {
         {
             title: "Tiền giảm giá",
             dataIndex: 'discount_amount',
-            render: (text, record, index) => {
+            render: (_text, record, _index) => {
                 return (
                     <div className="flex items-center gap-[10px]">
                         {record?.discount_amount}đ
@@ -136,7 +136,7 @@ const ActivityPromotionTableCreate = (props: IProps) => {
 
             title: "Hành động",
             width: 50,
-            render: (text, record) => (
+            render: (_text, record) => (
                 <Space>
                     <EditOutlined
                         style={{

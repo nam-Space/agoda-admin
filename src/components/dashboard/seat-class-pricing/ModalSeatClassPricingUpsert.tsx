@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { callCreateFlightLeg, callCreateSeatClassPricing, callUpdateFlightLeg, callUpdateSeatClassPricing } from "@/config/api";
+import { callCreateSeatClassPricing, callUpdateSeatClassPricing } from "@/config/api";
 import { ConfigProvider, Input, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
