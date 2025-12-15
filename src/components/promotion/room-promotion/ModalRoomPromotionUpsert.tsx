@@ -1,6 +1,6 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { callCreateRoomPromotion, callUpdateRoomPromotion, callFetchHotel, callFetchRoom } from "@/config/api";
+import { callCreateRoomPromotion, callUpdateRoomPromotion, callFetchHotel, callFetchRoomAdmin } from "@/config/api";
 import { ConfigProvider, InputNumber, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -123,7 +123,7 @@ const ModalRoomPromotionUpsert = (props: IProps) => {
     }
 
     const handleGetRoom = async (query: string) => {
-        const res: any = await callFetchRoom(query);
+        const res: any = await callFetchRoomAdmin(query);
         if (res.isSuccess) {
             setRooms(res.data);
         }
