@@ -33,8 +33,8 @@ export const SocketProvider = ({ children }: any) => {
     const [notifHasNext, setNotifHasNext] = useState<boolean>(false);
     const [totalUnseenNotif, setTotalUnseenNotif] = useState<number>(0);
 
-    const [loadingConversations, setLoadingConversations] = useState<boolean>(true);
-    const [loadingNotifications, setLoadingNotifications] = useState<boolean>(true);
+    const [loadingConversations, setLoadingConversations] = useState<boolean>(false);
+    const [loadingNotifications, setLoadingNotifications] = useState<boolean>(false);
 
     // Kết nối UserConsumer socket (nhận onlineUsers + unseen conversations)
     useEffect(() => {
@@ -105,10 +105,12 @@ export const SocketProvider = ({ children }: any) => {
 
         userSocketRef.current.onerror = (error) => {
             console.error("User WebSocket error:", error);
+            setLoadingConversations(false);
         };
 
         userSocketRef.current.onclose = () => {
             console.log("User WebSocket disconnected");
+            setLoadingConversations(false);
         };
 
         return () => {
@@ -331,10 +333,12 @@ export const SocketProvider = ({ children }: any) => {
 
         notifSocketRef.current.onerror = (err) => {
             console.error("Notif socket error", err);
+            setLoadingNotifications(false);
         };
 
         notifSocketRef.current.onclose = () => {
             console.log("Notif socket closed");
+            setLoadingNotifications(false);
         };
 
         return () => {
