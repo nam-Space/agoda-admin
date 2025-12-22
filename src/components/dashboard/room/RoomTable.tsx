@@ -11,6 +11,7 @@ import vi_VN from 'antd/locale/vi_VN';
 import { formatCurrency } from "@/utils/formatCurrency";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalRoomDetail from "./ModalRoomDetail";
+import { STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
 
 interface IProps {
     hotel?: any | null;
@@ -63,9 +64,14 @@ const RoomTable = (props: IProps) => {
                     }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
                         <div>
                             <p className="text-[18px] font-semibold">{`${record?.room_type}`}</p>
+                            <p className="">Loại chỗ ở: {`${STAY_TYPE_VI[record?.stay_type]}`}</p>
                             <p className="">Số giường: {`${record?.beds}`}</p>
                             <p className="">Diện tích: {`${record?.area_m2}`} m²</p>
-                            <p className="">Giá mỗi đêm: {`${formatCurrency(record?.price_per_night)}`}đ</p>
+                            {record?.stay_type === STAY_TYPE.OVERNIGHT ? <p className="">Giá mỗi đêm: {`${formatCurrency(record?.price_per_night)}`}đ</p> : <>
+                                <p className="">Giá trong ngày: {`${formatCurrency(record?.price_per_day)}`}đ</p>
+                                <p className="">Thời gian ở: {`${record?.dayuse_duration_hours}`} tiếng</p>
+                            </>}
+
                             {record.available ? <div>
                                 <Tag color="green">Có sẵn</Tag>
                             </div> : <div>

@@ -9,6 +9,7 @@ import { Navigation } from "swiper/modules";
 import { getImage } from "@/utils/imageUrl";
 import { HomeOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import { STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
 
 interface IProps {
     room?: any | null;
@@ -96,14 +97,23 @@ const ModalRoomDetail = (props: IProps) => {
                             </div>
 
                             <div className="mt-[6px] text-[15px] leading-[22px]">
+                                <p><strong>Loại chỗ ở:</strong> {STAY_TYPE_VI[room?.stay_type]}</p>
                                 <p><strong>Số giường:</strong> {room?.beds}</p>
                                 <p><strong>Diện tích:</strong> {room?.area_m2} m²</p>
-                                <p>
+                                {room?.stay_type === STAY_TYPE.OVERNIGHT ? <p>
                                     <strong>Giá mỗi đêm:</strong>{" "}
                                     <span className="text-blue-600 font-bold text-[18px]">
                                         {formatCurrency(room?.price_per_night)}đ
                                     </span>
-                                </p>
+                                </p> : <>
+                                    <p>
+                                        <strong>Giá trong ngày:</strong>{" "}
+                                        <span className="text-blue-600 font-bold text-[18px]">
+                                            {`${formatCurrency(room?.price_per_day)}`}đ
+                                        </span>
+                                    </p>
+                                    <p><strong>Thời gian ở:</strong> {`${room?.dayuse_duration_hours}`} tiếng</p>
+                                </>}
 
                                 {room?.has_promotion && (
                                     <div className="mt-[6px]">
