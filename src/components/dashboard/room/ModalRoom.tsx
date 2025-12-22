@@ -14,12 +14,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import vi_VN from 'antd/locale/vi_VN';
-import { AVAILABLE_ROOM_VI } from "@/constants/hotel";
+import { AVAILABLE_ROOM_VI, STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
 import { getImage } from "@/utils/imageUrl";
 import RoomAmenityTable from "../room-amenity/RoomAmenityTable";
 import RoomAmenityTableCreate from "../room-amenity/RoomAmenityTableCreate";
 import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
+import { IRoleSelect } from "../user/ModalUser";
 
 interface IProps {
     openModal: boolean;
@@ -43,6 +44,12 @@ export interface IHotelSelect {
 const ModalRoom = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
     const user = useAppSelector(state => state.account.user)
+
+    const [stayType, setStayType] = useState<IRoleSelect>({
+        label: STAY_TYPE_VI[STAY_TYPE.OVERNIGHT],
+        value: STAY_TYPE.OVERNIGHT,
+        key: STAY_TYPE.OVERNIGHT,
+    });
 
     const [formMarkdown, setFormMarkdown] = useState({
         description: ''
@@ -71,6 +78,14 @@ const ModalRoom = (props: IProps) => {
                 ...formMarkdown,
                 description: dataInit.description || ""
             })
+
+            if (dataInit?.stay_type) {
+                setStayType({
+                    label: STAY_TYPE_VI[dataInit.stay_type as keyof typeof STAY_TYPE_VI],
+                    value: dataInit.stay_type,
+                    key: dataInit.stay_type,
+                })
+            }
 
             if (dataInit?.images?.length > 0) {
                 setDataImages(dataInit.images.map((image: any) => {
@@ -133,14 +148,20 @@ const ModalRoom = (props: IProps) => {
     }
 
     const submitData = async (valuesForm: any) => {
-        const { room_type, price_per_night, adults_capacity, children_capacity, total_rooms, available_rooms, dates, beds, area_m2, available } = valuesForm;
+        const { room_type, price_per_day, dayuse_duration_hours, price_per_night, adults_capacity, children_capacity, total_rooms, available_rooms, dates, beds, area_m2, available } = valuesForm;
 
         if (dataInit?.id) {
             //update
             const dataObj = {
                 hotel: hotel.value,
                 room_type,
-                price_per_night,
+                stay_type: stayType.value,
+                ...(stayType.value === STAY_TYPE.OVERNIGHT ? {
+                    price_per_night
+                } : {
+                    price_per_day,
+                    dayuse_duration_hours
+                }),
                 adults_capacity,
                 children_capacity,
                 total_rooms,
@@ -170,7 +191,13 @@ const ModalRoom = (props: IProps) => {
             const dataObj = {
                 hotel: hotel.value,
                 room_type,
-                price_per_night,
+                stay_type: stayType.value,
+                ...(stayType.value === STAY_TYPE.OVERNIGHT ? {
+                    price_per_night
+                } : {
+                    price_per_day,
+                    dayuse_duration_hours
+                }),
                 adults_capacity,
                 children_capacity,
                 total_rooms,
@@ -216,6 +243,11 @@ const ModalRoom = (props: IProps) => {
             key: 0,
         })
         setRoomAmenitiesData([])
+        setStayType({
+            label: STAY_TYPE_VI[STAY_TYPE.OVERNIGHT],
+            value: STAY_TYPE.OVERNIGHT,
+            key: STAY_TYPE.OVERNIGHT,
+        })
         setOpenModal(false);
     }
 
@@ -398,6 +430,37 @@ const ModalRoom = (props: IProps) => {
                         </Form.Item>
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
+                        <ProForm.Item
+                            name="stay_type"
+                            label={"Loại chỗ ở"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                        >
+                            <DebounceSelect
+                                allowClear
+                                showSearch
+                                defaultValue={stayType}
+                                value={stayType}
+                                placeholder={<span>Chọn loại chỗ ở</span>}
+                                fetchOptions={async () => {
+                                    return await Object.entries(STAY_TYPE_VI).map(([val, key]) => {
+                                        return {
+                                            label: key,
+                                            value: val
+                                        }
+                                    })
+                                }}
+                                onChange={(newValue: any) => {
+                                    setStayType({
+                                        key: newValue?.key,
+                                        label: newValue?.label,
+                                        value: newValue?.value
+                                    });
+                                }}
+                                className="w-full"
+                            />
+                        </ProForm.Item>
+                    </Col>
+                    {stayType.value === STAY_TYPE.OVERNIGHT ? <Col lg={6} md={6} sm={24} xs={24}>
                         <ProFormMoney
                             name="price_per_night"
                             label="Giá mỗi đêm"
@@ -405,7 +468,28 @@ const ModalRoom = (props: IProps) => {
                             locale="vi-VN"
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         />
-                    </Col>
+                    </Col> : <>
+                        <Col lg={6} md={6} sm={24} xs={24}>
+                            <ProFormMoney
+                                name="price_per_day"
+                                label="Giá trong ngày"
+                                placeholder={"Nhập thông tin"}
+                                locale="vi-VN"
+                                rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                            />
+                        </Col>
+                        <Col lg={6} md={6} sm={24} xs={24}>
+                            <ProFormDigit
+                                name="dayuse_duration_hours"
+                                label="Thời gian ở (tiếng)"
+                                placeholder={"Nhập thông tin"}
+                                rules={[
+                                    { required: true, message: "Trường này là bắt buộc" },
+                                ]}
+                            />
+                        </Col>
+                    </>}
+
                     <Col lg={6} md={6} sm={24} xs={24}>
                         <ProFormDigit
                             name="adults_capacity"
