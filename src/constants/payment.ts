@@ -15,6 +15,7 @@ export const PAYMENT_STATUS = {
     CANCELLED: 4,
     UNPAID: 5,
     PAID: 6,
+    REFUND: 7,
 };
 
 export const PAYMENT_STATUS_VI = {
@@ -24,6 +25,7 @@ export const PAYMENT_STATUS_VI = {
     [PAYMENT_STATUS.CANCELLED + ""]: "Đã hủy",
     [PAYMENT_STATUS.UNPAID + ""]: "Chưa thanh toán",
     [PAYMENT_STATUS.PAID + ""]: "Đã thanh toán",
+    [PAYMENT_STATUS.REFUND + ""]: "Đã hoàn tiền",
 };
 
 export const PAYMENT_STATUS_COLOR = {
@@ -33,4 +35,5 @@ export const PAYMENT_STATUS_COLOR = {
     [PAYMENT_STATUS.CANCELLED]: "default",
     [PAYMENT_STATUS.UNPAID]: "orange",
     [PAYMENT_STATUS.PAID]: "green",
+    [PAYMENT_STATUS.REFUND]: "pink",
 };
