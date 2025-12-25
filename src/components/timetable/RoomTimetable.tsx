@@ -1,21 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAppSelector } from "@/redux/hooks";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ICitySelect } from "../ecommerce/MonthlySalesChart";
 import { ROLE } from "@/constants/role";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { callFetchHotel, callFetchPayment, callFetchUser } from "@/config/api";
 import { SERVICE_TYPE } from "@/constants/booking";
 import dayjs, { Dayjs } from "dayjs";
-import { Badge, Calendar, CalendarProps, Popover } from "antd";
+import { Badge, Calendar, CalendarMode, CalendarProps, ConfigProvider, Popover, Spin } from "antd";
 import { DebounceSelect } from "../antd/DebounceSelect";
 import { PAYMENT_STATUS } from "@/constants/payment";
 import { Star } from "lucide-react";
-
+import vi_VN from 'antd/locale/vi_VN';
 
 const RoomTimetable = () => {
     const user = useAppSelector(state => state.account.user)
     const [payments, setPayments] = useState([])
+    const [loading, setLoading] = useState(false)
     const [owner, setOwner] = useState<ICitySelect>({
         label: user.role === ROLE.OWNER ? <div className="flex items-center gap-[10px]">
             <img
@@ -45,6 +46,24 @@ const RoomTimetable = () => {
         value: 0,
         key: 0,
     });
+
+    const minDayRef = useRef<Dayjs | null>(null);
+    const maxDayRef = useRef<Dayjs | null>(null);
+
+    const [firstVisibleDay, setFirstVisibleDay] = useState<Dayjs | null>(null);
+    const [lastVisibleDay, setLastVisibleDay] = useState<Dayjs | null>(null);
+
+    const resetRange = () => {
+        minDayRef.current = null;
+        maxDayRef.current = null;
+    };
+
+    const commitRange = () => {
+        if (minDayRef.current && maxDayRef.current) {
+            setFirstVisibleDay(minDayRef.current);
+            setLastVisibleDay(maxDayRef.current);
+        }
+    };
 
     async function fetchOwnerList(): Promise<ICitySelect[]> {
         let query = `&role=${ROLE.OWNER}`
@@ -122,14 +141,16 @@ const RoomTimetable = () => {
     }
 
     const handleGetPayment = async (query: string) => {
+        setLoading(true)
         const res: any = await callFetchPayment(query)
         if (res.isSuccess) {
             setPayments(res.data)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
-        if (owner.value || hotel.value) {
+        if ((owner.value || hotel.value) && firstVisibleDay && lastVisibleDay) {
             let bossQuery = ``
             let serviceQuery = ``
             if (owner.value) {
@@ -138,9 +159,17 @@ const RoomTimetable = () => {
             if (hotel.value) {
                 serviceQuery = `&hotel_id=${hotel.value}`
             }
-            handleGetPayment(`current=1&pageSize=1000${bossQuery}&booking__service_type=${SERVICE_TYPE.HOTEL}${serviceQuery}&status=${PAYMENT_STATUS.SUCCESS}&sort=created_at-asc`)
+            handleGetPayment(`current=1&pageSize=1000${bossQuery}&booking__service_type=${SERVICE_TYPE.HOTEL}${serviceQuery}&status=${PAYMENT_STATUS.SUCCESS}&min_time_checkin_room=${firstVisibleDay.format("YYYY-MM-DD")}&max_time_checkin_room=${lastVisibleDay.format("YYYY-MM-DD")}&sort=created_at-asc`)
         }
-    }, [owner, hotel])
+    }, [owner, hotel, firstVisibleDay, lastVisibleDay])
+
+    // 🔥 LẦN ĐẦU VÀO MÀN HÌNH
+    useEffect(() => {
+        // đợi Calendar render xong lần đầu
+        setTimeout(() => {
+            commitRange()
+        });
+    }, []);
 
     const getListData = (value: Dayjs) => {
         const listPayment = payments.filter(
@@ -253,6 +282,14 @@ const RoomTimetable = () => {
     );
 
     const dateCellRender = (value: Dayjs) => {
+        if (!minDayRef.current || value.isBefore(minDayRef.current)) {
+            minDayRef.current = value;
+        }
+
+        if (!maxDayRef.current || value.isAfter(maxDayRef.current)) {
+            maxDayRef.current = value;
+        }
+
         const listPayment = getListData(value);
         return (
             <Popover content={content(listPayment)} title="Lịch trình">
@@ -304,6 +341,17 @@ const RoomTimetable = () => {
         return info.originNode;
     };
 
+    const handlePanelChange = (_date: Dayjs, selectInfo: CalendarMode) => {
+        if (selectInfo === "month") {
+            resetRange();
+
+            // ⏱ đợi Calendar render xong
+            setTimeout(() => {
+                commitRange()
+            });
+        }
+    }
+
     return (
         <div>
             <div className="mt-3 grid grid-cols-2 gap-4">
@@ -349,8 +397,16 @@ const RoomTimetable = () => {
                     </div>
                 </div>
             </div>
-            <div className="mt-3">
-                <Calendar cellRender={cellRender} />
+            <div className="mt-3 relative">
+                <ConfigProvider locale={vi_VN}>
+                    <Calendar
+                        cellRender={cellRender}
+                        disabledDate={() => loading}
+                        className={`${loading ? 'opacity-50' : ''}`}
+                        onPanelChange={handlePanelChange}
+                    />
+                </ConfigProvider>
+                {loading && <Spin size="large" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />}
             </div>
         </div>
     )

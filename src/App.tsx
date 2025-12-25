@@ -52,6 +52,7 @@ import CarPromotionPage from "./pages/Promotion/CarPromotionPage";
 import FlightPromotionPage from "./pages/Promotion/FlightPromotionPage";
 import ActivityPromotionPage from "./pages/Promotion/ActivityPromotionPage";
 import FlightTimetablePage from "./pages/Timetable/FlightTimetablePage";
+import CarJourneyPage from "./pages/Dashboard/CarJourneyPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -139,6 +140,11 @@ export default function App() {
     ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{
       path: "/car",
       element: <CarPage />,
+      index: true
+    }] : []),
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{
+      path: "/car-journey",
+      element: <CarJourneyPage />,
       index: true
     }] : []),
     ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
