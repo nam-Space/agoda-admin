@@ -29,6 +29,7 @@
         "dayjs": "^1.11.10",
         "flatpickr": "^4.6.13",
         "js-cookie": "^3.0.5",
+        "leaflet": "1.8.0",
         "lucide-react": "^0.548.0",
         "marked": "^16.2.0",
         "nanoid": "^5.1.6",
@@ -41,6 +42,8 @@
         "react-dropzone": "^14.3.5",
         "react-helmet-async": "^2.0.5",
         "react-icons": "^5.5.0",
+        "react-leaflet": "4.0.1",
+        "react-leaflet-cluster": "2.1.0",
         "react-loading-skeleton": "^3.5.0",
         "react-redux": "8.0.5",
         "react-router": "^7.1.5",
@@ -56,6 +59,7 @@
         "@tailwindcss/postcss": "^4.0.8",
         "@tailwindcss/typography": "^0.5.16",
         "@types/js-cookie": "^3.0.6",
+        "@types/leaflet": "^1.9.21",
         "@types/lodash": "^4.17.20",
         "@types/node": "^24.3.0",
         "@types/react": "^19.0.12",
@@ -85,6 +89,13 @@
         "@react-jvectormap/world": {
             "react": "^16.8.0 || ^17 || ^18 || ^19",
             "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
+        },
+        "overrides": {
+            "react-leaflet-cluster": {
+                "react": "$react",
+                "react-dom": "$react-dom",
+                "react-leaflet": "$react-leaflet"
+            }
         }
     }
 }

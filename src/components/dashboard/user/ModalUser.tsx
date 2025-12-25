@@ -17,6 +17,7 @@ import { ROLE, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { toast } from "react-toastify";
+import { DRIVER_STATUS, DRIVER_STATUS_VI } from "@/constants/driver";
 
 interface IProps {
     openModal: boolean;
@@ -184,7 +185,7 @@ const ModalUser = (props: IProps) => {
     }, [dataInit]);
 
     const submitUser = async (valuesForm: any) => {
-        const { username, first_name, last_name, email, phone_number, password, gender, birthday, is_active } = valuesForm;
+        const { username, first_name, last_name, email, phone_number, password, gender, birthday, driver_status, is_active } = valuesForm;
 
         if (dataInit?.id) {
             //update
@@ -202,7 +203,8 @@ const ModalUser = (props: IProps) => {
                 is_active,
                 hotel: hotel.value || null,
                 flight_operation_manager: flightOperationManager.value || null,
-                airline: airline.value || null
+                airline: airline.value || null,
+                driver_status
             }
 
             if (role.value !== ROLE.HOTEL_STAFF) {
@@ -213,6 +215,10 @@ const ModalUser = (props: IProps) => {
             if (role.value !== ROLE.AIRLINE_TICKETING_STAFF) {
                 userObj.flight_operation_manager = null
                 userObj.airline = null
+            }
+
+            if (role.value !== ROLE.DRIVER) {
+                userObj.driver_status = DRIVER_STATUS.IDLE
             }
 
             const res: any = await callUpdateUser(dataInit.id, userObj);
@@ -256,7 +262,8 @@ const ModalUser = (props: IProps) => {
                 is_active,
                 hotel: hotel.value || null,
                 flight_operation_manager: flightOperationManager.value || null,
-                airline: airline.value || null
+                airline: airline.value || null,
+                driver_status
             }
 
             if (role.value !== ROLE.HOTEL_STAFF) {
@@ -267,6 +274,10 @@ const ModalUser = (props: IProps) => {
             if (role.value !== ROLE.AIRLINE_TICKETING_STAFF) {
                 userObj.flight_operation_manager = null
                 userObj.airline = null
+            }
+
+            if (role.value !== ROLE.DRIVER) {
+                userObj.driver_status = DRIVER_STATUS.IDLE
             }
 
             const res: any = await callCreateUser(userObj);
@@ -613,7 +624,7 @@ const ModalUser = (props: IProps) => {
                         rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                     />
                 </Col>
-                <Col lg={12} md={12} sm={24} xs={24}>
+                <Col lg={6} md={6} sm={24} xs={24}>
                     <ProForm.Item
                         name="role"
                         label={"Vai trò"}
@@ -673,6 +684,18 @@ const ModalUser = (props: IProps) => {
                                 className="w-full !h-[60px]"
                             />
                         </ProForm.Item>
+                    </Col>
+
+                )}
+                {role.value === ROLE.DRIVER && (
+                    <Col lg={6} md={6} sm={24} xs={24}>
+                        <ProFormSelect
+                            name="driver_status"
+                            label={"Tình trạng tài xế"}
+                            valueEnum={DRIVER_STATUS_VI}
+                            placeholder={"Chọn Tình trạng tài xế"}
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                        />
                     </Col>
 
                 )}

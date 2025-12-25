@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAppSelector } from "@/redux/hooks";
 import { ICitySelect } from "../ecommerce/MonthlySalesChart";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { callFetchActivity, callFetchActivityDate, callFetchUser } from "@/config/api";
 import { ROLE } from "@/constants/role";
 import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import dayjs, { Dayjs } from "dayjs";
-import { Calendar, CalendarProps, Popover, Spin } from "antd";
+import { Calendar, CalendarMode, CalendarProps, ConfigProvider, Popover, Spin } from "antd";
 import { DebounceSelect } from "../antd/DebounceSelect";
 import { Star } from "lucide-react";
 import ModalActivityDateDetail from "../dashboard/activity-date/ModalActivityDateDetail";
-
+import vi_VN from 'antd/locale/vi_VN';
 
 const ActivityTimetable = () => {
     const user = useAppSelector(state => state.account.user)
@@ -38,6 +38,24 @@ const ActivityTimetable = () => {
         value: 0,
         key: 0,
     });
+
+    const minDayRef = useRef<Dayjs | null>(null);
+    const maxDayRef = useRef<Dayjs | null>(null);
+
+    const [firstVisibleDay, setFirstVisibleDay] = useState<Dayjs | null>(null);
+    const [lastVisibleDay, setLastVisibleDay] = useState<Dayjs | null>(null);
+
+    const resetRange = () => {
+        minDayRef.current = null;
+        maxDayRef.current = null;
+    };
+
+    const commitRange = () => {
+        if (minDayRef.current && maxDayRef.current) {
+            setFirstVisibleDay(minDayRef.current);
+            setLastVisibleDay(maxDayRef.current);
+        }
+    };
 
     async function fetchEventOrganizerList(): Promise<ICitySelect[]> {
         let query = `&role=${ROLE.EVENT_ORGANIZER}`
@@ -127,20 +145,28 @@ const ActivityTimetable = () => {
     }
 
     useEffect(() => {
-        if (eventOrganizer.value || activity.value) {
+        if (eventOrganizer.value && activity.value && firstVisibleDay && lastVisibleDay) {
             let bossQuery = ``
             let serviceQuery = ``
-            if (eventOrganizer.value) {
-                bossQuery = `&event_organizer_id=${eventOrganizer.value}`
-            }
-            if (activity.value) {
-                serviceQuery = `&activity_id=${activity.value}`
-            }
-            handleGetActivityDate(`current=1&pageSize=1000${bossQuery}${serviceQuery}&min_date_launch=${dayjs().format("YYYY-MM-DD")}&max_date_launch=${dayjs().add(60, 'day').format("YYYY-MM-DD")}`)
+            // if (eventOrganizer.value) {
+            bossQuery = `&event_organizer_id=${eventOrganizer.value}`
+            // }
+            // if (activity.value) {
+            serviceQuery = `&activity_id=${activity.value}`
+            // }
+            handleGetActivityDate(`current=1&pageSize=1000${bossQuery}${serviceQuery}&min_date_launch=${firstVisibleDay.format("YYYY-MM-DD")}&max_date_launch=${lastVisibleDay.format("YYYY-MM-DD")}`)
         }
 
 
-    }, [eventOrganizer, activity])
+    }, [eventOrganizer, activity, firstVisibleDay, lastVisibleDay])
+
+    // 🔥 LẦN ĐẦU VÀO MÀN HÌNH
+    useEffect(() => {
+        // đợi Calendar render xong lần đầu
+        setTimeout(() => {
+            commitRange()
+        });
+    }, []);
 
     const getListData = (value: Dayjs) => {
         const listPayment = activitiesDates.filter(
@@ -186,6 +212,13 @@ const ActivityTimetable = () => {
     );
 
     const dateCellRender = (value: Dayjs) => {
+        if (!minDayRef.current || value.isBefore(minDayRef.current)) {
+            minDayRef.current = value;
+        }
+
+        if (!maxDayRef.current || value.isAfter(maxDayRef.current)) {
+            maxDayRef.current = value;
+        }
         const listActivitiesDates = getListData(value);
         return (
             <Popover content={content(listActivitiesDates)} title="Lịch trình">
@@ -214,6 +247,16 @@ const ActivityTimetable = () => {
         return info.originNode;
     };
 
+    const handlePanelChange = (_date: Dayjs, selectInfo: CalendarMode) => {
+        if (selectInfo === "month") {
+            resetRange();
+
+            // ⏱ đợi Calendar render xong
+            setTimeout(() => {
+                commitRange()
+            });
+        }
+    }
     return (
         <div>
             <div className="mt-3 grid grid-cols-2 gap-4">
@@ -260,7 +303,14 @@ const ActivityTimetable = () => {
                 </div>
             </div>
             <div className="mt-3 relative">
-                <Calendar cellRender={cellRender} disabledDate={() => loading} className={`${loading ? 'opacity-50' : ''}`} />
+                <ConfigProvider locale={vi_VN}>
+                    <Calendar
+                        cellRender={cellRender}
+                        disabledDate={() => loading}
+                        className={`${loading ? 'opacity-50' : ''}`}
+                        onPanelChange={handlePanelChange}
+                    />
+                </ConfigProvider>
                 {loading && <Spin size="large" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />}
             </div>
             <ModalActivityDateDetail

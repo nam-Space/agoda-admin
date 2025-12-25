@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Avatar, Button, Popconfirm, Space } from "antd";
+import { Avatar, Badge, Button, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -12,9 +12,10 @@ import DataTable from "../../antd/Table";
 import { fetchUser } from "../../../redux/slice/userSlide";
 import { getUserAvatar } from "@/utils/imageUrl";
 import ModalUser from "./ModalUser";
-import { ROLE_UI, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
+import { ROLE, ROLE_UI, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
 import { toast } from "react-toastify";
+import { DRIVER_STATUS, DRIVER_STATUS_VI } from "@/constants/driver";
 
 export default function User() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -116,6 +117,9 @@ export default function User() {
                             <Icon />
                             <span>{(ROLE_VI as any)[record.role]}</span>
                         </div>
+                        {record.role === ROLE.DRIVER && (
+                            record.driver_status === DRIVER_STATUS.IDLE ? <Badge status="success" text={DRIVER_STATUS_VI[record.driver_status]} /> : <Badge status="error" text={DRIVER_STATUS_VI[record.driver_status]} />
+                        )}
 
                         {/* Manager info card */}
                         {record?.manager && (
@@ -163,25 +167,6 @@ export default function User() {
             },
             sorter: true,
         },
-        // {
-        //     title: "Người quản lý",
-        //     dataIndex: 'manager',
-        //     render: (text, record, index, action) => {
-        //         return (
-        //             record?.manager ? <div className="flex items-center gap-[10px]">
-        //                 <img
-        //                     src={getUserAvatar(record?.manager?.avatar)}
-        //                     className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-        //                 />
-        //                 <div>
-        //                     <p className="leading-[20px]">{`${record?.manager?.first_name} ${record?.manager?.last_name}`}</p>
-        //                     <p className="leading-[20px] text-[#929292]">{`@${record?.manager?.username}`}</p>
-        //                 </div>
-        //             </div> : <div></div>
-        //         )
-        //     },
-        //     sorter: true,
-        // },
         {
             title: "Trạng thái",
             dataIndex: 'is_active',

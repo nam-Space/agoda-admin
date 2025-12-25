@@ -64,6 +64,7 @@ const AppSidebar: React.FC = () => {
         ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF) ? [{ name: "Máy bay", path: "/aircraft", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF) ? [{ name: "Chuyến bay", path: "/flight", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Taxi", path: "/car", pro: false }] : []),
+        ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{ name: "Chuyến taxi", path: "/car-journey", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Hoạt động", path: "/activity", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Gói hoạt động", path: "/activity-package", pro: false }] : []),
         ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{ name: "Ngày của gói hoạt động", path: "/activity-date", pro: false }] : []),

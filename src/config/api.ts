@@ -358,6 +358,11 @@ export const callFetchMessage = (conversationId: string) => {
 };
 
 // Payment
+export const callUpdateCarBooking = (id: number, data: any) => {
+    return axios.put(`/api/cars/cars-booking/${id}/update/`, { ...data });
+};
+
+// Payment
 export const callFetchPayment = (query: string) => {
     return axios.get(`/api/payments/payments/?${query}`);
 };

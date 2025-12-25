@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAppSelector } from "@/redux/hooks";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ICitySelect } from "../ecommerce/MonthlySalesChart";
 import { ROLE } from "@/constants/role";
 import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { callFetchAirline, callFetchFlight, callFetchUser } from "@/config/api";
 import dayjs, { Dayjs } from "dayjs";
-import { Calendar, CalendarProps, Popover } from "antd";
+import { Calendar, CalendarMode, CalendarProps, ConfigProvider, Popover, Spin } from "antd";
 import { DebounceSelect } from "../antd/DebounceSelect";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightDetail from "../payment/flight/ModalFlightDetail";
-
+import vi_VN from 'antd/locale/vi_VN';
 
 const FlightTimetable = () => {
     const user = useAppSelector(state => state.account.user)
     const [flights, setFlights] = useState([])
+    const [loading, setLoading] = useState(false)
     const [airline, setAirline] = useState<ICitySelect>({
         label: "",
         value: 0,
@@ -45,6 +46,24 @@ const FlightTimetable = () => {
         value: user.role === ROLE.FLIGHT_OPERATION_STAFF ? user.id : (user.role === ROLE.AIRLINE_TICKETING_STAFF ? user.flight_operation_manager?.id : 0),
         key: user.role === ROLE.FLIGHT_OPERATION_STAFF ? user.id : (user.role === ROLE.AIRLINE_TICKETING_STAFF ? user.flight_operation_manager?.id : 0),
     });
+
+    const minDayRef = useRef<Dayjs | null>(null);
+    const maxDayRef = useRef<Dayjs | null>(null);
+
+    const [firstVisibleDay, setFirstVisibleDay] = useState<Dayjs | null>(null);
+    const [lastVisibleDay, setLastVisibleDay] = useState<Dayjs | null>(null);
+
+    const resetRange = () => {
+        minDayRef.current = null;
+        maxDayRef.current = null;
+    };
+
+    const commitRange = () => {
+        if (minDayRef.current && maxDayRef.current) {
+            setFirstVisibleDay(minDayRef.current);
+            setLastVisibleDay(maxDayRef.current);
+        }
+    };
 
     async function fetchFlightOperationManagerList(): Promise<ICitySelect[]> {
         let query = `&role=${ROLE.FLIGHT_OPERATION_STAFF}`
@@ -116,26 +135,36 @@ const FlightTimetable = () => {
     }
 
     const handleGetFlight = async (query: string) => {
+        setLoading(true)
         const res: any = await callFetchFlight(query)
         if (res.isSuccess) {
             setFlights(res.data)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
         let bossQuery = ``
         let serviceQuery = ``
 
-        if (flightOperationManager.value || airline.value) {
+        if ((flightOperationManager.value || airline.value) && firstVisibleDay && lastVisibleDay) {
             if (flightOperationManager.value) {
                 bossQuery = `&flight_operations_staff_id=${flightOperationManager.value}`
             }
             if (airline.value) {
                 serviceQuery = `&airline_id=${airline.value}`
             }
-            handleGetFlight(`current=1&pageSize=1000&${bossQuery}${serviceQuery}`)
+            handleGetFlight(`current=1&pageSize=1000&${bossQuery}${serviceQuery}&min_flight_leg_departure=${firstVisibleDay.format("YYYY-MM-DD")}&max_flight_leg_departure=${lastVisibleDay.format("YYYY-MM-DD")}`)
         }
-    }, [flightOperationManager, airline])
+    }, [flightOperationManager, airline, firstVisibleDay, lastVisibleDay])
+
+    // 🔥 LẦN ĐẦU VÀO MÀN HÌNH
+    useEffect(() => {
+        // đợi Calendar render xong lần đầu
+        setTimeout(() => {
+            commitRange()
+        });
+    }, []);
 
     const getListData = (value: Dayjs) => {
         const listFlights = flights.filter((flight: any) => {
@@ -210,6 +239,14 @@ const FlightTimetable = () => {
     }
 
     const dateCellRender = (value: Dayjs) => {
+        if (!minDayRef.current || value.isBefore(minDayRef.current)) {
+            minDayRef.current = value;
+        }
+
+        if (!maxDayRef.current || value.isAfter(maxDayRef.current)) {
+            maxDayRef.current = value;
+        }
+
         const listFlights = getListData(value);
         if (listFlights.length === 0) return <div></div>
         return (
@@ -267,6 +304,17 @@ const FlightTimetable = () => {
         return info.originNode;
     };
 
+    const handlePanelChange = (_date: Dayjs, selectInfo: CalendarMode) => {
+        if (selectInfo === "month") {
+            resetRange();
+
+            // ⏱ đợi Calendar render xong
+            setTimeout(() => {
+                commitRange()
+            });
+        }
+    }
+
     return (
         <div>
             <div className="mt-3 grid grid-cols-2 gap-4">
@@ -312,8 +360,16 @@ const FlightTimetable = () => {
                     </div>
                 </div>
             </div>
-            <div className="mt-3">
-                <Calendar cellRender={cellRender} />
+            <div className="mt-3 relative">
+                <ConfigProvider locale={vi_VN}>
+                    <Calendar
+                        cellRender={cellRender}
+                        disabledDate={() => loading}
+                        className={`${loading ? 'opacity-50' : ''}`}
+                        onPanelChange={handlePanelChange}
+                    />
+                </ConfigProvider>
+                {loading && <Spin size="large" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />}
             </div>
             <ModalFlightDetail
                 flight={selectedFlight}
