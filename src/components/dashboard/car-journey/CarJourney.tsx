@@ -2,19 +2,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, Popconfirm, Space, Steps } from "antd";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Space, Steps } from "antd";
+import { EditOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeletePayment } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { fetchPayment } from "@/redux/slice/paymentSlide";
 import { SERVICE_TYPE } from "@/constants/booking";
 import { getUserAvatar } from "@/utils/imageUrl";
-// import ModalCarJourney from "./ModalCarJourney";
 import { haversine } from "@/utils/googleMap";
 import { ROLE } from "@/constants/role";
-import { toast } from "react-toastify";
 import { Icon } from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -34,22 +31,6 @@ export default function CarJourney() {
     const meta = useAppSelector(state => state.payment.meta);
     const payments = useAppSelector(state => state.payment.data);
     const dispatch = useAppDispatch();
-
-    const handleDeletePayment = async (id: number | undefined) => {
-        if (id) {
-            const res: any = await callDeletePayment(id);
-            if (res?.isSuccess) {
-                toast.success("Xóa payment thành công", {
-                    position: "bottom-right",
-                });
-                reloadTable();
-            } else {
-                toast.error("Có lỗi xảy ra", {
-                    position: "bottom-right",
-                });
-            }
-        }
-    }
 
     const reloadTable = () => {
         tableRef?.current?.reload();
@@ -268,24 +249,6 @@ export default function CarJourney() {
                             setDataInit(entity);
                         }}
                     />
-
-                    <Popconfirm
-                        placement="leftTop"
-                        title={"Xác nhận xóa city"}
-                        description={"Bạn chắc chắn muốn xóa city"}
-                        onConfirm={() => handleDeletePayment(entity.id)}
-                        okText={"Xác nhận"}
-                        cancelText={"Hủy"}
-                    >
-                        <span style={{ cursor: "pointer", margin: "0 10px" }}>
-                            <DeleteOutlined
-                                style={{
-                                    fontSize: 20,
-                                    color: '#ff4d4f',
-                                }}
-                            />
-                        </span>
-                    </Popconfirm>
                 </Space>
             ),
 
@@ -337,19 +300,6 @@ export default function CarJourney() {
                     }
                 }
                 rowSelection={false}
-                toolBarRender={(_action, _rows): any => {
-                    return (
-                        <Button
-                            icon={<PlusOutlined />}
-                            type="primary"
-                            onClick={() => setOpenModal(true)}
-                        >
-                            <span>
-                                Thêm mới
-                            </span>
-                        </Button>
-                    );
-                }}
             />
             <ModalCarJourney
                 openModal={openModal}
