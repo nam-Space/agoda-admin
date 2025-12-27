@@ -130,6 +130,7 @@ const ModalCarJourney = (props: IProps) => {
                                 name="dropoff_datetime"
                                 label="Thời gian"
                                 placeholder="Chọn thời gian"
+                                rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                             />
                         </ConfigProvider>
                     </Col>}
