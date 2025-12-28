@@ -4,7 +4,7 @@ import { ModalForm, ProForm, ProFormDatePicker, ProFormSelect, ProFormText } fro
 import { Col, ConfigProvider, Form, Modal, Row, Upload } from "antd";
 import { isMobile } from 'react-device-detect';
 import { useState, useEffect } from "react";
-import { callCreateUser, callFetchAirline, callFetchHotel, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
+import { callCreateUser, callFetchAirline, callFetchCity, callFetchHotel, callFetchUser, callRefreshToken, callUpdateUser, callUploadSingleImage } from "@/config/api";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
@@ -18,6 +18,7 @@ import { GENDER_VI } from "@/constants/gender";
 import { DebounceSelect } from "@/components/antd/DebounceSelect";
 import { toast } from "react-toastify";
 import { DRIVER_STATUS, DRIVER_STATUS_VI } from "@/constants/driver";
+import { ICitySelect } from "../hotel/ModalHotel";
 
 interface IProps {
     openModal: boolean;
@@ -47,6 +48,11 @@ export interface IManagerSelect {
 const ModalUser = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
     const user = useAppSelector((state: any) => state.account.user)
+    const [city, setCity] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
 
     const [role, setRole] = useState<IRoleSelect>({
         label: ROLE_VI.admin,
@@ -180,9 +186,21 @@ const ModalUser = (props: IProps) => {
                     }
                 )
             }
+
+            if (dataInit?.driver_area?.id) {
+                setCity(
+                    {
+                        label: dataInit.driver_area.name,
+                        value: dataInit.driver_area.id,
+                        key: dataInit.driver_area.id,
+                    }
+                )
+            }
         }
         return () => form.resetFields()
     }, [dataInit]);
+
+
 
     const submitUser = async (valuesForm: any) => {
         const { username, first_name, last_name, email, phone_number, password, gender, birthday, driver_status, is_active } = valuesForm;
@@ -204,7 +222,8 @@ const ModalUser = (props: IProps) => {
                 hotel: hotel.value || null,
                 flight_operation_manager: flightOperationManager.value || null,
                 airline: airline.value || null,
-                driver_status
+                driver_status,
+                driver_area: city.value || null
             }
 
             if (role.value !== ROLE.HOTEL_STAFF) {
@@ -219,6 +238,7 @@ const ModalUser = (props: IProps) => {
 
             if (role.value !== ROLE.DRIVER) {
                 userObj.driver_status = DRIVER_STATUS.IDLE
+                userObj.driver_area = null
             }
 
             const res: any = await callUpdateUser(dataInit.id, userObj);
@@ -263,7 +283,8 @@ const ModalUser = (props: IProps) => {
                 hotel: hotel.value || null,
                 flight_operation_manager: flightOperationManager.value || null,
                 airline: airline.value || null,
-                driver_status
+                driver_status,
+                driver_area: city.value || null
             }
 
             if (role.value !== ROLE.HOTEL_STAFF) {
@@ -278,6 +299,7 @@ const ModalUser = (props: IProps) => {
 
             if (role.value !== ROLE.DRIVER) {
                 userObj.driver_status = DRIVER_STATUS.IDLE
+                userObj.driver_area = null
             }
 
             const res: any = await callCreateUser(userObj);
@@ -395,6 +417,20 @@ const ModalUser = (props: IProps) => {
         } else return [];
     }
 
+    async function fetchCityList(): Promise<ICitySelect[]> {
+        const res: any = await callFetchCity(`current=1&pageSize=100`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: item.name,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleReset = async () => {
         form.resetFields();
         setDataInit(null);
@@ -422,6 +458,11 @@ const ModalUser = (props: IProps) => {
             key: 0,
         })
         setAirline({
+            label: "",
+            value: 0,
+            key: 0,
+        })
+        setCity({
             label: "",
             value: 0,
             key: 0,
@@ -688,15 +729,42 @@ const ModalUser = (props: IProps) => {
 
                 )}
                 {role.value === ROLE.DRIVER && (
-                    <Col lg={6} md={6} sm={24} xs={24}>
-                        <ProFormSelect
-                            name="driver_status"
-                            label={"Tình trạng tài xế"}
-                            valueEnum={DRIVER_STATUS_VI}
-                            placeholder={"Chọn Tình trạng tài xế"}
-                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
-                        />
-                    </Col>
+                    <>
+                        <Col lg={6} md={6} sm={24} xs={24}>
+                            <ProForm.Item
+                                name="driver_area"
+                                label={"Địa bàn hoạt động"}
+                                rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                            >
+                                <DebounceSelect
+                                    allowClear
+                                    showSearch
+                                    defaultValue={city}
+                                    value={city}
+                                    placeholder={<span>Chọn thành phố</span>}
+                                    fetchOptions={fetchCityList}
+                                    onChange={(newValue: any) => {
+                                        setCity({
+                                            key: newValue?.key,
+                                            label: newValue?.label,
+                                            value: newValue?.value
+                                        });
+                                    }}
+                                    style={{ width: '100%' }}
+                                />
+                            </ProForm.Item>
+                        </Col>
+                        <Col lg={6} md={6} sm={24} xs={24}>
+                            <ProFormSelect
+                                name="driver_status"
+                                label={"Tình trạng tài xế"}
+                                valueEnum={DRIVER_STATUS_VI}
+                                placeholder={"Chọn Tình trạng tài xế"}
+                                rules={[{ required: true, message: "Trường này là bắt buộc" }]}
+                            />
+                        </Col>
+                    </>
+
 
                 )}
                 {role.value === ROLE.AIRLINE_TICKETING_STAFF && (

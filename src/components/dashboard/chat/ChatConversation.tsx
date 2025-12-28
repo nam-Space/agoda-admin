@@ -37,7 +37,7 @@ const ChatConversation = ({ selectedOtherUser, handleOpenChat }: any) => {
                                         alt={getUserAvatar(
                                             getOtherUser(conv, user)?.username
                                         )}
-                                        className="w-[50px] h-[50px] object-cover rounded-[50%]"
+                                        className="w-[50px] h-[50px] min-w-[50px] max-w-[50px] object-cover rounded-[50%]"
                                     />
                                     <img
                                         src={getUserAvatar(
