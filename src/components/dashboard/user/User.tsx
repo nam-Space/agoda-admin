@@ -118,7 +118,13 @@ export default function User() {
                             <span>{(ROLE_VI as any)[record.role]}</span>
                         </div>
                         {record.role === ROLE.DRIVER && (
-                            record.driver_status === DRIVER_STATUS.IDLE ? <Badge status="success" text={DRIVER_STATUS_VI[record.driver_status]} /> : <Badge status="error" text={DRIVER_STATUS_VI[record.driver_status]} />
+                            <div>
+                                {record?.driver_area && <div>
+                                    Địa bàn hoạt động: <strong>{record.driver_area.name}</strong>
+                                </div>}
+                                {record.driver_status === DRIVER_STATUS.IDLE ? <Badge status="success" text={DRIVER_STATUS_VI[record.driver_status]} /> : <Badge status="error" text={DRIVER_STATUS_VI[record.driver_status]} />}
+
+                            </div>
                         )}
 
                         {/* Manager info card */}
