@@ -16,6 +16,7 @@ export const PAYMENT_STATUS = {
     UNPAID: 5,
     PAID: 6,
     REFUND: 7,
+    REBOOKED: 8,
 };
 
 export const PAYMENT_STATUS_VI = {
@@ -26,6 +27,7 @@ export const PAYMENT_STATUS_VI = {
     [PAYMENT_STATUS.UNPAID + ""]: "Chưa thanh toán",
     [PAYMENT_STATUS.PAID + ""]: "Đã thanh toán",
     [PAYMENT_STATUS.REFUND + ""]: "Đã hoàn tiền",
+    [PAYMENT_STATUS.REBOOKED + ""]: "Đã đặt lại",
 };
 
 export const PAYMENT_STATUS_COLOR = {
@@ -36,4 +38,5 @@ export const PAYMENT_STATUS_COLOR = {
     [PAYMENT_STATUS.UNPAID]: "orange",
     [PAYMENT_STATUS.PAID]: "green",
     [PAYMENT_STATUS.REFUND]: "pink",
+    [PAYMENT_STATUS.REBOOKED]: "purple",
 };
