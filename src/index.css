@@ -1022,3 +1022,18 @@ span.flatpickr-weekday,
         padding: 0.5rem;
     }
 }
+
+.ant-float-btn-group-wrap {
+    right: 0;
+}
+
+.ant-float-btn-circle {
+    height: 60px;
+    width: 60px;
+}
+.ant-float-btn-circle
+    .ant-float-btn-body
+    .ant-float-btn-content
+    .ant-float-btn-icon {
+    width: 100%;
+}

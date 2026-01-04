@@ -506,3 +506,16 @@ export const callDeleteBulkActivityPromotion = (ids: number[]) => {
         data: { ids },
     });
 };
+
+// Chatbot
+export const callFetchSession = async (body: any) => {
+    return axios.post(`/api/chatbots/session/`, { ...body });
+};
+
+export const callCreateNewChat = async (body: any) => {
+    return axios.post(`/api/chatbots/new/`, { ...body });
+};
+
+export const callFetchChatbotMessages = async (query: string) => {
+    return axios.get(`/api/chatbots/messages/?${query}`);
+};
