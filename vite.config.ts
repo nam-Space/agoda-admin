@@ -16,6 +16,16 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        proxy: {
+            "/ayd": {
+                target: "https://www.askyourdatabase.com",
+                changeOrigin: true,
+                secure: true,
+                rewrite: (path) => path.replace(/^\/ayd/, ""),
+            },
+        },
+    },
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src/"),

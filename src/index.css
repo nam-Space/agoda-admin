@@ -1037,3 +1037,129 @@ span.flatpickr-weekday,
     .ant-float-btn-icon {
     width: 100%;
 }
+
+.chatbot-markdown {
+    font-size: 14.5px;
+    line-height: 1.65;
+    word-wrap: break-word;
+}
+
+/* ===== Paragraph ===== */
+.chatbot-markdown p {
+    margin: 0.5em 0;
+}
+
+/* ===== Headings ===== */
+.chatbot-markdown h1,
+.chatbot-markdown h2,
+.chatbot-markdown h3 {
+    font-weight: 600;
+    margin: 1em 0 0.5em;
+}
+
+.chatbot-markdown h1 {
+    font-size: 1.4em;
+}
+.chatbot-markdown h2 {
+    font-size: 1.25em;
+}
+.chatbot-markdown h3 {
+    font-size: 1.1em;
+}
+
+/* ===== Lists ===== */
+.chatbot-markdown ul,
+.chatbot-markdown ol {
+    padding-left: 1.25em;
+    margin: 0.5em 0;
+}
+
+.chatbot-markdown li {
+    margin: 0.25em 0;
+}
+
+/* ===== Bold & Italic ===== */
+.chatbot-markdown strong {
+    font-weight: 600;
+}
+
+.chatbot-markdown em {
+    font-style: italic;
+}
+
+/* ===== Links ===== */
+.chatbot-markdown a {
+    color: #2563eb; /* blue-600 */
+    text-decoration: underline;
+}
+
+.chatbot-markdown a:hover {
+    color: #1d4ed8;
+}
+
+/* ===== Inline code ===== */
+.chatbot-markdown code {
+    background: #f3f4f6;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ===== Code block ===== */
+.chatbot-markdown pre {
+    background: #111827; /* gray-900 */
+    color: #f9fafb;
+    padding: 12px 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0.75em 0;
+}
+
+.chatbot-markdown pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: 0.85em;
+}
+
+/* ===== Tables ===== */
+.chatbot-markdown table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75em 0;
+    font-size: 13.5px;
+}
+
+.chatbot-markdown th,
+.chatbot-markdown td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.chatbot-markdown th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
+.chatbot-markdown tr:nth-child(even) {
+    background: #f3f4f6;
+}
+
+/* ===== Blockquote ===== */
+.chatbot-markdown blockquote {
+    border-left: 4px solid #3b82f6;
+    padding-left: 12px;
+    margin: 0.75em 0;
+    color: #374151;
+    background: #eff6ff;
+    border-radius: 4px;
+}
+
+/* ===== Horizontal rule ===== */
+.chatbot-markdown hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 1em 0;
+}
