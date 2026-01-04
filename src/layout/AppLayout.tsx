@@ -3,6 +3,9 @@ import { Outlet } from "react-router";
 import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
+import { FloatButton } from "antd";
+import { CommentOutlined } from "@ant-design/icons";
+import ChatBot from "@/components/chatbot/ChatBot";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
@@ -22,6 +25,14 @@ const LayoutContent: React.FC = () => {
           <Outlet />
         </div>
       </div>
+      <FloatButton.Group
+        trigger="click"
+        type="primary"
+        style={{ insetInlineEnd: 24 }}
+        icon={<CommentOutlined className="text-[30px]" />}
+      >
+        <ChatBot />
+      </FloatButton.Group>
     </div>
   );
 };
