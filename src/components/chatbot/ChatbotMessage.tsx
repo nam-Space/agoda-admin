@@ -114,8 +114,9 @@ export function ChatbotMessage({ message, isStreaming = false }: any) {
                         : "bg-white text-gray-800 border shadow-sm"
                         }`}
                 >
-                    <div className="whitespace-pre-wrap">
+                    <div>
                         <div
+                            className="chatbot-markdown"
                             dangerouslySetInnerHTML={{
                                 __html: marked(
                                     message.content || "<div></div>"

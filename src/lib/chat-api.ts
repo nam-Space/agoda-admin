@@ -39,68 +39,48 @@ export async function sendMessage(
     chatid: string,
     callbacks: StreamCallbacks
 ) {
-    const response = await fetch(
-        `${import.meta.env.VITE_BE_URL}/api/chatbots/ask/`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                question,
-                chatid,
-                debug: true,
-            }),
-        }
-    );
+    const response: any = await fetch("/ayd/api/ask", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_AYD_API_KEY}`,
+        },
+        body: JSON.stringify({
+            question,
+            botid: import.meta.env.VITE_AYD_CHATBOT_ID,
+            chatid,
+            debug: true,
+        }),
+    });
 
     if (!response.ok) {
-        const error = await response.text();
-        callbacks.onError?.(error);
+        callbacks.onError?.(await response.text());
         return;
     }
 
-    const reader = response.body?.getReader();
+    const reader = response.body.getReader();
     const decoder = new TextDecoder();
 
-    if (!reader) {
-        callbacks.onError?.("No response body");
-        return;
-    }
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-    try {
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
-
-            for (const line of lines) {
-                if (line.startsWith("data: ")) {
-                    try {
-                        const data = JSON.parse(line.slice(6));
-
-                        if (data.isText) {
-                            callbacks.onText?.(data.content);
-                        } else if (data.isSQL) {
-                            callbacks.onSQL?.(data);
-                        } else if (data.isImage) {
-                            callbacks.onImage?.(data);
-                        } else if (data.isExecutionStatus) {
-                            callbacks.onExecutionStatus?.(data);
-                        }
-                    } catch (e) {
-                        console.error("Failed to parse SSE data:", e);
-                    }
+        for (const line of lines) {
+            if (line.startsWith("data: ")) {
+                try {
+                    const data = JSON.parse(line.slice(6));
+                    if (data.isText) callbacks.onText?.(data.content);
+                    else if (data.isExecutionStatus)
+                        callbacks.onExecutionStatus?.(data);
+                } catch (e) {
+                    console.error(e);
                 }
             }
         }
-
-        callbacks.onEnd?.();
-    } catch (error) {
-        callbacks.onError?.(`Stream error: ${error}`);
-    } finally {
-        reader.releaseLock();
     }
+
+    callbacks.onEnd?.();
 }
