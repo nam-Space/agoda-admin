@@ -3,6 +3,10 @@
         {
             "source": "/(.*)",
             "destination": "/index.html"
+        },
+        {
+            "source": "/ayd/(.*)",
+            "destination": "https://www.askyourdatabase.com"
         }
     ]
 }
