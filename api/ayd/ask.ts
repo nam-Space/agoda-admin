@@ -12,7 +12,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    const { question, chatid, debug = true } = req.body || {};
+    const { question, chatid, botid, debug = true } = req.body || {};
+
+    console.log("ASK BOTID:", process.env.AYD_CHATBOT_ID);
+    console.log("ASK KEY:", process.env.AYD_API_KEY?.slice(0, 8));
+    console.log("CHATID:", chatid);
 
     if (!question || !chatid) {
         return res.status(400).json({
@@ -29,7 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: JSON.stringify({
             question,
             chatid,
-            botid: process.env.AYD_CHATBOT_ID,
+            botid,
             debug,
         }),
     });
