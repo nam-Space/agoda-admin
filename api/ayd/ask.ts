@@ -1,13 +1,18 @@
-export const config = {
-    runtime: "edge", // ⚠ BẮT BUỘC cho streaming
-};
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-export default async function handler(req: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== "POST") {
-        return new Response("Method Not Allowed", { status: 405 });
+        return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    const body = await req.json();
+    const { question, chatid, debug = true } = req.body;
+
+    if (!question || !chatid) {
+        return res.status(400).json({
+            error: "question and chatid are required",
+        });
+    }
 
     const response = await fetch("https://www.askyourdatabase.com/api/ask", {
         method: "POST",
@@ -15,14 +20,28 @@ export default async function handler(req: Request) {
             Authorization: `Bearer ${process.env.AYD_API_KEY}`,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+            question,
+            chatid,
+            botid: process.env.AYD_CHATBOT_ID,
+            debug,
+        }),
     });
 
-    return new Response(response.body, {
-        headers: {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            Connection: "keep-alive",
-        },
-    });
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const reader = response.body?.getReader();
+    if (!reader) return res.end();
+
+    const encoder = new TextEncoder();
+
+    while (true) {
+        const { done, value }: any = await reader.read();
+        if (done) break;
+        res.write(encoder.encode(value));
+    }
+
+    res.end();
 }
