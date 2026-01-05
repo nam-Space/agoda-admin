@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { callCreateNewChat, callFetchChatbotMessages } from "@/config/api";
@@ -39,48 +40,58 @@ export async function sendMessage(
     chatid: string,
     callbacks: StreamCallbacks
 ) {
-    const response: any = await fetch("/ayd/api/ask", {
+    const response: any = await fetch("/api/ayd/ask", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_AYD_API_KEY}`,
         },
         body: JSON.stringify({
             question,
-            botid: import.meta.env.VITE_AYD_CHATBOT_ID,
             chatid,
             debug: true,
         }),
     });
 
     if (!response.ok) {
-        callbacks.onError?.(await response.text());
+        callbacks.onError?.("Request failed");
         return;
     }
 
     const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    const decoder = new TextDecoder("utf-8");
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+    try {
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
 
-        for (const line of lines) {
-            if (line.startsWith("data: ")) {
-                try {
-                    const data = JSON.parse(line.slice(6));
-                    if (data.isText) callbacks.onText?.(data.content);
-                    else if (data.isExecutionStatus)
-                        callbacks.onExecutionStatus?.(data);
-                } catch (e) {
-                    console.error(e);
+            for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                    const json = line.replace("data: ", "");
+
+                    try {
+                        const data = JSON.parse(json);
+
+                        if (data.isText) {
+                            callbacks.onText?.(data.content);
+                        }
+                        if (data.isExecutionStatus) {
+                            callbacks.onExecutionStatus?.(data);
+                        }
+                    } catch (e) {
+                        console.warn("SSE parse error", json);
+                    }
                 }
             }
         }
-    }
 
-    callbacks.onEnd?.();
+        callbacks.onEnd?.();
+    } catch (err: any) {
+        callbacks.onError?.("Stream error");
+    } finally {
+        reader.releaseLock();
+    }
 }
