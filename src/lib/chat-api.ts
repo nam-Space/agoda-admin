@@ -40,7 +40,7 @@ export async function sendMessage(
     chatid: string,
     callbacks: StreamCallbacks
 ) {
-    const response: any = await fetch("/api/ayd/ask", {
+    const response: any = await fetch(import.meta.env.VITE_CHAT_API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -49,11 +49,12 @@ export async function sendMessage(
             question,
             chatid,
             debug: true,
+            botid: import.meta.env.VITE_AYD_CHATBOT_ID,
         }),
     });
 
     if (!response.ok) {
-        callbacks.onError?.("Request failed");
+        callbacks.onError?.(response);
         return;
     }
 
@@ -90,7 +91,7 @@ export async function sendMessage(
 
         callbacks.onEnd?.();
     } catch (err: any) {
-        callbacks.onError?.("Stream error");
+        callbacks.onError?.(err);
     } finally {
         reader.releaseLock();
     }
