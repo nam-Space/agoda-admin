@@ -14,13 +14,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { question, chatid, botid, debug = true } = req.body || {};
 
-    console.log("ASK BOTID:", process.env.AYD_CHATBOT_ID);
-    console.log("ASK KEY:", process.env.AYD_API_KEY?.slice(0, 8));
-    console.log("CHATID:", chatid);
-    console.log("question:", question);
-    console.log("chatid:", chatid);
-    console.log("botid:", botid);
-
     if (!question || !chatid) {
         return res.status(400).json({
             error: "question and chatid are required",
