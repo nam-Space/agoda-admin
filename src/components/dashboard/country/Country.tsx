@@ -75,7 +75,7 @@ export default function Country() {
             sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
-                    <div className="line-clamp-6">{record.description}</div>
+                    <div className="line-clamp-6 max-w-[600px]">{record.description}</div>
                 )
             },
             width: 600
