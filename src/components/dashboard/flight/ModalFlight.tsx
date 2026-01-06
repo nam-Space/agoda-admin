@@ -281,6 +281,7 @@ const ModalFlight = (props: IProps) => {
                             label="Giá cơ sở"
                             placeholder={"Nhập thông tin"}
                             locale="vi-VN"
+                            rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         />
                     </Col>
 
