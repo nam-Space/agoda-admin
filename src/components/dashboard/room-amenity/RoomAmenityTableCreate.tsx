@@ -131,7 +131,7 @@ const RoomAmenityTableCreate = (props: IProps) => {
                 <div>
                     <div className="mt-[10px] grid grid-cols-2 gap-[20px]">
                         <div>
-                            <label>Tên tiện nghi</label>
+                            <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Tên tiện nghi</label>
                             <div className="mt-[4px]">
                                 <Input
                                     className="w-full"
