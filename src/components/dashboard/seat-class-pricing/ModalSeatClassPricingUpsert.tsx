@@ -127,7 +127,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
             >
                 <div className="mt-[10px] grid grid-cols-2 gap-[20px]">
                     <div>
-                        <label>Loại ghế</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Loại ghế</label>
                         <div className="mt-[4px]">
                             <Select
                                 className="w-full"
@@ -147,7 +147,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Hệ số tiền</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Hệ số tiền</label>
                         <div className="mt-[4px]">
                             <Input
                                 type="number"
@@ -164,7 +164,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Tổng số ghế</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Tổng số ghế</label>
                         <div className="mt-[4px]">
                             <Input
                                 type="number"
@@ -181,7 +181,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Số ghế khả dụng</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Số ghế khả dụng</label>
                         <div className="mt-[4px]">
                             <Input
                                 type="number"
@@ -198,7 +198,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Thức ăn</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Thức ăn</label>
                         <div className="mt-[4px]">
                             <Select
                                 className="w-full"
@@ -218,7 +218,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Đồ uống miễn phí</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Đồ uống miễn phí</label>
                         <div className="mt-[4px]">
                             <Select
                                 className="w-full"
@@ -238,7 +238,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Phòng chờ</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Phòng chờ</label>
                         <div className="mt-[4px]">
                             <Select
                                 className="w-full"
@@ -258,7 +258,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Nguồn cắm điện</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Nguồn cắm điện</label>
                         <div className="mt-[4px]">
                             <Select
                                 className="w-full"
@@ -278,7 +278,7 @@ const ModalSeatClassPricingUpsert = (props: IProps) => {
                         </div>
                     </div>
                     <div>
-                        <label>Ưu tiên</label>
+                        <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Ưu tiên</label>
                         <div className="mt-[4px]">
                             <Select
                                 className="w-full"

@@ -225,7 +225,7 @@ const FlightLegTableCreate = (props: IProps) => {
                 <div>
                     <div className="mt-[10px] grid grid-cols-2 gap-[20px]">
                         <div>
-                            <label>Địa điểm khởi hành</label>
+                            <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Địa điểm khởi hành</label>
                             <div className="mt-[4px]">
                                 <Select
                                     className="w-full"
@@ -246,7 +246,7 @@ const FlightLegTableCreate = (props: IProps) => {
                             </div>
                         </div>
                         <div>
-                            <label>Địa điểm hạ cánh</label>
+                            <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Địa điểm hạ cánh</label>
                             <div className="mt-[4px]">
                                 <Select
                                     className="w-full"
@@ -269,7 +269,7 @@ const FlightLegTableCreate = (props: IProps) => {
                             </div>
                         </div>
                         <div>
-                            <label>Thời gian khởi hành → Thời gian hạ cánh</label>
+                            <label className="flex items-center gap-[6px]"><span className="text-red-500 text-[18px]">*</span>Thời gian khởi hành → Thời gian hạ cánh</label>
                             <div className="mt-[4px]">
                                 <ConfigProvider locale={vi_VN}>
                                     <RangePicker
