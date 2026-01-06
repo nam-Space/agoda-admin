@@ -80,6 +80,7 @@ interface IState {
         }[];
         airline?: any;
         driver_area?: any;
+        chat_id?: any;
     };
     activeMenu: string;
 }
@@ -107,6 +108,7 @@ const initialState: IState = {
         airline: undefined,
         flight_staffs: [],
         driver_area: undefined,
+        chat_id: undefined,
     },
 
     activeMenu: "home",
@@ -142,6 +144,7 @@ export const accountSlide = createSlice({
             state.user.airline = action.payload.airline;
             state.user.flight_staffs = action.payload.flight_staffs;
             state.user.driver_area = action.payload.driver_area;
+            state.user.chat_id = action.payload.chat_id;
         },
         setLogoutAction: (state, _action) => {
             localStorage.removeItem("access_token_agoda_admin");
@@ -165,6 +168,7 @@ export const accountSlide = createSlice({
                 airline: undefined,
                 flight_staffs: [],
                 driver_area: undefined,
+                chat_id: undefined,
             };
         },
         setRefreshTokenAction: (state, action) => {
@@ -201,6 +205,7 @@ export const accountSlide = createSlice({
                 state.user.airline = action.payload.data?.airline;
                 state.user.flight_staffs = action.payload.data?.flight_staffs;
                 state.user.driver_area = action.payload.data?.driver_area;
+                state.user.chat_id = action.payload.data?.chat_id;
             } else {
                 state.isAuthenticated = false;
                 state.isLoading = false;
