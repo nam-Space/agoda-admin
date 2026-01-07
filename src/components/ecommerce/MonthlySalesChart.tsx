@@ -3,16 +3,17 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
-import { callFetchActivity, callFetchAirline, callFetchCar, callFetchHotel, callFetchPaymentOverview, callFetchUser } from "@/config/api";
+import { callFetchActivity, callFetchAirline, callFetchCar, callFetchFlight, callFetchHotel, callFetchPaymentOverview, callFetchRoomAdmin, callFetchUser } from "@/config/api";
 import { SERVICE_TYPE, SERVICE_TYPE_VI } from "@/constants/booking";
 import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
-import { getUserAvatar } from "@/utils/imageUrl";
+import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { DebounceSelect } from "../antd/DebounceSelect";
 import { Star } from "lucide-react";
 import ChartTab from "../common/ChartTab";
 import EcommerceMetrics from "./EcommerceMetrics";
 import { TIME_STATISTIC } from "@/constants/time";
+import dayjs from "dayjs";
 export interface ICitySelect {
 	label?: any;
 	value?: number;
@@ -62,6 +63,12 @@ export default function MonthlySalesChart({ serviceType }: any) {
 	});
 
 	const [hotel, setHotel] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [room, setRoom] = useState<ICitySelect>({
 		label: "",
 		value: 0,
 		key: 0,
@@ -134,6 +141,12 @@ export default function MonthlySalesChart({ serviceType }: any) {
 	});
 
 	const [airline, setAirline] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [flight, setFlight] = useState<ICitySelect>({
 		label: "",
 		value: 0,
 		key: 0,
@@ -380,6 +393,48 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		} else return [];
 	}
 
+	async function fetchRoomList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (owner.value) {
+			query = `&owner_id=${owner.value}`
+		}
+		else if (user.role === ROLE.OWNER) {
+			query = `&owner_id=${user.id}`
+		}
+		else if (user.role === ROLE.HOTEL_STAFF) {
+			if (user.manager?.id) {
+				query = `&owner_id=${user.manager.id}`
+			}
+		}
+		if (hotel.value) {
+			query += `&hotel_id=${hotel.value}`
+		}
+		const res: any = await callFetchRoomAdmin(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label: <div className="flex gap-3">
+						<div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
+							<img
+								src={`${import.meta.env.VITE_BE_URL}${item?.images?.[0]?.image}`}
+								className="w-full h-full object-cover"
+								alt={item?.room_type}
+							/>
+						</div>
+						<div className="flex-1 min-w-0">
+							<h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
+								{item?.room_type}
+							</h4>
+						</div>
+					</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
 
 	async function fetchActivityList(): Promise<ICitySelect[]> {
 		let query = ``
@@ -492,7 +547,7 @@ export default function MonthlySalesChart({ serviceType }: any) {
 			const temp = list.map((item: any) => {
 				return {
 					label:
-						<div className="flex gap-3">
+						<div className="flex items-center gap-3">
 							<div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
 								<img
 									src={`${import.meta.env.VITE_BE_URL}${item?.logo}`}
@@ -505,6 +560,60 @@ export default function MonthlySalesChart({ serviceType }: any) {
 										item?.name
 									}
 								</h4>
+							</div>
+						</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	async function fetchFlightList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (flightOperationManager.value) {
+			query = `&flight_operations_staff_id=${flightOperationManager.value}`
+		}
+		else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+			query = `&flight_operations_staff_id=${user.id}`
+		}
+		else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+			query = `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
+		}
+		if (airline.value) {
+			query = `&airline_id=${airline.value}`
+		}
+		const res: any = await callFetchFlight(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				const recordLegSorted = [...item.legs].sort((a: any, b: any) =>
+					new Date(a.departure_time).getTime() - new Date(b.departure_time).getTime() // giảm dần
+				);
+				const firstLeg = recordLegSorted[0];
+				const lastLeg = recordLegSorted[recordLegSorted.length - 1];
+
+				return {
+					label:
+						<div className="flex flex-col gap-[10px]">
+							<div className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+								<div>
+									<div className="flex items-center gap-[6px]">
+										<img src={getImage(item?.airline?.logo)} alt={item?.airline?.name} className="w-[24px]" />
+										<p className="text-[12px] text-gray-500">{item?.airline?.name} <span className="text-blue-500 font-bold">(Id: {item?.id})</span></p>
+									</div>
+									<div>
+										<p className="font-semibold text-base">{dayjs(firstLeg?.departure_time).format("HH:ss")} → {dayjs(lastLeg?.arrival_time).format("HH:ss")}</p>
+									</div>
+									<div>
+										<p className="text-xs text-gray-500">{dayjs(firstLeg?.departure_time).format("DD/MM/YYYY")} - {dayjs(lastLeg?.arrival_time).format("DD/MM/YYYY")}</p>
+									</div>
+									<div className="flex items-center gap-[10px]">
+										<p className="font-semibold leading-[20px]">{`${firstLeg?.departure_airport?.name}`}</p>
+										→
+										<p className="font-semibold leading-[20px]">{`${lastLeg?.arrival_airport?.name}`}</p>
+									</div>
+								</div>
 							</div>
 						</div>,
 					value: item.id
@@ -534,6 +643,9 @@ export default function MonthlySalesChart({ serviceType }: any) {
 			if (hotel.value) {
 				serviceQuery = `&hotel_id=${hotel.value}`
 			}
+			if (room.value) {
+				serviceQuery = `&room_id=${room.value}`
+			}
 		}
 		else if (serviceType === SERVICE_TYPE.ACTIVITY) {
 			if (activity.value) {
@@ -549,12 +661,15 @@ export default function MonthlySalesChart({ serviceType }: any) {
 			if (airline.value) {
 				serviceQuery = `&airline_id=${airline.value}`
 			}
+			if (flight.value) {
+				serviceQuery = `&flight_id=${flight.value}`
+			}
 		}
 
 
 		handleGetPaymentOverview(`booking__service_type=${serviceType}${bossQuery}${serviceQuery}&statistic_by=${selectedTime}`)
 
-	}, [owner, eventOrganizer, driver, flightOperationManager, serviceType, hotel, activity, car, airline, selectedTime])
+	}, [owner, eventOrganizer, driver, flightOperationManager, serviceType, hotel, room, activity, car, airline, flight, selectedTime])
 	return (
 		<div>
 			<EcommerceMetrics statistic={statistic} serviceType={serviceType} />
@@ -566,7 +681,7 @@ export default function MonthlySalesChart({ serviceType }: any) {
 						</h3>
 						<ChartTab selectedTime={selectedTime} setSelectedTime={setSelectedTime} />
 					</div>
-					<div className="mt-3 grid grid-cols-2 gap-4">
+					<div className="mt-3 grid grid-cols-3 gap-4">
 						{serviceType === SERVICE_TYPE.HOTEL &&
 							<>
 								<div>
@@ -601,6 +716,26 @@ export default function MonthlySalesChart({ serviceType }: any) {
 											fetchOptions={fetchHotelList}
 											onChange={(newValue: any) => {
 												setHotel({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Phòng</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={room}
+											value={room}
+											placeholder={<span>Chọn phòng</span>}
+											fetchOptions={fetchRoomList}
+											onChange={(newValue: any) => {
+												setRoom({
 													key: newValue?.key,
 													label: newValue?.label,
 													value: newValue?.value
@@ -744,6 +879,26 @@ export default function MonthlySalesChart({ serviceType }: any) {
 												});
 											}}
 											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Chuyến bay</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={flight}
+											value={flight}
+											placeholder={<span>Chọn chuyến bay</span>}
+											fetchOptions={fetchFlightList}
+											onChange={(newValue: any) => {
+												setFlight({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[140px]"
 										/>
 									</div>
 								</div>

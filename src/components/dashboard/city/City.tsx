@@ -1,18 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteCity } from "../../../config/api";
+import { callDeleteCity, callFetchCountry } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import ModalCity from "./ModalCity";
 import { fetchCity } from "@/redux/slice/citySlide";
 import { getImage } from "@/utils/imageUrl";
 import { toast } from "react-toastify";
+import _ from "lodash";
 export default function City() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -22,6 +23,7 @@ export default function City() {
     const isFetching = useAppSelector(state => state.city.isFetching);
     const meta = useAppSelector(state => state.city.meta);
     const cities = useAppSelector(state => state.city.data);
+    const [countries, setCountries] = useState([])
     const dispatch = useAppDispatch();
 
     const handleDeleteCity = async (id: number | undefined) => {
@@ -40,6 +42,17 @@ export default function City() {
         }
     }
 
+    const handleGetCountry = async (query: string) => {
+        const res: any = await callFetchCountry(query)
+        if (res.isSuccess) {
+            setCountries(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetCountry(`current=1&pageSize=1000`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -49,17 +62,62 @@ export default function City() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Tên quốc gia",
             dataIndex: 'country',
-            sorter: true,
-            hideInSearch: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div>{record?.country?.name}</div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Quốc gia"
+                            allowClear
+                            value={value.country_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, country_id: val }
+                                ])
+                            }
+                            options={countries.map((item: any) => ({
+                                label: item.name,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Tên thành phố",
@@ -73,15 +131,14 @@ export default function City() {
             sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
-                    <div className="line-clamp-6">{record.description}</div>
+                    <div className="line-clamp-6 max-w-[350px]">{record.description}</div>
                 )
             },
-            width: 500
+            width: 350
         },
         {
             title: "Ảnh",
             dataIndex: 'image',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${getImage(record.image)}`} />
@@ -93,7 +150,6 @@ export default function City() {
         {
             title: "Ảnh cẩm nang",
             dataIndex: 'image_handbook',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${getImage(record.image_handbook)}`} />
@@ -164,6 +220,11 @@ export default function City() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+
+        if (_filter?.country?.[0]?.country_id) {
+            temp += `&country_id=${_filter?.country?.[0]?.country_id}`
+        }
+
         if (clone.name) {
             temp += `&name=${clone.name}`
         }
@@ -171,7 +232,15 @@ export default function City() {
             temp += `&description=${clone.description}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }

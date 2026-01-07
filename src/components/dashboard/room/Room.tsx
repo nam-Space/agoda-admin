@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space, Tag } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input, Popconfirm, Select, Space, Tag } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteRoom } from "../../../config/api";
+import { callDeleteRoom, callFetchHotel } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { getImage } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
@@ -17,7 +17,9 @@ import { fetchRoom } from "@/redux/slice/roomSlide";
 import ModalRoom from "./ModalRoom";
 import ModalRoomDetail from "./ModalRoomDetail";
 import { HiOutlineCursorClick } from "react-icons/hi";
-import { STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
+import { AVAILABLE_ROOM_VI, STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
+import { Star } from "lucide-react";
+import _ from "lodash";
 
 export default function Room() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -31,6 +33,20 @@ export default function Room() {
     const meta = useAppSelector(state => state.room.meta);
     const rooms = useAppSelector(state => state.room.data);
     const dispatch = useAppDispatch();
+
+    const [hotelState, setHotelState] = useState<{
+        data: any[];
+        page: number;
+        hasMore: boolean;
+        loading: boolean;
+        search: string;
+    }>({
+        data: [],
+        page: 1,
+        hasMore: true,
+        loading: false,
+        search: "",
+    });
 
     const handleDeleteRoom = async (id: number | undefined) => {
         if (id) {
@@ -48,6 +64,56 @@ export default function Room() {
         }
     }
 
+    const PAGE_SIZE = 10;
+
+    const fetchHotels = async ({
+        page = 1,
+        search = "",
+        append = false,
+    }: {
+        page?: number;
+        search?: string;
+        append?: boolean;
+    }) => {
+        if (hotelState.loading) return;
+
+        setHotelState(prev => ({ ...prev, loading: true }));
+
+        const query = `current=${page}&pageSize=${PAGE_SIZE}${search ? `&name=${search}` : ""}`;
+        const res: any = await callFetchHotel(query);
+
+        if (res?.isSuccess) {
+            setHotelState(prev => ({
+                ...prev,
+                data: append ? [...prev.data, ...res.data] : res.data,
+                page,
+                hasMore: res.data.length === PAGE_SIZE,
+                loading: false,
+            }));
+        } else {
+            setHotelState(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    const handleHotelSearch = (value: string) => {
+        setHotelState(prev => ({
+            ...prev,
+            search: value,
+            page: 1,
+            hasMore: true,
+        }));
+
+        fetchHotels({
+            page: 1,
+            search: value,
+            append: false,
+        });
+    };
+
+    useEffect(() => {
+        fetchHotels({ page: 1 });
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -57,11 +123,11 @@ export default function Room() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Ảnh",
             dataIndex: 'image',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
@@ -72,8 +138,7 @@ export default function Room() {
         },
         {
             title: 'Loại phòng',
-            dataIndex: 'room_type',
-            sorter: true,
+            dataIndex: 'room',
             render: (_text, record, _index, _action) => {
                 return (
                     <div onClick={() => {
@@ -105,12 +170,136 @@ export default function Room() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Tên loại phòng"
+                            value={value.room_type}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, room_type: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Select
+                            placeholder="Loại chỗ ở"
+                            allowClear
+                            value={value.stay_type}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, stay_type: val }
+                                ])
+                            }
+                            options={Object.entries(STAY_TYPE_VI).map(([k, v]) => ({
+                                label: v,
+                                value: k,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+                        {value.stay_type === STAY_TYPE.OVERNIGHT && <>
+                            <Input
+                                placeholder="Giá mỗi đêm từ"
+                                type="number"
+                                value={value.min_price_per_night}
+                                onChange={(e) =>
+                                    setSelectedKeys([
+                                        { ...value, min_price_per_night: e.target.value }
+                                    ])
+                                }
+                                onPressEnter={confirm as any}
+                                style={{ marginBottom: 8 }}
+                            />
+
+                            <Input
+                                placeholder="Giá mỗi đêm đến"
+                                type="number"
+                                value={value.max_price_per_night}
+                                onChange={(e) =>
+                                    setSelectedKeys([
+                                        { ...value, max_price_per_night: e.target.value }
+                                    ])
+                                }
+                                onPressEnter={confirm as any}
+                                style={{ marginBottom: 8 }}
+                            />
+                        </>}
+                        {value.stay_type === STAY_TYPE.DAY_USE && <>
+                            <Input
+                                placeholder="Giá trong ngày từ"
+                                type="number"
+                                value={value.min_price_per_day}
+                                onChange={(e) =>
+                                    setSelectedKeys([
+                                        { ...value, min_price_per_day: e.target.value }
+                                    ])
+                                }
+                                onPressEnter={confirm as any}
+                                style={{ marginBottom: 8 }}
+                            />
+
+                            <Input
+                                placeholder="Giá trong ngày đến"
+                                type="number"
+                                value={value.max_price_per_day}
+                                onChange={(e) =>
+                                    setSelectedKeys([
+                                        { ...value, max_price_per_day: e.target.value }
+                                    ])
+                                }
+                                onPressEnter={confirm as any}
+                                style={{ marginBottom: 8 }}
+                            />
+                        </>}
+
+                        <Select
+                            placeholder="Có sẵn"
+                            allowClear
+                            value={value.available}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, available: val }
+                                ])
+                            }
+                            options={Object.entries(AVAILABLE_ROOM_VI).map(([k, v]) => ({
+                                label: v,
+                                value: k,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
 
         {
             title: 'Khách sạn',
             dataIndex: 'hotel',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
@@ -124,6 +313,97 @@ export default function Room() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                const handleHotelScroll = (e: React.UIEvent<HTMLDivElement>) => {
+                    const target = e.target as HTMLDivElement;
+
+                    if (
+                        target.scrollTop + target.offsetHeight >= target.scrollHeight - 20 &&
+                        hotelState.hasMore &&
+                        !hotelState.loading
+                    ) {
+                        fetchHotels({
+                            page: hotelState.page + 1,
+                            search: hotelState.search,
+                            append: true,
+                        });
+                    }
+                };
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Khách sạn"
+                            allowClear
+                            showSearch
+                            filterOption={false}
+                            loading={hotelState.loading}
+                            onSearch={handleHotelSearch}
+                            onPopupScroll={handleHotelScroll}
+                            value={value.hotel_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([{ ...value, hotel_id: val }])
+                            }
+                            options={hotelState.data.map((item: any) => ({
+                                label: (
+                                    <div className="flex gap-3">
+                                        <div className="w-[40px] h-[40px] rounded-lg overflow-hidden">
+                                            <img
+                                                src={`${import.meta.env.VITE_BE_URL}${item?.images?.[0]?.image}`}
+                                                className="w-full h-full object-cover"
+                                                alt={item?.name}
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-semibold text-sm line-clamp-2">
+                                                {item?.name}
+                                            </h4>
+                                            <div className="flex items-center gap-1 text-xs">
+                                                <Star className="w-3 h-3 fill-orange-500 text-orange-500" />
+                                                <span className="font-semibold">
+                                                    {item?.avg_star?.toFixed(1)}
+                                                </span>
+                                                <span className="text-gray-500">
+                                                    {item?.review_count || 0} đánh giá
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ),
+                                value: item.id,
+                            }))}
+                            notFoundContent={
+                                hotelState.loading ? "Đang tải..." : "Không có dữ liệu"
+                            }
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
             width: 200
         },
         {
@@ -140,7 +420,6 @@ export default function Room() {
         {
             title: 'Không gian',
             dataIndex: 'space',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
@@ -153,6 +432,86 @@ export default function Room() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Số lượng người lớn từ"
+                            type="number"
+                            value={value.min_adults_capacity}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_adults_capacity: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số lượng người lớn đến"
+                            type="number"
+                            value={value.max_adults_capacity}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_adults_capacity: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số lượng trẻ em từ"
+                            type="number"
+                            value={value.min_children_capacity}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_children_capacity: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số lượng trẻ em đến"
+                            type="number"
+                            value={value.max_children_capacity}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_children_capacity: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Thời gian",
@@ -222,17 +581,52 @@ export default function Room() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
-        if (clone.name) {
-            temp += `&name=${clone.name}`
+
+        if (_filter?.room?.[0]?.room_type) {
+            temp += `&room_type=${_filter?.room?.[0]?.room_type}`
         }
-        if (clone.description) {
-            temp += `&description=${clone.description}`
+        if (_filter?.room?.[0]?.stay_type) {
+            temp += `&stay_type=${_filter?.room?.[0]?.stay_type}`
         }
-        if (user.role === ROLE.OWNER) {
-            temp += `&owner_id=${user.id}`
+        if (_filter?.room?.[0]?.min_price_per_night) {
+            temp += `&min_price_per_night=${_filter?.room?.[0]?.min_price_per_night}`
+        }
+        if (_filter?.room?.[0]?.max_price_per_night) {
+            temp += `&max_price_per_night=${_filter?.room?.[0]?.max_price_per_night}`
+        }
+        if (_filter?.room?.[0]?.min_price_per_day) {
+            temp += `&min_price_per_day=${_filter?.room?.[0]?.min_price_per_day}`
+        }
+        if (_filter?.room?.[0]?.max_price_per_day) {
+            temp += `&max_price_per_day=${_filter?.room?.[0]?.max_price_per_day}`
+        }
+        if (_filter?.room?.[0]?.available) {
+            temp += `&available=${_filter?.room?.[0]?.available === "true" ? 1 : 0}`
         }
 
-        temp += `&sort=id-desc`
+        if (_filter?.hotel?.[0]?.hotel_id) {
+            temp += `&hotel_id=${_filter?.hotel?.[0]?.hotel_id}`
+        }
+
+        if (clone.name) {
+            temp += `&name=${clone.name} `
+        }
+        if (clone.description) {
+            temp += `&description=${clone.description} `
+        }
+        if (user.role === ROLE.OWNER) {
+            temp += `&owner_id=${user.id} `
+        }
+
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"} `
+            })
+        }
 
         return temp;
     }

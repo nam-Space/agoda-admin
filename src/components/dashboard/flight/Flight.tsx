@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import DataTable from "../../antd/Table";
 import { getImage } from "@/utils/imageUrl";
 import { toast } from "react-toastify";
-import { callDeleteFlight } from "@/config/api";
+import { callDeleteFlight, callFetchAircraft, callFetchAirline, callFetchAirport } from "@/config/api";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { fetchFlight } from "@/redux/slice/flightSlide";
 import { BAGGAGE_INCLUDED_VI } from "@/constants/airline";
@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightDetail from "@/components/payment/flight/ModalFlightDetail";
 import { ROLE } from "@/constants/role";
+import _ from "lodash";
 
 interface IProps {
     canCreate?: boolean;
@@ -39,6 +40,10 @@ export default function Flight(props: IProps) {
     const flights = useAppSelector(state => state.flight.data);
     const dispatch = useAppDispatch();
 
+    const [airlines, setAirlines] = useState([])
+    const [aircrafts, setAircrafts] = useState([])
+    const [airports, setAirports] = useState([])
+
     const handleDeleteFlight = async (id: number | undefined) => {
         if (id) {
             const res: any = await callDeleteFlight(id);
@@ -55,6 +60,34 @@ export default function Flight(props: IProps) {
         }
     }
 
+    const handleGetAirline = async (query: string) => {
+        const res: any = await callFetchAirline(query)
+        if (res.isSuccess) {
+            setAirlines(res.data)
+        }
+    }
+
+    const handleGetAircraft = async (query: string) => {
+        const res: any = await callFetchAircraft(query)
+        if (res.isSuccess) {
+            setAircrafts(res.data)
+        }
+    }
+
+    const handleGetAirport = async (query: string) => {
+        const res: any = await callFetchAirport(query)
+        if (res.isSuccess) {
+            setAirports(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetAirline(`current=1&pageSize=1000`)
+        handleGetAircraft(`current=1&pageSize=1000`)
+        handleGetAirport(`current=1&pageSize=1000`)
+    }, [])
+
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -68,7 +101,6 @@ export default function Flight(props: IProps) {
         {
             title: "Hãng hàng không",
             dataIndex: 'airline',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
@@ -82,12 +114,70 @@ export default function Flight(props: IProps) {
                     </div>
                 )
             },
-            hideInSearch: true,
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Hãng hàng không"
+                            allowClear
+                            value={value.airline_id}
+                            onChange={async (val: any) => {
+                                setSelectedKeys([
+                                    { ...value, airline_id: val }
+                                ])
+                                if (val) {
+                                    await handleGetAircraft(`current=1&pageSize=1000&airline_id=${val}`)
+                                }
+                                else {
+                                    await handleGetAircraft(`current=1&pageSize=1000`)
+                                }
+                            }}
+                            options={airlines.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getImage(item?.logo)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.name}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Máy bay",
             dataIndex: 'aircraft',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
@@ -97,12 +187,56 @@ export default function Flight(props: IProps) {
                     </div>
                 )
             },
-            hideInSearch: true,
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Máy bay"
+                            allowClear
+                            value={value.aircraft_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, aircraft_id: val }
+                                ])
+                            }
+                            options={aircrafts.map((item: any) => ({
+                                label: item.model,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Chuyến bay",
             dataIndex: 'flight',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 if (record.legs?.length === 0) return <div></div>
 
@@ -142,7 +276,66 @@ export default function Flight(props: IProps) {
                     </div>
                 )
             },
-            hideInSearch: true,
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Địa điểm xuất phát"
+                            allowClear
+                            value={value.departure_airport_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, departure_airport_id: val }
+                                ])
+                            }
+                            options={airports.map((item: any) => ({
+                                label: item.name,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+                        <Select
+                            placeholder="Địa điểm hạ cánh"
+                            allowClear
+                            value={value.arrival_airport_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, arrival_airport_id: val }
+                                ])
+                            }
+                            options={airports.map((item: any) => ({
+                                label: item.name,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
             width: 200
         },
         {
@@ -156,11 +349,64 @@ export default function Flight(props: IProps) {
                 )
             },
             sorter: true,
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Tổng thời gian từ"
+                            type="number"
+                            value={value.min_total_duration}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_total_duration: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Tổng thời gian đến"
+                            type="number"
+                            value={value.max_total_duration}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_total_duration: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Bao gồm hành lý",
             dataIndex: 'baggage_included',
-            sorter: true,
             hideInSearch: true,
             render: (_text, record, _index, _action) => {
                 return (
@@ -174,6 +420,60 @@ export default function Flight(props: IProps) {
             title: "Số điểm dừng",
             dataIndex: 'stops',
             sorter: true,
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Số điểm dừng từ"
+                            type="number"
+                            value={value.min_stops}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_stops: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số điểm dừng đến"
+                            type="number"
+                            value={value.max_stops}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_stops: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Giá tiền cơ sở",
@@ -186,7 +486,60 @@ export default function Flight(props: IProps) {
                     </div>
                 )
             },
-            hideInSearch: true,
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Giá tiền cơ sở từ"
+                            type="number"
+                            value={value.min_base_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_base_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Giá tiền cơ sở đến"
+                            type="number"
+                            value={value.max_base_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_base_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Ngày tạo",
@@ -250,6 +603,41 @@ export default function Flight(props: IProps) {
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
 
+        if (_filter?.airline?.[0]?.airline_id) {
+            temp += `&airline_id=${_filter?.airline?.[0]?.airline_id}`
+        }
+
+        if (_filter?.aircraft?.[0]?.aircraft_id) {
+            temp += `&aircraft_id=${_filter?.aircraft?.[0]?.aircraft_id}`
+        }
+
+        if (_filter?.flight?.[0]?.departure_airport_id) {
+            temp += `&departure_airport_id=${_filter?.flight?.[0]?.departure_airport_id}`
+        }
+        if (_filter?.flight?.[0]?.arrival_airport_id) {
+            temp += `&arrival_airport_id=${_filter?.flight?.[0]?.arrival_airport_id}`
+        }
+
+        if (_filter?.total_duration?.[0]?.min_total_duration) {
+            temp += `&min_total_duration=${_filter?.total_duration?.[0]?.min_total_duration}`
+        }
+        if (_filter?.total_duration?.[0]?.max_total_duration) {
+            temp += `&max_total_duration=${_filter?.total_duration?.[0]?.max_total_duration}`
+        }
+
+        if (_filter?.stops?.[0]?.min_stops) {
+            temp += `&min_stops=${_filter?.stops?.[0]?.min_stops}`
+        }
+        if (_filter?.stops?.[0]?.max_stops) {
+            temp += `&max_stops=${_filter?.stops?.[0]?.max_stops}`
+        }
+        if (_filter?.base_price?.[0]?.min_base_price) {
+            temp += `&min_base_price=${_filter?.base_price?.[0]?.min_base_price}`
+        }
+        if (_filter?.base_price?.[0]?.max_base_price) {
+            temp += `&max_base_price=${_filter?.base_price?.[0]?.max_base_price}`
+        }
+
         if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
             temp += `&flight_operations_staff_id=${user.id}`
         }
@@ -258,7 +646,15 @@ export default function Flight(props: IProps) {
             temp += `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }

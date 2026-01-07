@@ -18,6 +18,7 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import markerImg from "/images/google-map/marker.webp";
 import ModalCarJourney from "./ModalCarJourney";
 import dayjs from "dayjs";
+import { PAYMENT_STATUS } from "@/constants/payment";
 
 export default function CarJourney() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -272,6 +273,8 @@ export default function CarJourney() {
         if (user.role === ROLE.DRIVER) {
             temp += `&driver_id=${user.id}`
         }
+
+        temp += `&status=${PAYMENT_STATUS.SUCCESS}`
 
         return temp;
     }

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Avatar, Badge, Button, Popconfirm, Space } from "antd";
+import { Avatar, Badge, Button, Input, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -16,6 +16,7 @@ import { ROLE, ROLE_UI, ROLE_VI, STATUS_USER_VI } from "@/constants/role";
 import { GENDER_VI } from "@/constants/gender";
 import { toast } from "react-toastify";
 import { DRIVER_STATUS, DRIVER_STATUS_VI } from "@/constants/driver";
+import _ from "lodash";
 
 export default function User() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -53,11 +54,11 @@ export default function User() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
-            title: "Tên đăng nhập",
-            dataIndex: 'username',
-            hideInSearch: true,
+            title: "Người dùng",
+            dataIndex: 'user',
             render: (_text, record, _index, _action) => {
                 return (
                     <div>
@@ -73,6 +74,86 @@ export default function User() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Username"
+                            value={value.username}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, username: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Email"
+                            value={value.email}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, email: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="SĐT"
+                            value={value.phone_number}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, phone_number: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Select
+                            placeholder="Giới tính"
+                            allowClear
+                            value={value.gender}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, gender: val }
+                                ])
+                            }
+                            options={Object.entries(GENDER_VI).map(([k, v]) => ({
+                                label: v,
+                                value: k,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
 
         {
@@ -171,7 +252,7 @@ export default function User() {
                     </div>
                 );
             },
-            sorter: true,
+            valueEnum: ROLE_VI
         },
         {
             title: "Trạng thái",
@@ -181,7 +262,7 @@ export default function User() {
                     <>{STATUS_USER_VI[record.is_active]}</>
                 )
             },
-            sorter: true,
+            valueEnum: STATUS_USER_VI
         },
         {
             title: "Ngày tạo",
@@ -245,25 +326,44 @@ export default function User() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+        if (_filter?.user?.[0]?.username) {
+            temp += `&username=${_filter?.user?.[0]?.username}`
+        }
+        if (_filter?.user?.[0]?.email) {
+            temp += `&email=${_filter?.user?.[0]?.email}`
+        }
+        if (_filter?.user?.[0]?.phone_number) {
+            temp += `&phone_number=${_filter?.user?.[0]?.phone_number}`
+        }
+        if (_filter?.user?.[0]?.gender) {
+            temp += `&gender=${_filter?.user?.[0]?.gender}`
+        }
+
         if (clone.first_name) {
             temp += `&first_name=${clone.first_name}`
         }
         if (clone.last_name) {
             temp += `&last_name=${clone.last_name}`
         }
-        if (clone.email) {
-            temp += `&email=${clone.email}`
-        }
-        if (clone.gender) {
-            temp += `&gender=${clone.gender}`
-        }
-        if (clone.phone_number) {
-            temp += `&phone_number=${clone.phone_number}`
-        }
+
         if (clone.role) {
             temp += `&role=${clone.role}`
         }
-        temp += `&sort=id-desc`
+        if (clone.is_active) {
+            temp += `&is_active=${clone.is_active === "true" ? 1 : 0}`
+        }
+
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
+
+
         return temp;
     }
 

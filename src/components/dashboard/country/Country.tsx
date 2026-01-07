@@ -13,6 +13,7 @@ import { fetchCountry } from "@/redux/slice/countrySlide";
 import ModalCountry from "./ModalCountry";
 import { getImage } from "@/utils/imageUrl";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 export default function Country() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -50,6 +51,7 @@ export default function Country() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
 
         {
@@ -60,7 +62,6 @@ export default function Country() {
         {
             title: "Ảnh cẩm nang",
             dataIndex: 'image_handbook',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${getImage(record.image_handbook)}`} />
@@ -149,7 +150,15 @@ export default function Country() {
             temp += `&description=${clone.description}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }
