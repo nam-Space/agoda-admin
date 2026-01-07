@@ -23,27 +23,27 @@ export default function Home() {
           {/* <EcommerceMetrics /> */}
           {(user.role === ROLE.ADMIN || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF || user.role === ROLE.MARKETING_MANAGER) &&
             <div>
-              <h1 className="font-semibold text-[24px]">Dịch vụ khách sạn</h1>
+              <h1 className="font-semibold text-[24px] mb-[6px]">Dịch vụ khách sạn</h1>
               <MonthlySalesChart serviceType={SERVICE_TYPE.HOTEL} />
               <TableHotelRecommended />
             </div>}
           {(user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER || user.role === ROLE.MARKETING_MANAGER) &&
             <div>
-              <h1 className="font-semibold text-[24px]">Dịch vụ hoạt động</h1>
+              <h1 className="font-semibold text-[24px] mb-[6px]">Dịch vụ hoạt động</h1>
               <MonthlySalesChart serviceType={SERVICE_TYPE.ACTIVITY} />
               <TableActivityRecommended />
             </div>
           }
           {(user.role === ROLE.ADMIN || user.role === ROLE.DRIVER || user.role === ROLE.MARKETING_MANAGER) &&
             <div>
-              <h1 className="font-semibold text-[24px]">Dịch vụ taxi</h1>
+              <h1 className="font-semibold text-[24px] mb-[6px]">Dịch vụ taxi</h1>
               <MonthlySalesChart serviceType={SERVICE_TYPE.CAR} />
               <TableCarRecommended />
             </div>
           }
           {(user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF || user.role === ROLE.MARKETING_MANAGER) &&
             <div>
-              <h1 className="font-semibold text-[24px]">Dịch vụ vé máy bay</h1>
+              <h1 className="font-semibold text-[24px] mb-[6px]">Dịch vụ vé máy bay</h1>
               <MonthlySalesChart serviceType={SERVICE_TYPE.FLIGHT} />
               <TableFlightRecommended />
             </div>

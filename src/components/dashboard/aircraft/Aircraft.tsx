@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -10,11 +10,12 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import DataTable from "../../antd/Table";
 import { getImage } from "@/utils/imageUrl";
 import { toast } from "react-toastify";
-import { callDeleteAircraft } from "@/config/api";
+import { callDeleteAircraft, callFetchAirline } from "@/config/api";
 import { fetchAircraft } from "@/redux/slice/aircraftSlide";
 import ModalAircraft from "./ModalAircraft";
 import { AIRCRAFT_STATUS_VI } from "@/constants/airline";
 import { ROLE } from "@/constants/role";
+import _ from "lodash";
 
 export default function Aircraft() {
     const user = useAppSelector(state => state.account.user)
@@ -27,6 +28,8 @@ export default function Aircraft() {
     const meta = useAppSelector(state => state.aircraft.meta);
     const aircrafts = useAppSelector(state => state.aircraft.data);
     const dispatch = useAppDispatch();
+
+    const [airlines, setAirlines] = useState([])
 
     const handleDeleteAircraft = async (id: number | undefined) => {
         if (id) {
@@ -44,6 +47,17 @@ export default function Aircraft() {
         }
     }
 
+    const handleGetAirline = async (query: string) => {
+        const res: any = await callFetchAirline(query)
+        if (res.isSuccess) {
+            setAirlines(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetAirline(`current=1&pageSize=1000`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -53,6 +67,7 @@ export default function Aircraft() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true,
         },
         {
             title: "Mẫu",
@@ -62,8 +77,6 @@ export default function Aircraft() {
         {
             title: "Hãng hàng không",
             dataIndex: 'airline',
-            sorter: true,
-            hideInSearch: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
@@ -77,6 +90,60 @@ export default function Aircraft() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Hãng hàng không"
+                            allowClear
+                            value={value.airline_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, airline_id: val }
+                                ])
+                            }
+                            options={airlines.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getImage(item?.logo)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.name}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Số đăng ký",
@@ -85,8 +152,7 @@ export default function Aircraft() {
         },
         {
             title: "Ghế ngồi",
-            dataIndex: 'total_seats',
-            sorter: true,
+            dataIndex: 'seats',
             render: (_text, record, _index, _action) => {
                 return (
                     <div>
@@ -97,6 +163,138 @@ export default function Aircraft() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Tổng số ghế từ"
+                            type="number"
+                            value={value.min_total_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_total_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Tổng số ghế đến"
+                            type="number"
+                            value={value.max_total_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_total_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số ghế phổ thông từ"
+                            type="number"
+                            value={value.min_economy_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_economy_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số ghế phổ thông đến"
+                            type="number"
+                            value={value.max_economy_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_economy_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số ghế hạng thượng gia từ"
+                            type="number"
+                            value={value.min_business_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_business_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số ghế hạng thượng gia đến"
+                            type="number"
+                            value={value.max_business_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_business_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số ghế hạng nhất từ"
+                            type="number"
+                            value={value.min_first_class_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_first_class_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số ghế hạng nhất đến"
+                            type="number"
+                            value={value.max_first_class_seats}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_first_class_seats: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Năm sản xuất",
@@ -176,18 +374,59 @@ export default function Aircraft() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+        if (_filter?.airline?.[0]?.airline_id) {
+            temp += `&airline_id=${_filter?.airline?.[0]?.airline_id}`
+        }
+        if (_filter?.seats?.[0]?.min_total_seats) {
+            temp += `&min_total_seats=${_filter?.seats?.[0]?.min_total_seats}`
+        }
+        if (_filter?.seats?.[0]?.max_total_seats) {
+            temp += `&max_total_seats=${_filter?.seats?.[0]?.max_total_seats}`
+        }
+        if (_filter?.seats?.[0]?.min_economy_seats) {
+            temp += `&min_economy_seats=${_filter?.seats?.[0]?.min_economy_seats}`
+        }
+        if (_filter?.seats?.[0]?.max_economy_seats) {
+            temp += `&max_economy_seats=${_filter?.seats?.[0]?.max_economy_seats}`
+        }
+        if (_filter?.seats?.[0]?.min_business_seats) {
+            temp += `&min_business_seats=${_filter?.seats?.[0]?.min_business_seats}`
+        }
+        if (_filter?.seats?.[0]?.max_business_seats) {
+            temp += `&max_business_seats=${_filter?.seats?.[0]?.max_business_seats}`
+        }
+        if (_filter?.seats?.[0]?.min_first_class_seats) {
+            temp += `&min_first_class_seats=${_filter?.seats?.[0]?.min_first_class_seats}`
+        }
+        if (_filter?.seats?.[0]?.max_first_class_seats) {
+            temp += `&max_first_class_seats=${_filter?.seats?.[0]?.max_first_class_seats}`
+        }
         if (clone.model) {
             temp += `&model=${clone.model}`
         }
         if (clone.registration_number) {
             temp += `&registration_number=${clone.registration_number}`
         }
+        if (clone.manufacture_year) {
+            temp += `&manufacture_year=${clone.manufacture_year}`
+        }
+        if (clone.is_active) {
+            temp += `&is_active=${clone.is_active}`
+        }
 
         if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
             temp += `&flight_operations_staff_id=${user.id}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }
