@@ -7,7 +7,7 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeletePayment, callFetchAirline, callFetchAirport, callFetchFlight, callFetchUser } from "../../../config/api";
+import { callDeletePayment, callFetchAirline, callFetchFlight, callFetchUser } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { PAYMENT_METHOD_VI, PAYMENT_STATUS_COLOR, PAYMENT_STATUS_VI } from "@/constants/payment";
@@ -38,7 +38,6 @@ export default function FlightPayment() {
     const [customers, setCustomers] = useState([])
     const [airlines, setAirlines] = useState([])
     const [flights, setFlights] = useState([])
-    const [airports, setAirports] = useState([])
 
     const handleDeletePayment = async (id: number | undefined) => {
         if (id) {
@@ -77,18 +76,10 @@ export default function FlightPayment() {
         }
     }
 
-    const handleGetAirport = async (query: string) => {
-        const res: any = await callFetchAirport(query)
-        if (res.isSuccess) {
-            setAirports(res.data)
-        }
-    }
-
     useEffect(() => {
         handleGetUser(`current=1&pageSize=1000`)
         handleGetAirline(`current=1&pageSize=1000`)
         handleGetFlight(`current=1&pageSize=1000`)
-        handleGetAirport(`current=1&pageSize=1000`)
     }, [])
 
     const reloadTable = () => {
