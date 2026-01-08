@@ -99,14 +99,16 @@ const ModalActivityDate = (props: IProps) => {
     }
 
     const submitData = async (valuesForm: any) => {
-        const { price_adult, price_child, adult_quantity, child_quantity, dates, date_launch } = valuesForm;
+        const { price_adult, price_child, max_participants, participants_available, dates, date_launch } = valuesForm;
 
         if (dataInit?.id) {
             //update
             const dataObj = {
                 activity_package: activityPackage.value,
                 price_adult,
-                price_child, adult_quantity, child_quantity,
+                price_child,
+                max_participants,
+                participants_available,
                 date_launch,
             }
 
@@ -127,7 +129,9 @@ const ModalActivityDate = (props: IProps) => {
             const dataObj = {
                 activity_package: activityPackage.value,
                 price_adult,
-                price_child, adult_quantity, child_quantity,
+                price_child,
+                max_participants,
+                participants_available,
                 dates: getDatesBetween(dates[0], dates[1]),
             }
             const res: any = await callCreateBulkActivityDate(dataObj);
@@ -175,7 +179,9 @@ const ModalActivityDate = (props: IProps) => {
                 preserve={false}
                 form={form}
                 onFinish={submitData}
-                initialValues={dataInit?.id ? dataInit : {}}
+                initialValues={dataInit?.id ? {
+                    ...dataInit,
+                } : {}}
             >
                 <Row gutter={16}>
                     <Col lg={24} md={24} sm={24} xs={24}>
@@ -222,16 +228,16 @@ const ModalActivityDate = (props: IProps) => {
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
                         <ProFormDigit
-                            name="adult_quantity"
-                            label="Số lượng người lớn"
+                            name="max_participants"
+                            label="Số khách tối đa"
                             placeholder={"Nhập thông tin"}
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>
                         <ProFormDigit
-                            name="child_quantity"
-                            label="Số lượng trẻ em"
+                            name="participants_available"
+                            label="Số khách khả dụng"
                             placeholder={"Nhập thông tin"}
                             rules={[{ required: true, message: "Trường này là bắt buộc" }]}
                         />

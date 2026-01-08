@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteHandbook } from "../../../config/api";
+import { callDeleteHandbook, callFetchCity, callFetchUser } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { fetchHandbook } from "@/redux/slice/handbookSlide";
@@ -15,6 +15,7 @@ import ModalHandbook from "./ModalHandbook";
 import { toast } from "react-toastify";
 import { CATEGORY_HANDBOOK_VI } from "@/constants/handbook";
 import { ROLE } from "@/constants/role";
+import _ from "lodash";
 
 export default function Handbook() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -28,6 +29,9 @@ export default function Handbook() {
     const meta = useAppSelector(state => state.handbook.meta);
     const handbooks = useAppSelector(state => state.handbook.data);
     const dispatch = useAppDispatch();
+
+    const [cities, setCities] = useState([])
+    const [authors, setAuthors] = useState([])
 
     const handleDeleteHandbook = async (id: number | undefined) => {
         if (id) {
@@ -45,6 +49,25 @@ export default function Handbook() {
         }
     }
 
+    const handleGetCity = async (query: string) => {
+        const res: any = await callFetchCity(query)
+        if (res.isSuccess) {
+            setCities(res.data)
+        }
+    }
+
+    const handleGetUser = async (query: string) => {
+        const res: any = await callFetchUser(query)
+        if (res.isSuccess) {
+            setAuthors(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetCity(`current=1&pageSize=1000`)
+        handleGetUser(`current=1&pageSize=1000`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -54,11 +77,66 @@ export default function Handbook() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
+        },
+        {
+            title: "Thành phố",
+            dataIndex: 'city',
+            render: (_text, record, _index, _action) => {
+                return (
+                    <div>{record?.city?.name}</div>
+                )
+            },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Thành phố"
+                            allowClear
+                            value={value.city_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, city_id: val }
+                                ])
+                            }
+                            options={cities.map((item: any) => ({
+                                label: item.name,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: 'Tác giả',
             dataIndex: 'author',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     record?.author ? <div className="flex items-center gap-[10px]">
@@ -73,41 +151,132 @@ export default function Handbook() {
                     </div> : <div></div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Tác giả"
+                            allowClear
+                            value={value.author_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, author_id: val }
+                                ])
+                            }
+                            options={authors.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(item?.avatar)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
-            title: "Tiêu đề",
-            dataIndex: 'title',
-            sorter: true,
+            title: "Bài đăng",
+            dataIndex: 'post',
             render: (_text, record, _index, _action) => {
                 return (
-                    <div className="font-bold">
-                        {record?.title}
+                    <div>
+                        <img src={`${getImage(record.image)}`} />
+                        <p className="mt-[6px]">- Tiêu đề: <span className="font-bold">{record?.title}</span></p>
+                        <p className="mt-[6px]">- Danh mục: <span className="font-bold">{(CATEGORY_HANDBOOK_VI as any)[record.category]}</span></p>
                     </div>
                 )
             },
-        },
-        {
-            title: "Ảnh thumnail",
-            dataIndex: 'image',
-            sorter: true,
-            render: (_text, record, _index, _action) => {
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
                 return (
-                    <img src={`${getImage(record.image)}`} />
-                )
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Danh mục"
+                            allowClear
+                            value={value.category}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, category: val }
+                                ])
+                            }
+                            options={Object.entries(CATEGORY_HANDBOOK_VI).map(([key, val]) => {
+                                return {
+                                    label: val,
+                                    value: key
+                                }
+                            })}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Tiêu đề"
+                            value={value.title}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, title: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
             },
-            hideInSearch: true,
-            width: 150
-        },
-        {
-            title: "Danh mục",
-            dataIndex: 'category',
-            sorter: true,
-            render: (_text, record, _index, _action) => {
-                return (
-                    <div>{(CATEGORY_HANDBOOK_VI as any)[record.category]}</div>
-                )
-            },
-            hideInSearch: true,
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: 'Mô tả ngắn',
@@ -193,9 +362,15 @@ export default function Handbook() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
-        if (clone.title) {
-            temp += `&title=${clone.title}`
+
+        if (_filter?.city?.[0]?.city_id) {
+            temp += `&city_id=${_filter?.city?.[0]?.city_id}`
         }
+
+        if (_filter?.author?.[0]?.author_id) {
+            temp += `&author_id=${_filter?.author?.[0]?.author_id}`
+        }
+
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
@@ -207,7 +382,15 @@ export default function Handbook() {
             temp += `&author_id=${user.id}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }

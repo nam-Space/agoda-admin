@@ -97,6 +97,7 @@ export default function Flight(props: IProps) {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Hãng hàng không",

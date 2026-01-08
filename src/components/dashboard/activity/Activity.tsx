@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteActivity } from "../../../config/api";
+import { callDeleteActivity, callFetchCity, callFetchUser } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { fetchActivity } from "@/redux/slice/activitySlide";
 import ModalActivity from "./ModalActivity";
@@ -16,6 +16,7 @@ import { CATEGORY_ACTIVITY } from "@/constants/activity";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
+import _ from "lodash";
 export default function Activity() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -27,6 +28,9 @@ export default function Activity() {
     const meta = useAppSelector(state => state.activity.meta);
     const activities = useAppSelector(state => state.activity.data);
     const dispatch = useAppDispatch();
+
+    const [cities, setCities] = useState([])
+    const [eventOrganizers, setEventOrganizers] = useState([])
 
     const handleDeleteActivity = async (id: number | undefined) => {
         if (id) {
@@ -44,6 +48,25 @@ export default function Activity() {
         }
     }
 
+    const handleGetCity = async (query: string) => {
+        const res: any = await callFetchCity(query)
+        if (res.isSuccess) {
+            setCities(res.data)
+        }
+    }
+
+    const handleGetUser = async (query: string) => {
+        const res: any = await callFetchUser(query)
+        if (res.isSuccess) {
+            setEventOrganizers(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetCity(`current=1&pageSize=1000`)
+        handleGetUser(`current=1&pageSize=1000&role=${ROLE.EVENT_ORGANIZER}`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -53,11 +76,66 @@ export default function Activity() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
+        },
+        {
+            title: "Thành phố",
+            dataIndex: 'city',
+            render: (_text, record, _index, _action) => {
+                return (
+                    <div>{record?.city?.name}</div>
+                )
+            },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Thành phố"
+                            allowClear
+                            value={value.city_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, city_id: val }
+                                ])
+                            }
+                            options={cities.map((item: any) => ({
+                                label: item.name,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: 'Người tổ chức sự kiện',
             dataIndex: 'event_organizer',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     record?.event_organizer ? <div className="flex items-center gap-[10px]">
@@ -72,22 +150,66 @@ export default function Activity() {
                     </div> : <div></div>
                 )
             },
-        },
-        {
-            title: "Thành phố",
-            dataIndex: 'city',
-            sorter: true,
-            hideInSearch: true,
-            render: (_text, record, _index, _action) => {
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
                 return (
-                    <div>{record?.city?.name}</div>
-                )
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Người tổ chức sự kiện"
+                            allowClear
+                            value={value.event_organizer_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, event_organizer_id: val }
+                                ])
+                            }
+                            options={eventOrganizers.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(item?.avatar)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
             },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
+
         {
             title: "Ảnh",
             dataIndex: 'image',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
@@ -103,35 +225,140 @@ export default function Activity() {
             width: 200
         },
         {
-            title: 'Danh mục',
-            dataIndex: 'category',
+            title: 'Thông tin chi tiết',
+            dataIndex: 'detail',
             render: (_text, record, _index, _action) => {
                 return (
-                    <span>{(CATEGORY_ACTIVITY as any)[record.category]}</span>
+                    <div>
+                        <p>- Danh mục: {(CATEGORY_ACTIVITY as any)[record.category]}</p>
+                        <p>- Giá trung bình: {formatCurrency(record?.avg_price?.toFixed(0))}đ</p>
+                        <p>- Số sao trung bình: {record?.avg_star?.toFixed(0)}</p>
+                        <p>- Thời gian chơi: {record?.total_time} giờ</p>
+                    </div>
                 )
             },
-            sorter: true,
-        },
-        {
-            title: 'Giá trung bình',
-            dataIndex: 'avg_price',
-            sorter: true,
-            render: (_text, record, _index, _action) => {
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
                 return (
-                    <div>{formatCurrency(record?.avg_price)}đ</div>
-                )
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Danh mục"
+                            allowClear
+                            value={value.category}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, category: val }
+                                ])
+                            }
+                            options={Object.entries(CATEGORY_ACTIVITY).map(([key, val]) => {
+                                return {
+                                    label: val,
+                                    value: key
+                                }
+                            })}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Giá trung bình từ"
+                            type="number"
+                            value={value.min_avg_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_avg_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Giá trung bình đến"
+                            type="number"
+                            value={value.max_avg_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_avg_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Số sao trung bình từ"
+                            type="number"
+                            value={value.min_avg_star}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_avg_star: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số sao trung bình đến"
+                            type="number"
+                            value={value.max_avg_star}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_avg_star: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Thời gian chơi từ"
+                            type="number"
+                            value={value.min_total_time}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_total_time: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Thời gian chơi đến"
+                            type="number"
+                            value={value.max_total_time}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_total_time: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
             },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
         },
-        {
-            title: 'Sao trung bình',
-            dataIndex: 'avg_star',
-            sorter: true,
-        },
-        {
-            title: 'Tổng số giờ chơi',
-            dataIndex: 'total_time',
-            sorter: true,
-        },
+
         {
             title: "Ngày tạo",
             dataIndex: 'created_at',
@@ -194,6 +421,43 @@ export default function Activity() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+
+        if (_filter?.city?.[0]?.city_id) {
+            temp += `&city_id=${_filter?.city?.[0]?.city_id}`
+        }
+
+        if (_filter?.event_organizer?.[0]?.event_organizer_id) {
+            temp += `&event_organizer_id=${_filter?.event_organizer?.[0]?.event_organizer_id}`
+        }
+
+        if (_filter?.detail?.[0]?.category) {
+            temp += `&category=${_filter?.detail?.[0]?.category}`
+        }
+
+        if (_filter?.detail?.[0]?.min_avg_price) {
+            temp += `&min_avg_price=${_filter?.detail?.[0]?.min_avg_price}`
+        }
+
+        if (_filter?.detail?.[0]?.max_avg_price) {
+            temp += `&max_avg_price=${_filter?.detail?.[0]?.max_avg_price}`
+        }
+
+        if (_filter?.detail?.[0]?.min_avg_star) {
+            temp += `&min_avg_star=${_filter?.detail?.[0]?.min_avg_star}`
+        }
+
+        if (_filter?.detail?.[0]?.max_avg_star) {
+            temp += `&max_avg_star=${_filter?.detail?.[0]?.max_avg_star}`
+        }
+
+        if (_filter?.detail?.[0]?.min_total_time) {
+            temp += `&min_total_time=${_filter?.detail?.[0]?.min_total_time}`
+        }
+
+        if (_filter?.detail?.[0]?.max_total_time) {
+            temp += `&max_total_time=${_filter?.detail?.[0]?.max_total_time}`
+        }
+
         if (clone.name) {
             temp += `&name=${clone.name}`
         }
@@ -204,7 +468,15 @@ export default function Activity() {
             temp += `&event_organizer_id=${user.id}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }

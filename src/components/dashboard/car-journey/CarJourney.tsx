@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Space, Steps } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Select, Space, Steps } from "antd";
 import { EditOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import DataTable from "../../antd/Table";
 import { fetchPayment } from "@/redux/slice/paymentSlide";
-import { SERVICE_TYPE } from "@/constants/booking";
-import { getUserAvatar } from "@/utils/imageUrl";
+import { CAR_BOOKING_STATUS_VI, SERVICE_TYPE } from "@/constants/booking";
+import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import { haversine } from "@/utils/googleMap";
 import { ROLE } from "@/constants/role";
 import { Icon } from "leaflet";
@@ -19,6 +19,8 @@ import markerImg from "/images/google-map/marker.webp";
 import ModalCarJourney from "./ModalCarJourney";
 import dayjs from "dayjs";
 import { PAYMENT_STATUS } from "@/constants/payment";
+import { callFetchCar, callFetchUser } from "@/config/api";
+import _ from "lodash";
 
 export default function CarJourney() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -33,6 +35,35 @@ export default function CarJourney() {
     const payments = useAppSelector(state => state.payment.data);
     const dispatch = useAppDispatch();
 
+    const [drivers, setDrivers] = useState([])
+    const [customer, setCustomer] = useState([])
+    const [cars, setCars] = useState([])
+
+    const handleGetUser = async (query: string, type: string) => {
+        const res: any = await callFetchUser(query)
+        if (res.isSuccess) {
+            if (type === ROLE.DRIVER) {
+                setDrivers(res.data)
+            }
+            else if (type === ROLE.CUSTOMER) {
+                setCustomer(res.data)
+            }
+        }
+    }
+
+    const handleGetCar = async (query: string) => {
+        const res: any = await callFetchCar(query)
+        if (res.isSuccess) {
+            setCars(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetUser(`current=1&pageSize=1000&role=${ROLE.DRIVER}`, ROLE.DRIVER)
+        handleGetUser(`current=1&pageSize=1000&role=${ROLE.CUSTOMER}`, ROLE.CUSTOMER)
+        handleGetCar(`current=1&pageSize=1000`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -42,11 +73,11 @@ export default function CarJourney() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Vị trí",
-            dataIndex: 'method',
-            sorter: true,
+            dataIndex: 'driver_location',
             render: (_text, record, _index, _action) => {
                 const car_booking = record?.booking?.car_detail?.[0]
 
@@ -164,12 +195,95 @@ export default function CarJourney() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Tài xế"
+                            allowClear
+                            value={value.driver_id}
+                            onChange={async (val: any) => {
+                                setSelectedKeys([
+                                    { ...value, driver_id: val }
+                                ])
+                                if (val) {
+                                    await handleGetCar(`current=1&pageSize=1000&user_id=${val}`)
+                                }
+                                else {
+                                    await handleGetCar(`current=1&pageSize=1000`)
+                                }
+                            }}
+                            options={drivers.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(item?.avatar)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+                        <Select
+                            placeholder="Xe taxi"
+                            allowClear
+                            value={value.car_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, car_id: val }
+                                ])
+                            }
+                            options={cars.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getImage(item?.image)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px] font-semibold">{`${item?.name}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
             width: 300
         },
         {
             title: "Hành trình",
             dataIndex: 'journey',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 const car_booking = record?.booking?.car_detail?.[0]
 
@@ -231,6 +345,78 @@ export default function CarJourney() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Khách hàng"
+                            allowClear
+                            value={value.booking__user_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, booking__user_id: val }
+                                ])
+                            }
+                            options={customer.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(item?.avatar)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+                        <Select
+                            placeholder="Trạng thái"
+                            allowClear
+                            value={value.car_booking_status}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, car_booking_status: val }
+                                ])
+                            }
+                            options={Object.entries(CAR_BOOKING_STATUS_VI).map(([key, val]) => {
+                                return {
+                                    label: val,
+                                    value: key
+                                }
+                            })}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
         },
         {
 
@@ -266,8 +452,19 @@ export default function CarJourney() {
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
         temp += `&booking__service_type=${SERVICE_TYPE.CAR}`
-        if (clone.transaction_id) {
-            temp += `&transaction_id=${clone.transaction_id}`
+
+        if (_filter?.driver_location?.[0]?.driver_id) {
+            temp += `&driver_id=${_filter?.driver_location?.[0]?.driver_id}`
+        }
+        if (_filter?.driver_location?.[0]?.car_id) {
+            temp += `&car_id=${_filter?.driver_location?.[0]?.car_id}`
+        }
+
+        if (_filter?.journey?.[0]?.booking__user_id) {
+            temp += `&booking__user_id=${_filter?.journey?.[0]?.booking__user_id}`
+        }
+        if (_filter?.journey?.[0]?.car_booking_status) {
+            temp += `&car_booking_status=${_filter?.journey?.[0]?.car_booking_status}`
         }
 
         if (user.role === ROLE.DRIVER) {
@@ -275,6 +472,16 @@ export default function CarJourney() {
         }
 
         temp += `&status=${PAYMENT_STATUS.SUCCESS}`
+
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }

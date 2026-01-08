@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteCar } from "../../../config/api";
+import { callDeleteCar, callFetchUser } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { getUserAvatar } from "@/utils/imageUrl";
 import { fetchCar } from "@/redux/slice/carSlide";
@@ -15,6 +15,7 @@ import ModalCar from "./ModalCar";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
+import _ from "lodash";
 export default function Car() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -26,6 +27,8 @@ export default function Car() {
     const meta = useAppSelector(state => state.car.meta);
     const cars = useAppSelector(state => state.car.data);
     const dispatch = useAppDispatch();
+
+    const [users, setUsers] = useState([])
 
     const handleDeleteCar = async (id: number | undefined) => {
         if (id) {
@@ -43,6 +46,17 @@ export default function Car() {
         }
     }
 
+    const handleGetUser = async (query: string) => {
+        const res: any = await callFetchUser(query)
+        if (res.isSuccess) {
+            setUsers(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetUser(`current=1&pageSize=1000&role=${ROLE.DRIVER}`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -52,6 +66,7 @@ export default function Car() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Tên xe",
@@ -73,7 +88,6 @@ export default function Car() {
         {
             title: "Ảnh",
             dataIndex: 'image',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <img src={`${import.meta.env.VITE_BE_URL}${record.image}`} />
@@ -86,7 +100,6 @@ export default function Car() {
         {
             title: "Tài xế",
             dataIndex: 'user',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     record?.user ?
@@ -102,37 +115,229 @@ export default function Car() {
                         </div> : <div></div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Tài xế"
+                            allowClear
+                            value={value.user_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, user_id: val }
+                                ])
+                            }
+                            options={users.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(item?.avatar)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
             hideInSearch: true,
             width: 150
         },
         {
-            title: 'Sao trung bình',
-            dataIndex: 'avg_star',
-            sorter: true,
-        },
-        {
-            title: 'Giá mỗi km',
-            dataIndex: 'price_per_km',
-            sorter: true,
+            title: 'Đại lượng',
+            dataIndex: 'val',
             render: (_text, record, _index, _action) => {
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{formatCurrency(record.price_per_km)}đ</p>
+                    <div>
+                        <p>Giá mỗi km: {formatCurrency(record.price_per_km)}đ</p>
+                        <p>Tốc độ trung bình: {record.avg_speed} km/h</p>
+                        <p>Sức chứa tối đa: {record.capacity} người</p>
+                        <p>Số hành lý tối đa: {record.luggage}</p>
+                        <p>Số sao trung bình: {record.avg_star}</p>
                     </div>
                 )
             },
-        },
-        {
-            title: 'Tốc độ trung bình',
-            dataIndex: 'avg_speed',
-            sorter: true,
-            render: (_text, record, _index, _action) => {
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
                 return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <p>{record.avg_speed} km/h</p>
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Giá mỗi km từ"
+                            type="number"
+                            value={value.min_price_per_km}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_price_per_km: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Giá mỗi km đến"
+                            type="number"
+                            value={value.max_price_per_km}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_price_per_km: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Tốc độ trung bình từ"
+                            type="number"
+                            value={value.min_avg_speed}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_avg_speed: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Tốc độ trung bình đến"
+                            type="number"
+                            value={value.max_avg_speed}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_avg_speed: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Sức chứa tối đa từ"
+                            type="number"
+                            value={value.min_capacity}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_capacity: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Sức chứa tối đa đến"
+                            type="number"
+                            value={value.max_capacity}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_capacity: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Số hành lý tối đa từ"
+                            type="number"
+                            value={value.min_luggage}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_luggage: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số hành lý tối đa đến"
+                            type="number"
+                            value={value.max_luggage}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_luggage: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Số sao trung bình từ"
+                            type="number"
+                            value={value.min_avg_star}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_avg_star: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số sao trung bình đến"
+                            type="number"
+                            value={value.max_avg_star}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_avg_star: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
                     </div>
-                )
+                );
             },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
         },
         {
             title: "Ngày tạo",
@@ -196,6 +401,51 @@ export default function Car() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+
+        if (_filter?.user?.[0]?.user_id) {
+            temp += `&user_id=${_filter?.user?.[0]?.user_id}`
+        }
+
+        if (_filter?.val?.[0]?.min_avg_star) {
+            temp += `&min_avg_star=${_filter?.val?.[0]?.min_avg_star}`
+        }
+
+        if (_filter?.val?.[0]?.max_avg_star) {
+            temp += `&max_avg_star=${_filter?.val?.[0]?.max_avg_star}`
+        }
+
+        if (_filter?.val?.[0]?.min_price_per_km) {
+            temp += `&min_price_per_km=${_filter?.val?.[0]?.min_price_per_km}`
+        }
+
+        if (_filter?.val?.[0]?.max_price_per_km) {
+            temp += `&max_price_per_km=${_filter?.val?.[0]?.max_price_per_km}`
+        }
+
+        if (_filter?.val?.[0]?.min_avg_speed) {
+            temp += `&min_avg_speed=${_filter?.val?.[0]?.min_avg_speed}`
+        }
+
+        if (_filter?.val?.[0]?.max_avg_speed) {
+            temp += `&max_avg_speed=${_filter?.val?.[0]?.max_avg_speed}`
+        }
+
+        if (_filter?.val?.[0]?.min_capacity) {
+            temp += `&min_capacity=${_filter?.val?.[0]?.min_capacity}`
+        }
+
+        if (_filter?.val?.[0]?.max_capacity) {
+            temp += `&max_capacity=${_filter?.val?.[0]?.max_capacity}`
+        }
+
+        if (_filter?.val?.[0]?.min_luggage) {
+            temp += `&min_luggage=${_filter?.val?.[0]?.min_luggage}`
+        }
+
+        if (_filter?.val?.[0]?.max_luggage) {
+            temp += `&max_luggage=${_filter?.val?.[0]?.max_luggage}`
+        }
+
         if (clone.name) {
             temp += `&name=${clone.name}`
         }
@@ -206,7 +456,15 @@ export default function Car() {
             temp += `&user_id=${user.id}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }
