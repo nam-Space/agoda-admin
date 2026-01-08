@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Popconfirm, Select, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeleteActivityPackage } from "../../../config/api";
+import { callDeleteActivityPackage, callFetchActivity } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import ModalActivityPackage from "./ModalActivityPackage";
 import { fetchActivityPackage } from "@/redux/slice/activityPackageSlide";
 import { getImage } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
+import _ from "lodash";
 export default function ActivityPackage() {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
@@ -25,6 +26,8 @@ export default function ActivityPackage() {
     const meta = useAppSelector(state => state.activityPackage.meta);
     const cities = useAppSelector(state => state.activityPackage.data);
     const dispatch = useAppDispatch();
+
+    const [activities, setActivities] = useState([])
 
     const handleDeleteActivityPackage = async (id: number | undefined) => {
         if (id) {
@@ -42,6 +45,17 @@ export default function ActivityPackage() {
         }
     }
 
+    const handleGetActivity = async (query: string) => {
+        const res: any = await callFetchActivity(query)
+        if (res.isSuccess) {
+            setActivities(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetActivity(`current=1&pageSize=1000`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -51,15 +65,13 @@ export default function ActivityPackage() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Hoạt động",
             dataIndex: 'activity',
-            sorter: true,
-            hideInSearch: true,
             render: (_text, record, _index, _action) => {
                 return (
-                    // <div>{record?.activity?.name}</div>
                     <div className="flex items-center gap-[10px]">
                         <img
                             src={getImage(record?.activity?.images?.[0]?.image)}
@@ -71,6 +83,60 @@ export default function ActivityPackage() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Hoạt động"
+                            allowClear
+                            value={value.activity_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, activity_id: val }
+                                ])
+                            }
+                            options={activities.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getImage(item?.images?.[0]?.image)}
+                                        className="w-[70px] h-[50px] object-cover"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.name}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Tên gói của hoạt động",
@@ -140,6 +206,11 @@ export default function ActivityPackage() {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
+
+        if (_filter?.activity?.[0]?.activity_id) {
+            temp += `&activity_id=${_filter?.activity?.[0]?.activity_id}`
+        }
+
         if (clone.name) {
             temp += `&name=${clone.name}`
         }
@@ -150,7 +221,15 @@ export default function ActivityPackage() {
             temp += `&event_organizer_id=${user.id}`
         }
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }

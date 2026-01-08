@@ -255,7 +255,6 @@ export default function Hotel() {
         {
             title: 'Giá trị',
             dataIndex: 'avg',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div >

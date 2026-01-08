@@ -66,12 +66,14 @@ const ModalActivityDateDetail = (props: IProps) => {
                                         {dayjs(activityDate?.date_launch).format("YYYY-MM-DD")}
                                     </span>
                                 </p>
-
-                                <div className="mt-[10px] grid grid-cols-2 gap-y-[6px] text-[14px]">
-                                    {/* <p>- Ngày tổ chức: {dayjs(activityDate?.date_launch).format("YYYY-MM-DD")}</p> */}
-                                    <p>- Tối đa {activityDate?.adult_quantity} người lớn</p>
-                                    <p>- Tối đa {activityDate?.child_quantity} trẻ em</p>
-                                </div>
+                                <p>
+                                    <strong>Số lượng khách tối đa:</strong>{" "}
+                                    <span className="text-pink-600 font-bold text-[18px]">{(activityDate?.max_participants)}</span>
+                                </p>
+                                <p>
+                                    <strong>Số lượng khách khả dụng:</strong>{" "}
+                                    <span className="text-green-600 font-bold text-[18px]">{(activityDate?.participants_available)}</span>
+                                </p>
                             </div>
                         </div>
                     </div>

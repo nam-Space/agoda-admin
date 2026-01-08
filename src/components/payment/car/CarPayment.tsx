@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useRef, useState } from "react";
-import { Button, Popconfirm, Space, Tag } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input, Popconfirm, Select, Space, Tag } from "antd";
 import { CarOutlined, DeleteOutlined, EditOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { callDeletePayment } from "../../../config/api";
+import { callDeletePayment, callFetchCar, callFetchUser } from "../../../config/api";
 import DataTable from "../../antd/Table";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { PAYMENT_METHOD_VI, PAYMENT_STATUS_COLOR, PAYMENT_STATUS_VI } from "@/constants/payment";
@@ -18,6 +18,7 @@ import ModalCarPayment from "./ModalCarPayment";
 import { haversine } from "@/utils/googleMap";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 export default function CarPayment() {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -31,6 +32,9 @@ export default function CarPayment() {
     const meta = useAppSelector(state => state.payment.meta);
     const payments = useAppSelector(state => state.payment.data);
     const dispatch = useAppDispatch();
+
+    const [customers, setCustomers] = useState([])
+    const [cars, setCars] = useState([])
 
     const handleDeletePayment = async (id: number | undefined) => {
         if (id) {
@@ -48,6 +52,25 @@ export default function CarPayment() {
         }
     }
 
+    const handleGetUser = async (query: string) => {
+        const res: any = await callFetchUser(query)
+        if (res.isSuccess) {
+            setCustomers(res.data)
+        }
+    }
+
+    const handleGetCar = async (query: string) => {
+        const res: any = await callFetchCar(query)
+        if (res.isSuccess) {
+            setCars(res.data)
+        }
+    }
+
+    useEffect(() => {
+        handleGetUser(`current=1&pageSize=1000`)
+        handleGetCar(`current=1&pageSize=1000`)
+    }, [])
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -57,11 +80,12 @@ export default function CarPayment() {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Mã code",
-            dataIndex: 'booking_code',
-            hideInSearch: true,
+            dataIndex: 'booking__booking_code',
+            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="break-all">{record?.booking?.booking_code}</div>
@@ -71,7 +95,7 @@ export default function CarPayment() {
         {
             title: "Mã giao dịch",
             dataIndex: 'transaction_id',
-            hideInSearch: true,
+            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="w-[120px] break-all">{record?.transaction_id}</div>
@@ -81,7 +105,6 @@ export default function CarPayment() {
         {
             title: "Thông tin khách hàng",
             dataIndex: 'method',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div>
@@ -104,11 +127,65 @@ export default function CarPayment() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Khách hàng"
+                            allowClear
+                            value={value.booking__user_id}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, booking__user_id: val }
+                                ])
+                            }
+                            options={customers.map((item: any) => ({
+                                label: <div className="flex items-center gap-[10px]">
+                                    <img
+                                        src={getUserAvatar(item?.avatar)}
+                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                    />
+                                    <div>
+                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true
         },
         {
             title: "Thông tin đơn hàng",
-            dataIndex: 'method',
-            sorter: true,
+            dataIndex: 'order',
             render: (_text, record, _index, _action) => {
                 const car_booking = record?.booking?.car_detail?.[0]
                 const distance = haversine(
@@ -207,12 +284,74 @@ export default function CarPayment() {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Xe taxi"
+                            allowClear
+                            value={value.car_id}
+                            onChange={async (val: any) => {
+                                setSelectedKeys([{ ...value, car_id: val }])
+
+                            }}
+                            options={cars.map((item: any) => ({
+                                label: <div className="flex gap-3">
+                                    <img
+                                        src={`${import.meta.env.VITE_BE_URL}${item?.image}`}
+                                        alt={item.name}
+                                        width={60}
+                                        height={40}
+                                        className="object-contain"
+                                    />
+                                    <div>
+                                        <div className="font-medium text-sm">
+                                            {
+                                                item
+                                                    ?.name
+                                            }
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {
+                                                item
+                                                    ?.description
+                                            }
+                                        </div>
+                                    </div>
+                                </div>,
+                                value: item.id,
+                            }))}
+                            style={{ width: "100%", marginBottom: 8, height: 60 }}
+                        />
+
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
         },
         {
             title: "Giao dịch",
             dataIndex: 'transaction',
-            sorter: true,
-            hideInSearch: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div>
@@ -220,12 +359,132 @@ export default function CarPayment() {
                             {PAYMENT_STATUS_VI[record.status]}
                         </Tag>
                         <p>- Phương thức: <span className="font-bold">{PAYMENT_METHOD_VI[record.method]}</span></p>
-                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount)}đ</span></p>
-                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount)}đ</span></p>
-                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price)}đ</span></p>
+                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount?.toFixed(0))}đ</span></p>
+                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount?.toFixed(0))}đ</span></p>
+                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price?.toFixed(0))}đ</span></p>
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Select
+                            placeholder="Trạng thái"
+                            allowClear
+                            value={value.status}
+                            onChange={(val: any) =>
+                                setSelectedKeys([
+                                    { ...value, status: val }
+                                ])
+                            }
+                            options={Object.entries(PAYMENT_STATUS_VI).map(([key, val]) => {
+                                return {
+                                    label: val,
+                                    value: key
+                                }
+                            })}
+                            style={{ width: "100%", marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Tổng tiền từ"
+                            type="number"
+                            value={value.min_total_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_total_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Tổng tiền đến"
+                            type="number"
+                            value={value.max_total_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_total_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Tiền giảm giá từ"
+                            type="number"
+                            value={value.min_discount_amount}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_discount_amount: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Tiền giảm giá đến"
+                            type="number"
+                            value={value.max_discount_amount}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_discount_amount: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Thành tiền từ"
+                            type="number"
+                            value={value.min_final_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_final_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Thành tiền đến"
+                            type="number"
+                            value={value.max_final_price}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_final_price: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
             width: 200
         },
         {
@@ -291,12 +550,57 @@ export default function CarPayment() {
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
         temp += `&booking__service_type=${SERVICE_TYPE.CAR}`
+
+        if (_filter?.customer?.[0]?.booking__user_id) {
+            temp += `&booking__user_id=${_filter?.customer?.[0]?.booking__user_id}`
+        }
+
+        if (_filter?.order?.[0]?.car_id) {
+            temp += `&car_id=${_filter?.order?.[0]?.car_id}`
+        }
+
+        if (clone.booking__booking_code) {
+            temp += `&booking__booking_code=${clone.booking__booking_code}`
+        }
+
         if (clone.transaction_id) {
             temp += `&transaction_id=${clone.transaction_id}`
         }
 
+        if (_filter?.transaction?.[0]?.status) {
+            temp += `&status=${_filter?.transaction?.[0]?.status}`
+        }
+        if (_filter?.transaction?.[0]?.min_total_price) {
+            temp += `&min_total_price=${_filter?.transaction?.[0]?.min_total_price}`
+        }
+        if (_filter?.transaction?.[0]?.max_total_price) {
+            temp += `&max_total_price=${_filter?.transaction?.[0]?.max_total_price}`
+        }
+        if (_filter?.transaction?.[0]?.min_discount_amount) {
+            temp += `&min_discount_amount=${_filter?.transaction?.[0]?.min_discount_amount}`
+        }
+        if (_filter?.transaction?.[0]?.max_discount_amount) {
+            temp += `&max_discount_amount=${_filter?.transaction?.[0]?.max_discount_amount}`
+        }
+        if (_filter?.transaction?.[0]?.min_discount_amount) {
+            temp += `&min_discount_amount=${_filter?.transaction?.[0]?.min_discount_amount}`
+        }
+        if (_filter?.transaction?.[0]?.max_discount_amount) {
+            temp += `&max_discount_amount=${_filter?.transaction?.[0]?.max_discount_amount}`
+        }
+
         if (user.role === ROLE.DRIVER) {
             temp += `&driver_id=${user.id}`
+        }
+
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
         }
 
         return temp;
