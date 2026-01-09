@@ -2,8 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, ConfigProvider, Modal } from "antd";
 import vi_VN from 'antd/locale/vi_VN';
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
 import { FaHotel } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/utils/formatCurrency";
