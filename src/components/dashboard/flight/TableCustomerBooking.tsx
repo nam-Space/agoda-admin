@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ConfigProvider, Table } from "antd";
+import { ConfigProvider, Table, Tag } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import type { TableProps } from 'antd';
@@ -8,15 +8,26 @@ import { callFetchPayment } from "@/config/api";
 import vi_VN from 'antd/locale/vi_VN';
 import { getUserAvatar } from "@/utils/imageUrl";
 import { SERVICE_TYPE } from "@/constants/booking";
+import { PAYMENT_METHOD_VI, PAYMENT_STATUS_COLOR, PAYMENT_STATUS_VI } from "@/constants/payment";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface IProps {
     serviceType?: number;
+    hotelId?: number;
+    roomId?: number;
+    carId?: number;
+    airlineId?: number;
+    aircraftId?: number;
     flightId?: number;
+    activityId?: number;
+    activityPackageId?: number;
     activityDateId?: number;
+    minDate?: string | null;
+    maxDate?: string | null;
 }
 
 const TableCustomerBooking = (props: IProps) => {
-    const { serviceType, flightId, activityDateId } = props;
+    const { serviceType, hotelId, roomId, carId, airlineId, aircraftId, flightId, activityId, activityPackageId, activityDateId, minDate, maxDate } = props;
     const [payments, setPayments] = useState([])
 
     const columns: TableProps<any>['columns'] = [
@@ -90,6 +101,23 @@ const TableCustomerBooking = (props: IProps) => {
                 )
             },
         },
+        {
+            title: "Giao dịch",
+            dataIndex: 'transaction',
+            render: (_text, record) => {
+                return (
+                    <div>
+                        <Tag color={PAYMENT_STATUS_COLOR[record.status]}>
+                            {PAYMENT_STATUS_VI[record.status]}
+                        </Tag>
+                        <p>- Phương thức: <span className="font-bold">{PAYMENT_METHOD_VI[record.method]}</span></p>
+                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price?.toFixed(0) || 0)}đ</span></p>
+                    </div>
+                )
+            },
+        },
     ];
 
     const handleGetPayment = async (query: string) => {
@@ -101,14 +129,53 @@ const TableCustomerBooking = (props: IProps) => {
 
     useEffect(() => {
         let query = ``
-        if (serviceType === SERVICE_TYPE.FLIGHT && flightId) {
-            query += `&flight_id=${flightId}`
+        if (serviceType === SERVICE_TYPE.HOTEL) {
+            if (hotelId) {
+                query += `&hotel_id=${hotelId}`
+            }
+            if (roomId) {
+                query += `&room_id=${roomId}`
+            }
         }
-        if (serviceType === SERVICE_TYPE.ACTIVITY && activityDateId) {
-            query += `&activity_date_id=${activityDateId}`
+        else if (serviceType === SERVICE_TYPE.ACTIVITY) {
+            if (activityId) {
+                query += `&activity_id=${activityId}`
+            }
+            if (activityPackageId) {
+                query += `&activity_package_id=${activityPackageId}`
+            }
+            if (activityDateId) {
+                query += `&activity_date_id=${activityDateId}`
+            }
+
         }
+        if (serviceType === SERVICE_TYPE.CAR) {
+            if (carId) {
+                query += `&car_id=${carId}`
+            }
+        }
+        else if (serviceType === SERVICE_TYPE.FLIGHT) {
+            if (airlineId) {
+                query += `&airline_id=${airlineId}`
+            }
+            if (aircraftId) {
+                query += `&aircraft_id=${aircraftId}`
+            }
+            if (flightId) {
+                query += `&flight_id=${flightId}`
+            }
+
+        }
+
+        if (minDate) {
+            query += `&min_created_at=${minDate}`
+        }
+        if (maxDate) {
+            query += `&max_created_at=${maxDate}`
+        }
+
         handleGetPayment(`current=1&pageSize=1000${query}`);
-    }, [serviceType, flightId, activityDateId]);
+    }, [serviceType, hotelId, roomId, activityId, activityPackageId, activityDateId, carId, airlineId, aircraftId, flightId, minDate, maxDate]);
 
 
     return (

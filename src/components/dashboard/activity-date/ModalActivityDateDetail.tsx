@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import TableCustomerBooking from "@/components/dashboard/flight/TableCustomerBooking";
-import { SERVICE_TYPE } from "@/constants/booking";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { getImage } from "@/utils/imageUrl";
 import { Button, ConfigProvider, Modal } from "antd";
 import vi_VN from 'antd/locale/vi_VN';
 import dayjs from "dayjs";
+import ActivityDateStatistic from "./ActivityDateStatistic";
 
 interface IProps {
     activityDate?: any | null;
@@ -77,8 +76,8 @@ const ModalActivityDateDetail = (props: IProps) => {
                             </div>
                         </div>
                     </div>
+                    <ActivityDateStatistic activityDate={activityDate} />
                 </div>
-                <TableCustomerBooking serviceType={SERVICE_TYPE.ACTIVITY} activityDateId={activityDate?.id} />
             </Modal>
         </ConfigProvider>
     );

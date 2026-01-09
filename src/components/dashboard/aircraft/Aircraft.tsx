@@ -16,11 +16,21 @@ import ModalAircraft from "./ModalAircraft";
 import { AIRCRAFT_STATUS_VI } from "@/constants/airline";
 import { ROLE } from "@/constants/role";
 import _ from "lodash";
+import { HiOutlineCursorClick } from "react-icons/hi";
+import ModalAircraftDetail from "./ModalAircraftDetail";
 
-export default function Aircraft() {
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function Aircraft(props: IProps) {
+    const { canCreate, canUpdate, canDelete } = props
     const user = useAppSelector(state => state.account.user)
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
 
     const tableRef = useRef<ActionType>(null);
 
@@ -55,7 +65,17 @@ export default function Aircraft() {
     }
 
     useEffect(() => {
-        handleGetAirline(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetAirline(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            handleGetAirline(`current=1&pageSize=1000&flight_operations_staff_id=${user.id}`)
+        }
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            if (user.flight_operation_manager?.id) {
+                handleGetAirline(`current=1&pageSize=1000&flight_operations_staff_id=${user.flight_operation_manager.id}`)
+            }
+        }
     }, [])
 
     const reloadTable = () => {
@@ -73,6 +93,22 @@ export default function Aircraft() {
             title: "Mẫu",
             dataIndex: 'model',
             sorter: true,
+            render: (_text, record, _index, _action) => {
+                return (
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <div>
+                            <p className="leading-[20px]">{`${record?.model}`}</p>
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
+                        </div>
+                    </div>
+                )
+            },
         },
         {
             title: "Hãng hàng không",
@@ -323,12 +359,11 @@ export default function Aircraft() {
             },
             hideInSearch: true,
         },
-        {
-
+        ...((canUpdate || canDelete) ? [{
             title: "Hành động",
             hideInSearch: true,
             width: 50,
-            render: (_value, entity, _index, _action) => (
+            render: (_value: any, entity: any, _index: any, _action: any) => (
                 <Space>
                     <EditOutlined
                         style={{
@@ -362,7 +397,7 @@ export default function Aircraft() {
                 </Space>
             ),
 
-        },
+        }] : [{}])
     ];
 
     const buildQuery = (params: any, _sort: any, _filter: any) => {
@@ -417,6 +452,11 @@ export default function Aircraft() {
         if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
             temp += `&flight_operations_staff_id=${user.id}`
         }
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            if (user.flight_operation_manager?.id) {
+                temp += `&flight_operations_staff_id=${user.flight_operation_manager.id}`
+            }
+        }
 
         // sort
         if (_.isEmpty(_sort)) {
@@ -457,7 +497,7 @@ export default function Aircraft() {
                 rowSelection={false}
                 toolBarRender={(_action, _rows): any => {
                     return (
-                        <Button
+                        canCreate ? <Button
                             icon={<PlusOutlined />}
                             type="primary"
                             onClick={() => setOpenModal(true)}
@@ -465,7 +505,7 @@ export default function Aircraft() {
                             <span>
                                 Thêm mới
                             </span>
-                        </Button>
+                        </Button> : null
                     );
                 }}
             />
@@ -475,6 +515,11 @@ export default function Aircraft() {
                 reloadTable={reloadTable}
                 dataInit={dataInit}
                 setDataInit={setDataInit}
+            />
+            <ModalAircraftDetail
+                aircraft={dataInit}
+                isModalOpen={isModalDetailOpen}
+                setIsModalOpen={setIsModalDetailOpen}
             />
         </div>
     );

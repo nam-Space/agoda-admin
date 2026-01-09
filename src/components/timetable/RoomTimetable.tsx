@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ICitySelect } from "../ecommerce/MonthlySalesChart";
 import { ROLE } from "@/constants/role";
 import { getUserAvatar } from "@/utils/imageUrl";
-import { callFetchHotel, callFetchPayment, callFetchUser } from "@/config/api";
+import { callFetchHotel, callFetchPayment, callFetchRoomAdmin, callFetchUser } from "@/config/api";
 import { SERVICE_TYPE } from "@/constants/booking";
 import dayjs, { Dayjs } from "dayjs";
 import { Badge, Calendar, CalendarMode, CalendarProps, ConfigProvider, Popover, Spin } from "antd";
@@ -42,6 +42,12 @@ const RoomTimetable = () => {
     });
 
     const [hotel, setHotel] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
+    const [room, setRoom] = useState<ICitySelect>({
         label: "",
         value: 0,
         key: 0,
@@ -140,6 +146,48 @@ const RoomTimetable = () => {
         } else return [];
     }
 
+    async function fetchRoomList(): Promise<ICitySelect[]> {
+        let query = ``
+        if (owner.value) {
+            query = `&owner_id=${owner.value}`
+        }
+        else if (user.role === ROLE.OWNER) {
+            query = `&owner_id=${user.id}`
+        }
+        else if (user.role === ROLE.HOTEL_STAFF) {
+            if (user.manager?.id) {
+                query = `&owner_id=${user.manager.id}`
+            }
+        }
+        if (hotel.value) {
+            query += `&hotel_id=${hotel.value}`
+        }
+        const res: any = await callFetchRoomAdmin(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label: <div className="flex gap-3">
+                        <div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
+                            <img
+                                src={`${import.meta.env.VITE_BE_URL}${item?.images?.[0]?.image}`}
+                                className="w-full h-full object-cover"
+                                alt={item?.room_type}
+                            />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
+                                {item?.room_type}
+                            </h4>
+                        </div>
+                    </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleGetPayment = async (query: string) => {
         setLoading(true)
         const res: any = await callFetchPayment(query)
@@ -150,7 +198,7 @@ const RoomTimetable = () => {
     }
 
     useEffect(() => {
-        if ((owner.value || hotel.value) && firstVisibleDay && lastVisibleDay) {
+        if ((owner.value || hotel.value || room.value) && firstVisibleDay && lastVisibleDay) {
             let bossQuery = ``
             let serviceQuery = ``
             if (owner.value) {
@@ -159,9 +207,12 @@ const RoomTimetable = () => {
             if (hotel.value) {
                 serviceQuery = `&hotel_id=${hotel.value}`
             }
+            if (room.value) {
+                serviceQuery = `&room_id=${room.value}`
+            }
             handleGetPayment(`current=1&pageSize=1000${bossQuery}&booking__service_type=${SERVICE_TYPE.HOTEL}${serviceQuery}&status=${PAYMENT_STATUS.SUCCESS}&min_time_checkin_room=${firstVisibleDay.format("YYYY-MM-DD")}&max_time_checkin_room=${lastVisibleDay.format("YYYY-MM-DD")}&sort=created_at-asc`)
         }
-    }, [owner, hotel, firstVisibleDay, lastVisibleDay])
+    }, [owner, hotel, room, firstVisibleDay, lastVisibleDay])
 
     // 🔥 LẦN ĐẦU VÀO MÀN HÌNH
     useEffect(() => {
@@ -354,7 +405,7 @@ const RoomTimetable = () => {
 
     return (
         <div>
-            <div className="mt-3 grid grid-cols-2 gap-4">
+            <div className="mt-3 grid grid-cols-3 gap-4">
                 <div>
                     <label>Chủ khách sạn</label>
                     <div className="mt-2">
@@ -387,6 +438,26 @@ const RoomTimetable = () => {
                             fetchOptions={fetchHotelList}
                             onChange={(newValue: any) => {
                                 setHotel({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            className="w-full !h-[60px]"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label>Phòng</label>
+                    <div className="mt-2">
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={room}
+                            value={room}
+                            placeholder={<span>Chọn phòng</span>}
+                            fetchOptions={fetchRoomList}
+                            onChange={(newValue: any) => {
+                                setRoom({
                                     key: newValue?.key,
                                     label: newValue?.label,
                                     value: newValue?.value

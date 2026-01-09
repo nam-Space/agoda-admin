@@ -90,7 +90,7 @@ const CustomerTarget = ({ statistic, serviceType }: any) => {
                 </div>
             </div>
             <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-                Bạn đã thu về {statistic.customers[statistic.customers.length - 1]} khách hàng. {(statistic.customer_growth > 0) ? 'Cao hơn' : (statistic.customer_growth === 0 ? 'Cao bằng' : 'Thấp hơn')} {TIME_STATISTIC_VI[statistic.statistic_by]?.toLowerCase()} trước
+                Bạn đã thu về {statistic.customers[statistic.customers.length - 1] || 0} khách hàng. {(statistic.customer_growth > 0) ? 'Cao hơn' : (statistic.customer_growth === 0 ? 'Cao bằng' : 'Thấp hơn')} {TIME_STATISTIC_VI[statistic.statistic_by]?.toLowerCase()} trước
             </p>
         </div>
     )

@@ -78,8 +78,20 @@ export default function FlightPayment() {
 
     useEffect(() => {
         handleGetUser(`current=1&pageSize=1000`)
-        handleGetAirline(`current=1&pageSize=1000`)
-        handleGetFlight(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetAirline(`current=1&pageSize=1000`)
+            handleGetFlight(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            handleGetAirline(`current=1&pageSize=1000&flight_operations_staff_id=${user.id}`)
+            handleGetFlight(`current=1&pageSize=1000&flight_operations_staff_id=${user.id}`)
+        }
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            if (user.flight_operation_manager?.id) {
+                handleGetAirline(`current=1&pageSize=1000&flight_operations_staff_id=${user.flight_operation_manager.id}`)
+                handleGetFlight(`current=1&pageSize=1000&flight_operations_staff_id=${user.flight_operation_manager.id}`)
+            }
+        }
     }, [])
 
     const reloadTable = () => {
@@ -279,7 +291,22 @@ export default function FlightPayment() {
                             value={value.airline_id}
                             onChange={async (val: any) => {
                                 setSelectedKeys([{ ...value, airline_id: val }])
-
+                                if (val) {
+                                    await handleGetFlight(`current=1&pageSize=1000&airline_id=${val}`)
+                                }
+                                else {
+                                    if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+                                        await handleGetFlight(`current=1&pageSize=1000`)
+                                    }
+                                    else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+                                        await handleGetFlight(`current=1&pageSize=1000&flight_operations_staff_id=${user.id}`)
+                                    }
+                                    else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+                                        if (user.flight_operation_manager?.id) {
+                                            await handleGetFlight(`current=1&pageSize=1000&flight_operations_staff_id=${user.flight_operation_manager.id}`)
+                                        }
+                                    }
+                                }
                             }}
                             options={airlines.map((item: any) => ({
                                 label: <div className="flex items-center gap-3">
@@ -305,7 +332,7 @@ export default function FlightPayment() {
                             placeholder="Chuyến bay"
                             allowClear
                             value={value.flight_id}
-                            onChange={async (val: any) => {
+                            onChange={(val: any) => {
                                 setSelectedKeys([{ ...value, flight_id: val }])
                             }}
                             options={flights.map((item: any) => {
@@ -376,9 +403,9 @@ export default function FlightPayment() {
                             {PAYMENT_STATUS_VI[record.status]}
                         </Tag>
                         <p>- Phương thức: <span className="font-bold">{PAYMENT_METHOD_VI[record.method]}</span></p>
-                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount)}đ</span></p>
-                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount)}đ</span></p>
-                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price)}đ</span></p>
+                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price?.toFixed(0) || 0)}đ</span></p>
                     </div>
                 )
             },

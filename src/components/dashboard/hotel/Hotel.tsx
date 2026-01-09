@@ -18,7 +18,15 @@ import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalHotelDetail from "./ModalHotelDetail";
 import _ from "lodash";
 import { formatCurrency } from "@/utils/formatCurrency";
-export default function Hotel() {
+
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function Hotel(props: IProps) {
+    const { canCreate, canUpdate, canDelete } = props
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
     const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
@@ -65,8 +73,10 @@ export default function Hotel() {
     }
 
     useEffect(() => {
-        handleGetCity(`current=1&pageSize=1000`)
-        handleGetUser(`current=1&pageSize=1000&role=${ROLE.OWNER}`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetCity(`current=1&pageSize=1000`)
+            handleGetUser(`current=1&pageSize=1000&role=${ROLE.OWNER}`)
+        }
     }, [])
 
     const reloadTable = () => {
@@ -172,60 +182,62 @@ export default function Hotel() {
                     </div> : <div></div>
                 )
             },
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) ? {
+                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
 
-                const value: any = selectedKeys[0] || {};
+                    const value: any = selectedKeys[0] || {};
 
-                return (
-                    <div style={{ padding: 12, width: 280 }}>
-                        <Select
-                            placeholder="Chủ khách sạn"
-                            allowClear
-                            value={value.owner_id}
-                            onChange={(val: any) =>
-                                setSelectedKeys([
-                                    { ...value, owner_id: val }
-                                ])
-                            }
-                            options={users.map((item: any) => ({
-                                label: <div className="flex items-center gap-[10px]">
-                                    <img
-                                        src={getUserAvatar(item?.avatar)}
-                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-                                    />
-                                    <div>
-                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
-                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
-                                    </div>
-                                </div>,
-                                value: item.id,
-                            }))}
-                            style={{ width: "100%", marginBottom: 8, height: 60 }}
-                        />
+                    return (
+                        <div style={{ padding: 12, width: 280 }}>
+                            <Select
+                                placeholder="Chủ khách sạn"
+                                allowClear
+                                value={value.owner_id}
+                                onChange={(val: any) =>
+                                    setSelectedKeys([
+                                        { ...value, owner_id: val }
+                                    ])
+                                }
+                                options={users.map((item: any) => ({
+                                    label: <div className="flex items-center gap-[10px]">
+                                        <img
+                                            src={getUserAvatar(item?.avatar)}
+                                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                        />
+                                        <div>
+                                            <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                            <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                        </div>
+                                    </div>,
+                                    value: item.id,
+                                }))}
+                                style={{ width: "100%", marginBottom: 8, height: 60 }}
+                            />
 
 
-                        <Space>
-                            <Button
-                                type="primary"
-                                size="small"
-                                onClick={() => confirm()}
-                            >
-                                Tìm
-                            </Button>
-                            <Button
-                                size="small"
-                                onClick={() => {
-                                    clearFilters?.();
-                                    confirm();
-                                }}
-                            >
-                                Reset
-                            </Button>
-                        </Space>
-                    </div>
-                );
-            },
-            onFilter: () => true, // bắt buộc để Antd không filter local
+                            <Space>
+                                <Button
+                                    type="primary"
+                                    size="small"
+                                    onClick={() => confirm()}
+                                >
+                                    Tìm
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        clearFilters?.();
+                                        confirm();
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                            </Space>
+                        </div>
+                    );
+                },
+                onFilter: () => true, // bắt buộc để Antd không filter local
+            } : {}),
             hideInSearch: true
         },
         {
@@ -355,14 +367,13 @@ export default function Hotel() {
             hideInSearch: true,
             width: 100
         },
-        {
-
+        ...((canUpdate || canDelete) ? [{
             title: "Hành động",
             hideInSearch: true,
             width: 50,
-            render: (_value, entity, _index, _action) => (
+            render: (_value: any, entity: any, _index: any, _action: any) => (
                 <Space>
-                    <EditOutlined
+                    {canUpdate && <EditOutlined
                         style={{
                             fontSize: 20,
                             color: '#ffa500',
@@ -372,9 +383,9 @@ export default function Hotel() {
                             setOpenModal(true);
                             setDataInit(entity);
                         }}
-                    />
+                    />}
 
-                    <Popconfirm
+                    {canDelete && <Popconfirm
                         placement="leftTop"
                         title={"Xác nhận xóa khách sạn"}
                         description={"Bạn chắc chắn muốn xóa khách sạn"}
@@ -390,11 +401,12 @@ export default function Hotel() {
                                 }}
                             />
                         </span>
-                    </Popconfirm>
+                    </Popconfirm>}
+
                 </Space>
             ),
 
-        },
+        }] : [])
     ];
 
     const buildQuery = (params: any, _sort: any, _filter: any) => {
@@ -438,6 +450,11 @@ export default function Hotel() {
         if (user.role === ROLE.OWNER) {
             temp += `&ownerId=${user.id}`
         }
+        else if (user.role === ROLE.HOTEL_STAFF) {
+            if (user.manager?.id) {
+                temp += `&ownerId=${user.manager.id}`
+            }
+        }
 
         // sort
         if (_.isEmpty(_sort)) {
@@ -478,7 +495,7 @@ export default function Hotel() {
                 rowSelection={false}
                 toolBarRender={(_action, _rows): any => {
                     return (
-                        <Button
+                        canCreate ? <Button
                             icon={<PlusOutlined />}
                             type="primary"
                             onClick={() => setOpenModal(true)}
@@ -486,7 +503,7 @@ export default function Hotel() {
                             <span>
                                 Thêm mới
                             </span>
-                        </Button>
+                        </Button> : null
                     );
                 }}
             />

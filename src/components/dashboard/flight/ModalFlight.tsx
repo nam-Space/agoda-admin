@@ -114,6 +114,7 @@ const ModalFlight = (props: IProps) => {
         let query = ``
         if (!airline?.value) return []
         query += `&airline_id=${airline.value}`
+        query += `&is_active=${1}`
         const res: any = await callFetchAircraft(`current=1&pageSize=1000${query}`);
         if (res?.isSuccess) {
             const list = res.data;

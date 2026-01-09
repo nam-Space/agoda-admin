@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useRef, useState } from "react";
-import { Button, Popconfirm, Space } from "antd";
+import { Button, DatePicker, Input, Popconfirm, Space } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import dayjs from "dayjs";
@@ -16,6 +16,7 @@ import { fetchPromotion } from "@/redux/slice/promotionSlide";
 import ModalFlightPromotion from "./ModalFlightPromotion";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import ModalFlightPromotionDetail from "./ModalFlightPromotionDetail";
+import _ from "lodash";
 
 interface IProps {
     canCreate?: boolean;
@@ -60,12 +61,12 @@ export default function FlightPromotion(props: IProps) {
             title: "ID",
             dataIndex: 'id',
             hideInSearch: true,
+            sorter: true
         },
         {
             title: "Khuyến mãi",
-            dataIndex: 'promotion',
+            dataIndex: 'title',
             sorter: true,
-            hideInSearch: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div onClick={() => {
@@ -95,32 +96,97 @@ export default function FlightPromotion(props: IProps) {
         },
         {
             title: 'Giảm giá',
-            dataIndex: 'discount_percent',
-            sorter: true,
+            dataIndex: 'discount',
             render: (_text, record, _index, _action) => {
                 return (
-                    <div className="flex items-center gap-[10px]">
-                        {record?.discount_percent}%
+                    <div>
+                        <p>- Phần trăm: {record?.discount_percent}%</p>
+                        <p>- Số tiền giảm giá: {formatCurrency(record?.discount_amount)}đ</p>
                     </div>
                 )
             },
-        },
-        {
-            title: 'Tiền giảm giá',
-            dataIndex: 'discount_percent',
-            sorter: true,
-            render: (_text, record, _index, _action) => {
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
                 return (
-                    <div className="flex items-center gap-[10px]">
-                        {formatCurrency(record?.discount_amount)}đ
+                    <div style={{ padding: 12, width: 280 }}>
+                        <Input
+                            placeholder="Giảm giá phần trăm từ"
+                            type="number"
+                            value={value.min_discount_percent}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_discount_percent: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Giảm giá phần trăm đến"
+                            type="number"
+                            value={value.max_discount_percent}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_discount_percent: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Input
+                            placeholder="Số tiền giảm giá từ"
+                            type="number"
+                            value={value.min_discount_amount}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, min_discount_amount: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+
+                        <Input
+                            placeholder="Số tiền giảm giá đến"
+                            type="number"
+                            value={value.max_discount_amount}
+                            onChange={(e) =>
+                                setSelectedKeys([
+                                    { ...value, max_discount_amount: e.target.value }
+                                ])
+                            }
+                            onPressEnter={confirm as any}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
                     </div>
-                )
+                );
             },
+            onFilter: () => true, // bắt buộc để Antd không filter local
+            hideInSearch: true,
         },
         {
             title: 'Trạng thái',
             dataIndex: 'is_active',
-            sorter: true,
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
@@ -128,11 +194,11 @@ export default function FlightPromotion(props: IProps) {
                     </div>
                 )
             },
+            valueEnum: PROMOTION_STATUS_VI
         },
         {
             title: "Thời gian",
-            dataIndex: 'created_at',
-            sorter: true,
+            dataIndex: 'time',
             render: (_text, record, _index, _action) => {
                 return (
                     <div className="flex items-center gap-[10px]">
@@ -144,6 +210,79 @@ export default function FlightPromotion(props: IProps) {
                     </div>
                 )
             },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const value: any = selectedKeys[0] || {};
+
+                return (
+                    <div style={{ padding: 12, width: 280 }}>
+                        <DatePicker
+                            placeholder="Ngày bắt đầu từ"
+                            showTime
+                            value={value.min_start_date ? dayjs(value.min_start_date) : null}
+                            onChange={(date, _dateString) => {
+                                setSelectedKeys([
+                                    { ...value, min_start_date: date ? dayjs(date) : null }
+                                ])
+
+                            }}
+                            style={{ marginBottom: 8, width: '100%' }}
+                        />
+                        <DatePicker
+                            placeholder="Ngày bắt đầu đến"
+                            showTime
+                            value={value.max_start_date ? dayjs(value.max_start_date) : null}
+                            onChange={(date, _dateString) => {
+                                setSelectedKeys([
+                                    { ...value, max_start_date: date ? dayjs(date) : null }
+                                ])
+
+                            }}
+                            style={{ marginBottom: 8, width: '100%' }}
+                        />
+                        <DatePicker
+                            placeholder="Ngày kết thúc từ"
+                            showTime
+                            value={value.min_end_date ? dayjs(value.min_end_date) : null}
+                            onChange={(date, _dateString) => {
+                                setSelectedKeys([
+                                    { ...value, min_end_date: date ? dayjs(date) : null }
+                                ])
+                            }}
+                            style={{ marginBottom: 8, width: '100%' }}
+                        />
+                        <DatePicker
+                            placeholder="Ngày kết thúc đến"
+                            showTime
+                            value={value.max_end_date ? dayjs(value.max_end_date) : null}
+                            onChange={(date, _dateString) => {
+                                setSelectedKeys([
+                                    { ...value, max_end_date: date ? dayjs(date) : null }
+                                ])
+                            }}
+                            style={{ marginBottom: 8, width: '100%' }}
+                        />
+                        <Space>
+                            <Button
+                                type="primary"
+                                size="small"
+                                onClick={() => confirm()}
+                            >
+                                Tìm
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            onFilter: () => true, // bắt buộc để Antd không filter local
             hideInSearch: true,
         },
         ...((canUpdate || canDelete) ? [{
@@ -196,15 +335,53 @@ export default function FlightPromotion(props: IProps) {
 
         temp += `current=${clone.currentPage}`
         temp += `&pageSize=${clone.limit}`
-        if (clone.name) {
-            temp += `&name=${clone.name}`
+        if (_filter?.discount?.[0]?.min_discount_percent) {
+            temp += `&min_discount_percent=${_filter?.discount?.[0]?.min_discount_percent}`
+        }
+        if (_filter?.discount?.[0]?.max_discount_percent) {
+            temp += `&max_discount_percent=${_filter?.discount?.[0]?.max_discount_percent}`
+        }
+
+        if (_filter?.discount?.[0]?.min_discount_amount) {
+            temp += `&min_discount_amount=${_filter?.discount?.[0]?.min_discount_amount}`
+        }
+        if (_filter?.discount?.[0]?.max_discount_amount) {
+            temp += `&max_discount_amount=${_filter?.discount?.[0]?.max_discount_amount}`
+        }
+
+        if (_filter?.time?.[0]?.min_start_date) {
+            temp += `&min_start_date=${dayjs(_filter.time[0].min_start_date).format("YYYY-MM-DD HH:mm:ss")}`
+        }
+        if (_filter?.time?.[0]?.max_start_date) {
+            temp += `&max_start_date=${dayjs(_filter.time[0].max_start_date).format("YYYY-MM-DD HH:mm:ss")}`
+        }
+        if (_filter?.time?.[0]?.min_end_date) {
+            temp += `&min_end_date=${dayjs(_filter.time[0].min_end_date).format("YYYY-MM-DD HH:mm:ss")}`
+        }
+        if (_filter?.time?.[0]?.max_end_date) {
+            temp += `&max_end_date=${dayjs(_filter.time[0].max_end_date).format("YYYY-MM-DD HH:mm:ss")}`
+        }
+
+        if (clone.title) {
+            temp += `&title=${clone.title}`
         }
         if (clone.description) {
             temp += `&description=${clone.description}`
         }
+        if (clone.is_active) {
+            temp += `&is_active=${clone.is_active === "true" ? 1 : 0}`
+        }
         temp += `&promotion_type=${PROMOTION_TYPE.FLIGHT}`
 
-        temp += `&sort=id-desc`
+        // sort
+        if (_.isEmpty(_sort)) {
+            temp += `&sort=id-desc`
+        }
+        else {
+            Object.entries(_sort).map(([key, val]) => {
+                temp += `&sort=${key}-${val === "ascend" ? "asc" : "desc"}`
+            })
+        }
 
         return temp;
     }

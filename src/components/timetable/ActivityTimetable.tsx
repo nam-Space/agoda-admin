@@ -2,7 +2,7 @@
 import { useAppSelector } from "@/redux/hooks";
 import { ICitySelect } from "../ecommerce/MonthlySalesChart";
 import { useEffect, useRef, useState } from "react";
-import { callFetchActivity, callFetchActivityDate, callFetchUser } from "@/config/api";
+import { callFetchActivity, callFetchActivityDate, callFetchActivityPackage, callFetchUser } from "@/config/api";
 import { ROLE } from "@/constants/role";
 import { getImage, getUserAvatar } from "@/utils/imageUrl";
 import dayjs, { Dayjs } from "dayjs";
@@ -34,6 +34,12 @@ const ActivityTimetable = () => {
     });
 
     const [activity, setActivity] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
+    const [activityPackage, setActivityPackage] = useState<ICitySelect>({
         label: "",
         value: 0,
         key: 0,
@@ -135,6 +141,38 @@ const ActivityTimetable = () => {
         } else return [];
     }
 
+    async function fetchActivityPackageList(): Promise<ICitySelect[]> {
+        let query = ``
+        if (eventOrganizer.value) {
+            query = `&event_organizer_id=${eventOrganizer.value}`
+        }
+        else if (user.role === ROLE.EVENT_ORGANIZER) {
+            query = `&event_organizer_id=${user.id}`
+        }
+
+        if (activity.value) {
+            query += `&activity_id=${activity.value}`
+        }
+        const res: any = await callFetchActivityPackage(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label:
+                        <div className="flex gap-3">
+                            <h4>
+                                {
+                                    item?.name
+                                }
+                            </h4>
+                        </div>,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleGetActivityDate = async (query: string) => {
         setLoading(true)
         const res: any = await callFetchActivityDate(query)
@@ -154,11 +192,14 @@ const ActivityTimetable = () => {
             // if (activity.value) {
             serviceQuery = `&activity_id=${activity.value}`
             // }
+            if (activityPackage.value) {
+                serviceQuery += `&activity_package_id=${activityPackage.value}`
+            }
             handleGetActivityDate(`current=1&pageSize=1000${bossQuery}${serviceQuery}&min_date_launch=${firstVisibleDay.format("YYYY-MM-DD")}&max_date_launch=${lastVisibleDay.format("YYYY-MM-DD")}`)
         }
 
 
-    }, [eventOrganizer, activity, firstVisibleDay, lastVisibleDay])
+    }, [eventOrganizer, activity, activityPackage, firstVisibleDay, lastVisibleDay])
 
     // 🔥 LẦN ĐẦU VÀO MÀN HÌNH
     useEffect(() => {
@@ -259,7 +300,7 @@ const ActivityTimetable = () => {
     }
     return (
         <div>
-            <div className="mt-3 grid grid-cols-2 gap-4">
+            <div className="mt-3 grid grid-cols-3 gap-4">
                 <div>
                     <label>Người tổ chức sự kiện</label>
                     <div className="mt-2">
@@ -292,6 +333,26 @@ const ActivityTimetable = () => {
                             fetchOptions={fetchActivityList}
                             onChange={(newValue: any) => {
                                 setActivity({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            className="w-full !h-[60px]"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label>Gói của hoạt động</label>
+                    <div className="mt-2">
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={activity}
+                            value={activity}
+                            placeholder={<span>Chọn gói của hoạt động</span>}
+                            fetchOptions={fetchActivityPackageList}
+                            onChange={(newValue: any) => {
+                                setActivityPackage({
                                     key: newValue?.key,
                                     label: newValue?.label,
                                     value: newValue?.value
