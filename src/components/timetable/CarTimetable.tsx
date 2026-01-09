@@ -343,7 +343,7 @@ const CarTimetable = () => {
 
     return (
         <div>
-            <div className="mt-3 grid grid-cols-2 gap-4">
+            <div className="mt-3 grid grid-cols-3 gap-4">
                 <div>
                     <label>Tài xế</label>
                     <div className="mt-2">

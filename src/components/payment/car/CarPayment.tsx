@@ -68,7 +68,12 @@ export default function CarPayment() {
 
     useEffect(() => {
         handleGetUser(`current=1&pageSize=1000`)
-        handleGetCar(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetCar(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.DRIVER) {
+            handleGetCar(`current=1&pageSize=1000&user_id=${user.id}`)
+        }
     }, [])
 
     const reloadTable = () => {

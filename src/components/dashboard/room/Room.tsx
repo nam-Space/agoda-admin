@@ -21,7 +21,14 @@ import { AVAILABLE_ROOM_VI, STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
 import { Star } from "lucide-react";
 import _ from "lodash";
 
-export default function Room() {
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function Room(props: IProps) {
+    const { canCreate, canUpdate, canDelete } = props
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
     const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
@@ -34,19 +41,7 @@ export default function Room() {
     const rooms = useAppSelector(state => state.room.data);
     const dispatch = useAppDispatch();
 
-    const [hotelState, setHotelState] = useState<{
-        data: any[];
-        page: number;
-        hasMore: boolean;
-        loading: boolean;
-        search: string;
-    }>({
-        data: [],
-        page: 1,
-        hasMore: true,
-        loading: false,
-        search: "",
-    });
+    const [hotels, setHotels] = useState([])
 
     const handleDeleteRoom = async (id: number | undefined) => {
         if (id) {
@@ -64,54 +59,25 @@ export default function Room() {
         }
     }
 
-    const PAGE_SIZE = 10;
-
-    const fetchHotels = async ({
-        page = 1,
-        search = "",
-        append = false,
-    }: {
-        page?: number;
-        search?: string;
-        append?: boolean;
-    }) => {
-        if (hotelState.loading) return;
-
-        setHotelState(prev => ({ ...prev, loading: true }));
-
-        const query = `current=${page}&pageSize=${PAGE_SIZE}${search ? `&name=${search}` : ""}`;
-        const res: any = await callFetchHotel(query);
-
-        if (res?.isSuccess) {
-            setHotelState(prev => ({
-                ...prev,
-                data: append ? [...prev.data, ...res.data] : res.data,
-                page,
-                hasMore: res.data.length === PAGE_SIZE,
-                loading: false,
-            }));
-        } else {
-            setHotelState(prev => ({ ...prev, loading: false }));
+    const handleGetHotel = async (query: string) => {
+        const res: any = await callFetchHotel(query)
+        if (res.isSuccess) {
+            setHotels(res.data)
         }
-    };
-
-    const handleHotelSearch = (value: string) => {
-        setHotelState(prev => ({
-            ...prev,
-            search: value,
-            page: 1,
-            hasMore: true,
-        }));
-
-        fetchHotels({
-            page: 1,
-            search: value,
-            append: false,
-        });
-    };
+    }
 
     useEffect(() => {
-        fetchHotels({ page: 1 });
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetHotel(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.OWNER) {
+            handleGetHotel(`current=1&pageSize=1000&ownerId=${user.id}`)
+        }
+        else if (user.role === ROLE.HOTEL_STAFF) {
+            if (user.manager?.id) {
+                handleGetHotel(`current=1&pageSize=1000&ownerId=${user.manager.id}`)
+            }
+        }
     }, [])
 
     const reloadTable = () => {
@@ -317,37 +283,17 @@ export default function Room() {
 
                 const value: any = selectedKeys[0] || {};
 
-                const handleHotelScroll = (e: React.UIEvent<HTMLDivElement>) => {
-                    const target = e.target as HTMLDivElement;
-
-                    if (
-                        target.scrollTop + target.offsetHeight >= target.scrollHeight - 20 &&
-                        hotelState.hasMore &&
-                        !hotelState.loading
-                    ) {
-                        fetchHotels({
-                            page: hotelState.page + 1,
-                            search: hotelState.search,
-                            append: true,
-                        });
-                    }
-                };
-
                 return (
                     <div style={{ padding: 12, width: 280 }}>
                         <Select
                             placeholder="Khách sạn"
                             allowClear
-                            showSearch
                             filterOption={false}
-                            loading={hotelState.loading}
-                            onSearch={handleHotelSearch}
-                            onPopupScroll={handleHotelScroll}
                             value={value.hotel_id}
                             onChange={(val: any) =>
                                 setSelectedKeys([{ ...value, hotel_id: val }])
                             }
-                            options={hotelState.data.map((item: any) => ({
+                            options={hotels.map((item: any) => ({
                                 label: (
                                     <div className="flex gap-3">
                                         <div className="w-[40px] h-[40px] rounded-lg overflow-hidden">
@@ -375,9 +321,6 @@ export default function Room() {
                                 ),
                                 value: item.id,
                             }))}
-                            notFoundContent={
-                                hotelState.loading ? "Đang tải..." : "Không có dữ liệu"
-                            }
                             style={{ width: "100%", marginBottom: 8, height: 60 }}
                         />
 
@@ -530,14 +473,13 @@ export default function Room() {
             },
             hideInSearch: true,
         },
-        {
-
+        ...((canUpdate || canDelete) ? [{
             title: "Hành động",
             hideInSearch: true,
             width: 50,
-            render: (_value, entity, _index, _action) => (
+            render: (_value: any, entity: any, _index: any, _action: any) => (
                 <Space>
-                    <EditOutlined
+                    {canUpdate && <EditOutlined
                         style={{
                             fontSize: 20,
                             color: '#ffa500',
@@ -547,9 +489,9 @@ export default function Room() {
                             setOpenModal(true);
                             setDataInit(entity);
                         }}
-                    />
+                    />}
 
-                    <Popconfirm
+                    {canDelete && <Popconfirm
                         placement="leftTop"
                         title={"Xác nhận xóa phòng"}
                         description={"Bạn chắc chắn muốn xóa phòng"}
@@ -565,11 +507,13 @@ export default function Room() {
                                 }}
                             />
                         </span>
-                    </Popconfirm>
+                    </Popconfirm>}
+
                 </Space>
             ),
 
-        },
+        }] : [])
+
     ];
 
     const buildQuery = (params: any, _sort: any, _filter: any) => {
@@ -617,6 +561,11 @@ export default function Room() {
         if (user.role === ROLE.OWNER) {
             temp += `&owner_id=${user.id} `
         }
+        else if (user.role === ROLE.HOTEL_STAFF) {
+            if (user.manager?.id) {
+                temp += `&owner_id=${user.manager.id}`
+            }
+        }
 
         // sort
         if (_.isEmpty(_sort)) {
@@ -657,7 +606,7 @@ export default function Room() {
                 rowSelection={false}
                 toolBarRender={(_action, _rows): any => {
                     return (
-                        <Button
+                        canCreate ? <Button
                             icon={<PlusOutlined />}
                             type="primary"
                             onClick={() => setOpenModal(true)}
@@ -665,7 +614,7 @@ export default function Room() {
                             <span>
                                 Thêm mới
                             </span>
-                        </Button>
+                        </Button> : null
                     );
                 }}
             />

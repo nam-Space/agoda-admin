@@ -59,9 +59,14 @@ export default function CarJourney() {
     }
 
     useEffect(() => {
-        handleGetUser(`current=1&pageSize=1000&role=${ROLE.DRIVER}`, ROLE.DRIVER)
+        if (user.role === ROLE.ADMIN) {
+            handleGetUser(`current=1&pageSize=1000&role=${ROLE.DRIVER}`, ROLE.DRIVER)
+            handleGetCar(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.DRIVER) {
+            handleGetCar(`current=1&pageSize=1000&user_id=${user.id}`)
+        }
         handleGetUser(`current=1&pageSize=1000&role=${ROLE.CUSTOMER}`, ROLE.CUSTOMER)
-        handleGetCar(`current=1&pageSize=1000`)
     }, [])
 
     const reloadTable = () => {
@@ -201,7 +206,7 @@ export default function CarJourney() {
 
                 return (
                     <div style={{ padding: 12, width: 280 }}>
-                        <Select
+                        {user.role === ROLE.ADMIN && <Select
                             placeholder="Tài xế"
                             allowClear
                             value={value.driver_id}
@@ -230,7 +235,8 @@ export default function CarJourney() {
                                 value: item.id,
                             }))}
                             style={{ width: "100%", marginBottom: 8, height: 60 }}
-                        />
+                        />}
+
 
                         <Select
                             placeholder="Xe taxi"
