@@ -16,9 +16,20 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { getImage } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
 import _ from "lodash";
-export default function ActivityDate() {
+import ModalActivityDateDetail from "./ModalActivityDateDetail";
+import { HiOutlineCursorClick } from "react-icons/hi";
+
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function ActivityDate(props: IProps) {
+    const { canCreate, canUpdate, canDelete } = props
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
 
     const user = useAppSelector(state => state.account.user)
 
@@ -81,8 +92,14 @@ export default function ActivityDate() {
     }
 
     useState(() => {
-        handleGetActivity(`current=1&pageSize=1000`)
-        handleGetActivityPackage(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetActivity(`current=1&pageSize=1000`)
+            handleGetActivityPackage(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.EVENT_ORGANIZER) {
+            handleGetActivity(`current=1&pageSize=1000&event_organizer_id=${user.id}`)
+            handleGetActivityPackage(`current=1&pageSize=1000&event_organizer_id=${user.id}`)
+        }
     })
 
     const reloadTable = () => {
@@ -101,13 +118,22 @@ export default function ActivityDate() {
             dataIndex: 'detail',
             render: (_text, record, _index, _action) => {
                 return (
-                    <div>
-                        <p>- Ngày tổ chức: {dayjs(record.date_launch).format('DD-MM-YYYY HH:mm:ss')}</p>
-                        <p>- Giá người lớn: {formatCurrency(record?.price_adult)}đ</p>
-                        <p>- Giá trẻ em: {formatCurrency(record?.price_child)}đ</p>
-                        <p>- Sức chứa tối đa: {record?.max_participants} người</p>
-                        <p>- Còn lại: {record?.participants_available} người</p>
-                    </div>
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <div>
+                            <p>- Ngày tổ chức: <span className="text-blue-light-500 font-semibold">{dayjs(record.date_launch).format('DD-MM-YYYY HH:mm:ss')}</span></p>
+                            <p>- Giá người lớn: <span className="text-green-600 font-semibold">{formatCurrency(record?.price_adult)}đ</span></p>
+                            <p>- Giá trẻ em: <span className="text-green-600 font-semibold">{formatCurrency(record?.price_child)}đ</span></p>
+                            <p>- Sức chứa tối đa: {record?.max_participants} người</p>
+                            <p>- Còn lại: {record?.participants_available} người</p>
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
+                        </div>
+                    </div >
                 )
             },
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
@@ -295,7 +321,13 @@ export default function ActivityDate() {
                                     await handleGetActivityPackage(`current=1&pageSize=1000&activity_id=${val}`)
                                 }
                                 else {
-                                    await handleGetActivityPackage(`current=1&pageSize=1000`)
+                                    if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+                                        await handleGetActivityPackage(`current=1&pageSize=1000`)
+                                    }
+                                    else if (user.role === ROLE.EVENT_ORGANIZER) {
+                                        await handleGetActivityPackage(`current=1&pageSize=1000&event_organizer_id=${user.id}`)
+                                    }
+
                                 }
                             }}
                             options={activities.map((item: any) => ({
@@ -367,14 +399,13 @@ export default function ActivityDate() {
             },
             hideInSearch: true,
         },
-        {
-
+        ...((canUpdate || canDelete) ? [{
             title: "Hành động",
             hideInSearch: true,
             width: 50,
-            render: (_value, entity, _index, _action) => (
+            render: (_value: any, entity: any, _index: any, _action: any) => (
                 <Space>
-                    <EditOutlined
+                    {canUpdate && <EditOutlined
                         style={{
                             fontSize: 20,
                             color: '#ffa500',
@@ -384,9 +415,8 @@ export default function ActivityDate() {
                             setOpenModal(true);
                             setDataInit(entity);
                         }}
-                    />
-
-                    <Popconfirm
+                    />}
+                    {canDelete && <Popconfirm
                         placement="leftTop"
                         title={"Xác nhận xóa activity date"}
                         description={"Bạn chắc chắn muốn xóa activity date"}
@@ -402,11 +432,13 @@ export default function ActivityDate() {
                                 }}
                             />
                         </span>
-                    </Popconfirm>
+                    </Popconfirm>}
+
                 </Space>
             ),
 
-        },
+        }] : [])
+
     ];
 
     const buildQuery = (params: any, _sort: any, _filter: any) => {
@@ -503,15 +535,15 @@ export default function ActivityDate() {
                         showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} bản ghi</div>) }
                     }
                 }
-                rowSelection={{
+                rowSelection={canDelete ? {
                     onChange: (_, selectedRows) => {
                         setSelectedRows(selectedRows);
                     }
-                }}
-                handleDelete={handleDeleteMultipleRow}
+                } : false}
+                handleDelete={canDelete ? handleDeleteMultipleRow : undefined}
                 toolBarRender={(_action, _rows): any => {
                     return (
-                        <Button
+                        canCreate ? <Button
                             icon={<PlusOutlined />}
                             type="primary"
                             onClick={() => setOpenModal(true)}
@@ -519,7 +551,7 @@ export default function ActivityDate() {
                             <span>
                                 Thêm mới
                             </span>
-                        </Button>
+                        </Button> : null
                     );
                 }}
             />
@@ -529,6 +561,11 @@ export default function ActivityDate() {
                 reloadTable={reloadTable}
                 dataInit={dataInit}
                 setDataInit={setDataInit}
+            />
+            <ModalActivityDateDetail
+                activityDate={dataInit}
+                isModalOpen={isModalDetailOpen}
+                setIsModalOpen={setIsModalDetailOpen}
             />
         </div>
     );

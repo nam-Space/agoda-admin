@@ -15,9 +15,20 @@ import { getImage } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
 import _ from "lodash";
-export default function ActivityPackage() {
+import { HiOutlineCursorClick } from "react-icons/hi";
+import ModalActivityPackageDetail from "./ModalActivityPackageDetail";
+
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function ActivityPackage(props: IProps) {
+    const { canCreate, canUpdate, canDelete } = props
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
     const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
@@ -53,7 +64,12 @@ export default function ActivityPackage() {
     }
 
     useEffect(() => {
-        handleGetActivity(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetActivity(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.EVENT_ORGANIZER) {
+            handleGetActivity(`current=1&pageSize=1000&event_organizer_id=${user.id}`)
+        }
     }, [])
 
     const reloadTable = () => {
@@ -142,6 +158,22 @@ export default function ActivityPackage() {
             title: "Tên gói của hoạt động",
             dataIndex: 'name',
             sorter: true,
+            render: (_text, record, _index, _action) => {
+                return (
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <div className="flex items-center gap-3">
+                            <p>{record.name}</p>
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
+                        </div>
+                    </div>
+                )
+            },
 
         },
         {
@@ -155,14 +187,13 @@ export default function ActivityPackage() {
             },
             hideInSearch: true,
         },
-        {
-
+        ...((canUpdate || canDelete) ? [{
             title: "Hành động",
             hideInSearch: true,
             width: 50,
-            render: (_value, entity, _index, _action) => (
+            render: (_value: any, entity: any, _index: any, _action: any) => (
                 <Space>
-                    <EditOutlined
+                    {canUpdate && <EditOutlined
                         style={{
                             fontSize: 20,
                             color: '#ffa500',
@@ -172,9 +203,9 @@ export default function ActivityPackage() {
                             setOpenModal(true);
                             setDataInit(entity);
                         }}
-                    />
+                    />}
 
-                    <Popconfirm
+                    {canDelete && <Popconfirm
                         placement="leftTop"
                         title={"Xác nhận xóa activity package"}
                         description={"Bạn chắc chắn muốn xóa activity package"}
@@ -190,11 +221,13 @@ export default function ActivityPackage() {
                                 }}
                             />
                         </span>
-                    </Popconfirm>
+                    </Popconfirm>}
+
                 </Space>
             ),
 
-        },
+        },] : [])
+
     ];
 
     const buildQuery = (params: any, _sort: any, _filter: any) => {
@@ -260,7 +293,7 @@ export default function ActivityPackage() {
                 rowSelection={false}
                 toolBarRender={(_action, _rows): any => {
                     return (
-                        <Button
+                        canCreate ? <Button
                             icon={<PlusOutlined />}
                             type="primary"
                             onClick={() => setOpenModal(true)}
@@ -268,7 +301,7 @@ export default function ActivityPackage() {
                             <span>
                                 Thêm mới
                             </span>
-                        </Button>
+                        </Button> : null
                     );
                 }}
             />
@@ -278,6 +311,11 @@ export default function ActivityPackage() {
                 reloadTable={reloadTable}
                 dataInit={dataInit}
                 setDataInit={setDataInit}
+            />
+            <ModalActivityPackageDetail
+                activityPackage={dataInit}
+                isModalOpen={isModalDetailOpen}
+                setIsModalOpen={setIsModalDetailOpen}
             />
         </div>
     );

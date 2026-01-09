@@ -17,9 +17,20 @@ import { getUserAvatar } from "@/utils/imageUrl";
 import { ROLE } from "@/constants/role";
 import { toast } from "react-toastify";
 import _ from "lodash";
-export default function Activity() {
+import { HiOutlineCursorClick } from "react-icons/hi";
+import ModalActivityDetail from "./ModalActivityDetail";
+
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function Activity(props: IProps) {
+    const { canCreate, canUpdate, canDelete } = props
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState(null);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
     const user = useAppSelector(state => state.account.user)
 
     const tableRef = useRef<ActionType>(null);
@@ -64,7 +75,9 @@ export default function Activity() {
 
     useEffect(() => {
         handleGetCity(`current=1&pageSize=1000`)
-        handleGetUser(`current=1&pageSize=1000&role=${ROLE.EVENT_ORGANIZER}`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetUser(`current=1&pageSize=1000&role=${ROLE.EVENT_ORGANIZER}`)
+        }
     }, [])
 
     const reloadTable = () => {
@@ -150,79 +163,85 @@ export default function Activity() {
                     </div> : <div></div>
                 )
             },
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) ? {
+                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                    const value: any = selectedKeys[0] || {};
 
-                const value: any = selectedKeys[0] || {};
-
-                return (
-                    <div style={{ padding: 12, width: 280 }}>
-                        <Select
-                            placeholder="Người tổ chức sự kiện"
-                            allowClear
-                            value={value.event_organizer_id}
-                            onChange={(val: any) =>
-                                setSelectedKeys([
-                                    { ...value, event_organizer_id: val }
-                                ])
-                            }
-                            options={eventOrganizers.map((item: any) => ({
-                                label: <div className="flex items-center gap-[10px]">
-                                    <img
-                                        src={getUserAvatar(item?.avatar)}
-                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-                                    />
-                                    <div>
-                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
-                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
-                                    </div>
-                                </div>,
-                                value: item.id,
-                            }))}
-                            style={{ width: "100%", marginBottom: 8, height: 60 }}
-                        />
+                    return (
+                        <div style={{ padding: 12, width: 280 }}>
+                            <Select
+                                placeholder="Người tổ chức sự kiện"
+                                allowClear
+                                value={value.event_organizer_id}
+                                onChange={(val: any) =>
+                                    setSelectedKeys([
+                                        { ...value, event_organizer_id: val }
+                                    ])
+                                }
+                                options={eventOrganizers.map((item: any) => ({
+                                    label: <div className="flex items-center gap-[10px]">
+                                        <img
+                                            src={getUserAvatar(item?.avatar)}
+                                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                        />
+                                        <div>
+                                            <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                            <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                        </div>
+                                    </div>,
+                                    value: item.id,
+                                }))}
+                                style={{ width: "100%", marginBottom: 8, height: 60 }}
+                            />
 
 
-                        <Space>
-                            <Button
-                                type="primary"
-                                size="small"
-                                onClick={() => confirm()}
-                            >
-                                Tìm
-                            </Button>
-                            <Button
-                                size="small"
-                                onClick={() => {
-                                    clearFilters?.();
-                                    confirm();
-                                }}
-                            >
-                                Reset
-                            </Button>
-                        </Space>
-                    </div>
-                );
-            },
-            onFilter: () => true, // bắt buộc để Antd không filter local
+                            <Space>
+                                <Button
+                                    type="primary"
+                                    size="small"
+                                    onClick={() => confirm()}
+                                >
+                                    Tìm
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        clearFilters?.();
+                                        confirm();
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                            </Space>
+                        </div>
+                    );
+                },
+                onFilter: () => true, // bắt buộc để Antd không filter local
+            } : {}),
             hideInSearch: true
-        },
-
-        {
-            title: "Ảnh",
-            dataIndex: 'image',
-            render: (_text, record, _index, _action) => {
-                return (
-                    <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} />
-                )
-            },
-            hideInSearch: true,
-            width: 150
         },
         {
             title: "Tên hoạt động",
             dataIndex: 'name',
             sorter: true,
-            width: 200
+            render: (_text, record, _index, _action) => {
+                return (
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <div className="flex items-center gap-3">
+                            <img src={`${import.meta.env.VITE_BE_URL}${record?.images?.[0]?.image}`} className="w-[100px]" />
+                            <p>{record.name}</p>
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
+                        </div>
+                    </div>
+                )
+            },
+            width: 300
         },
         {
             title: 'Thông tin chi tiết',
@@ -370,14 +389,13 @@ export default function Activity() {
             },
             hideInSearch: true,
         },
-        {
-
+        ...((canUpdate || canDelete) ? [{
             title: "Hành động",
             hideInSearch: true,
             width: 50,
-            render: (_value, entity, _index, _action) => (
+            render: (_value: any, entity: any, _index: any, _action: any) => (
                 <Space>
-                    <EditOutlined
+                    {canUpdate && <EditOutlined
                         style={{
                             fontSize: 20,
                             color: '#ffa500',
@@ -387,9 +405,9 @@ export default function Activity() {
                             setOpenModal(true);
                             setDataInit(entity);
                         }}
-                    />
+                    />}
 
-                    <Popconfirm
+                    {canDelete && <Popconfirm
                         placement="leftTop"
                         title={"Xác nhận xóa hoạt động"}
                         description={"Bạn chắc chắn muốn xóa hoạt động"}
@@ -405,11 +423,11 @@ export default function Activity() {
                                 }}
                             />
                         </span>
-                    </Popconfirm>
+                    </Popconfirm>}
+
                 </Space>
             ),
-
-        },
+        }] : [])
     ];
 
     const buildQuery = (params: any, _sort: any, _filter: any) => {
@@ -507,7 +525,7 @@ export default function Activity() {
                 rowSelection={false}
                 toolBarRender={(_action, _rows): any => {
                     return (
-                        <Button
+                        canCreate ? <Button
                             icon={<PlusOutlined />}
                             type="primary"
                             onClick={() => setOpenModal(true)}
@@ -515,7 +533,7 @@ export default function Activity() {
                             <span>
                                 Thêm mới
                             </span>
-                        </Button>
+                        </Button> : null
                     );
                 }}
             />
@@ -525,6 +543,11 @@ export default function Activity() {
                 reloadTable={reloadTable}
                 dataInit={dataInit}
                 setDataInit={setDataInit}
+            />
+            <ModalActivityDetail
+                activity={dataInit}
+                isModalOpen={isModalDetailOpen}
+                setIsModalOpen={setIsModalDetailOpen}
             />
         </div>
     );

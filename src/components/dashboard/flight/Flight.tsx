@@ -82,8 +82,20 @@ export default function Flight(props: IProps) {
     }
 
     useEffect(() => {
-        handleGetAirline(`current=1&pageSize=1000`)
-        handleGetAircraft(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetAirline(`current=1&pageSize=1000`)
+            handleGetAircraft(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            handleGetAirline(`current=1&pageSize=1000&flight_operations_staff_id=${user.id}`)
+            handleGetAircraft(`current=1&pageSize=1000&flight_operations_staff_id=${user.id}`)
+        }
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            if (user.flight_operation_manager?.id) {
+                handleGetAirline(`current=1&pageSize=1000&flight_operations_staff_id=${user.flight_operation_manager.id}`)
+                handleGetAircraft(`current=1&pageSize=1000&flight_operations_staff_id=${user.flight_operation_manager.id}`)
+            }
+        }
         handleGetAirport(`current=1&pageSize=1000`)
     }, [])
 

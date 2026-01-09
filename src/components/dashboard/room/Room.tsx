@@ -21,7 +21,14 @@ import { AVAILABLE_ROOM_VI, STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
 import { Star } from "lucide-react";
 import _ from "lodash";
 
-export default function Room() {
+interface IProps {
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+}
+
+export default function Room(props: IProps) {
+  const { canCreate, canUpdate, canDelete } = props;
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dataInit, setDataInit] = useState(null);
   const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
@@ -64,6 +71,12 @@ export default function Room() {
     }
   };
 
+  const handleGetHotel = async (query: string) => {
+    const res: any = await callFetchHotel(query);
+    if (res.isSuccess) {
+      // Hotels are now managed in hotelState
+    }
+  };
   const PAGE_SIZE = 10;
 
   const fetchHotels = async ({
@@ -112,6 +125,17 @@ export default function Room() {
     });
   };
 
+  useEffect(() => {
+    if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+      handleGetHotel(`current=1&pageSize=1000`);
+    } else if (user.role === ROLE.OWNER) {
+      handleGetHotel(`current=1&pageSize=1000&ownerId=${user.id}`);
+    } else if (user.role === ROLE.HOTEL_STAFF) {
+      if (user.manager?.id) {
+        handleGetHotel(`current=1&pageSize=1000&ownerId=${user.manager.id}`);
+      }
+    }
+  }, []);
   useEffect(() => {
     fetchHotels({ page: 1 });
   }, []);
@@ -322,7 +346,6 @@ export default function Room() {
       onFilter: () => true, // bắt buộc để Antd không filter local
       hideInSearch: true,
     },
-
     {
       title: "Khách sạn",
       dataIndex: "hotel",
@@ -569,25 +592,24 @@ export default function Room() {
       },
       hideInSearch: true,
     },
-    {
+    ...((canUpdate || canDelete) ? [{
       title: "Hành động",
       hideInSearch: true,
       width: 50,
-      render: (_value, entity, _index, _action) => (
+      render: (_value: any, entity: any, _index: any, _action: any) => (
         <Space>
-          <EditOutlined
+          {canUpdate && <EditOutlined
             style={{
               fontSize: 20,
-              color: "#ffa500",
+              color: '#ffa500',
             }}
             type=""
             onClick={() => {
               setOpenModal(true);
               setDataInit(entity);
             }}
-          />
-
-          <Popconfirm
+          />}
+          {canDelete && <Popconfirm
             placement="leftTop"
             title={"Xác nhận xóa phòng"}
             description={"Bạn chắc chắn muốn xóa phòng"}
@@ -599,14 +621,14 @@ export default function Room() {
               <DeleteOutlined
                 style={{
                   fontSize: 20,
-                  color: "#ff4d4f",
+                  color: '#ff4d4f',
                 }}
               />
             </span>
-          </Popconfirm>
+          </Popconfirm>}
         </Space>
       ),
-    },
+    }] : [])
   ];
 
   const buildQuery = (params: any, _sort: any, _filter: any) => {
@@ -657,6 +679,10 @@ export default function Room() {
     }
     if (user.role === ROLE.OWNER) {
       temp += `&owner_id=${user.id} `;
+    } else if (user.role === ROLE.HOTEL_STAFF) {
+      if (user.manager?.id) {
+        temp += `&owner_id=${user.manager.id}`;
+      }
     }
 
     // sort
@@ -693,7 +719,6 @@ export default function Room() {
           showTotal: (total, range) => {
             return (
               <div>
-                {" "}
                 {range[0]}-{range[1]} trên {total} bản ghi
               </div>
             );
@@ -701,15 +726,18 @@ export default function Room() {
         }}
         rowSelection={false}
         toolBarRender={(_action, _rows): any => {
-          return (
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              onClick={() => setOpenModal(true)}
-            >
-              <span>Thêm mới</span>
-            </Button>
-          );
+          if (canCreate) {
+            return (
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => setOpenModal(true)}
+              >
+                <span>Thêm mới</span>
+              </Button>
+            );
+          }
+          return null;
         }}
       />
       <ModalRoom

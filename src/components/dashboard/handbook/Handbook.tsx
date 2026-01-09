@@ -65,7 +65,10 @@ export default function Handbook() {
 
     useEffect(() => {
         handleGetCity(`current=1&pageSize=1000`)
-        handleGetUser(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetUser(`current=1&pageSize=1000`)
+        }
+
     }, [])
 
     const reloadTable = () => {
@@ -151,60 +154,63 @@ export default function Handbook() {
                     </div> : <div></div>
                 )
             },
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) ? {
+                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
 
-                const value: any = selectedKeys[0] || {};
+                    const value: any = selectedKeys[0] || {};
 
-                return (
-                    <div style={{ padding: 12, width: 280 }}>
-                        <Select
-                            placeholder="Tác giả"
-                            allowClear
-                            value={value.author_id}
-                            onChange={(val: any) =>
-                                setSelectedKeys([
-                                    { ...value, author_id: val }
-                                ])
-                            }
-                            options={authors.map((item: any) => ({
-                                label: <div className="flex items-center gap-[10px]">
-                                    <img
-                                        src={getUserAvatar(item?.avatar)}
-                                        className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
-                                    />
-                                    <div>
-                                        <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
-                                        <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
-                                    </div>
-                                </div>,
-                                value: item.id,
-                            }))}
-                            style={{ width: "100%", marginBottom: 8, height: 60 }}
-                        />
+                    return (
+                        <div style={{ padding: 12, width: 280 }}>
+                            <Select
+                                placeholder="Tác giả"
+                                allowClear
+                                value={value.author_id}
+                                onChange={(val: any) =>
+                                    setSelectedKeys([
+                                        { ...value, author_id: val }
+                                    ])
+                                }
+                                options={authors.map((item: any) => ({
+                                    label: <div className="flex items-center gap-[10px]">
+                                        <img
+                                            src={getUserAvatar(item?.avatar)}
+                                            className="min-w-[40px] max-w-[40px] h-[40px] object-cover rounded-[50%]"
+                                        />
+                                        <div>
+                                            <p className="leading-[20px]">{`${item?.first_name} ${item?.last_name}`}</p>
+                                            <p className="leading-[20px] text-[#929292]">{`@${item?.username}`}</p>
+                                        </div>
+                                    </div>,
+                                    value: item.id,
+                                }))}
+                                style={{ width: "100%", marginBottom: 8, height: 60 }}
+                            />
 
 
-                        <Space>
-                            <Button
-                                type="primary"
-                                size="small"
-                                onClick={() => confirm()}
-                            >
-                                Tìm
-                            </Button>
-                            <Button
-                                size="small"
-                                onClick={() => {
-                                    clearFilters?.();
-                                    confirm();
-                                }}
-                            >
-                                Reset
-                            </Button>
-                        </Space>
-                    </div>
-                );
-            },
-            onFilter: () => true, // bắt buộc để Antd không filter local
+                            <Space>
+                                <Button
+                                    type="primary"
+                                    size="small"
+                                    onClick={() => confirm()}
+                                >
+                                    Tìm
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        clearFilters?.();
+                                        confirm();
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                            </Space>
+                        </div>
+                    );
+                },
+                onFilter: () => true, // bắt buộc để Antd không filter local
+            } : {}),
+
             hideInSearch: true
         },
         {

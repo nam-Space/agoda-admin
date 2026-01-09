@@ -78,9 +78,16 @@ export default function ActivityPayment() {
     }
 
     useEffect(() => {
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetActivity(`current=1&pageSize=1000`)
+            handleGetActivityPackage(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.EVENT_ORGANIZER) {
+            handleGetActivity(`current=1&pageSize=1000&event_organizer_id=${user.id}`)
+            handleGetActivityPackage(`current=1&pageSize=1000&event_organizer_id=${user.id}`)
+        }
+
         handleGetUser(`current=1&pageSize=1000`)
-        handleGetActivity(`current=1&pageSize=1000`)
-        handleGetActivityPackage(`current=1&pageSize=1000`)
     }, [])
 
     const reloadTable = () => {
@@ -291,7 +298,13 @@ export default function ActivityPayment() {
                                     await handleGetActivityPackage(`current=1&pageSize=1000&activity_id=${val}`)
                                 }
                                 else {
-                                    await handleGetActivityPackage(`current=1&pageSize=1000`)
+                                    if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+                                        await handleGetActivityPackage(`current=1&pageSize=1000`)
+                                    }
+                                    else if (user.role === ROLE.EVENT_ORGANIZER) {
+                                        await handleGetActivityPackage(`current=1&pageSize=1000&event_organizer_id=${user.id}`)
+                                    }
+
                                 }
 
                             }}
@@ -379,9 +392,9 @@ export default function ActivityPayment() {
                             {PAYMENT_STATUS_VI[record.status]}
                         </Tag>
                         <p>- Phương thức: <span className="font-bold">{PAYMENT_METHOD_VI[record.method]}</span></p>
-                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount)}đ</span></p>
-                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount)}đ</span></p>
-                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price)}đ</span></p>
+                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price?.toFixed(0) || 0)}đ</span></p>
                     </div>
                 )
             },

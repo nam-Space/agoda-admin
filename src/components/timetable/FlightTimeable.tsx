@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ICitySelect } from "../ecommerce/MonthlySalesChart";
 import { ROLE } from "@/constants/role";
 import { getImage, getUserAvatar } from "@/utils/imageUrl";
-import { callFetchAirline, callFetchFlight, callFetchUser } from "@/config/api";
+import { callFetchAircraft, callFetchAirline, callFetchAirport, callFetchFlight, callFetchUser } from "@/config/api";
 import dayjs, { Dayjs } from "dayjs";
 import { Calendar, CalendarMode, CalendarProps, ConfigProvider, Popover, Spin } from "antd";
 import { DebounceSelect } from "../antd/DebounceSelect";
@@ -17,6 +17,11 @@ const FlightTimetable = () => {
     const [flights, setFlights] = useState([])
     const [loading, setLoading] = useState(false)
     const [airline, setAirline] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+    const [aircraft, setAircraft] = useState<ICitySelect>({
         label: "",
         value: 0,
         key: 0,
@@ -45,6 +50,17 @@ const FlightTimetable = () => {
         </div> : "",
         value: user.role === ROLE.FLIGHT_OPERATION_STAFF ? user.id : (user.role === ROLE.AIRLINE_TICKETING_STAFF ? user.flight_operation_manager?.id : 0),
         key: user.role === ROLE.FLIGHT_OPERATION_STAFF ? user.id : (user.role === ROLE.AIRLINE_TICKETING_STAFF ? user.flight_operation_manager?.id : 0),
+    });
+    const [departureAirport, setDepartureAirport] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
+    });
+
+    const [arrivalAirport, setArrivalAirport] = useState<ICitySelect>({
+        label: "",
+        value: 0,
+        key: 0,
     });
 
     const minDayRef = useRef<Dayjs | null>(null);
@@ -112,7 +128,7 @@ const FlightTimetable = () => {
             const temp = list.map((item: any) => {
                 return {
                     label:
-                        <div className="flex gap-3">
+                        <div className="flex items-center gap-3">
                             <div className="relative w-[40px] h-[40px] flex-shrink-0 rounded-lg overflow-hidden">
                                 <img
                                     src={`${import.meta.env.VITE_BE_URL}${item?.logo}`}
@@ -134,6 +150,67 @@ const FlightTimetable = () => {
         } else return [];
     }
 
+    async function fetchAircraftList(): Promise<ICitySelect[]> {
+        let query = ``
+        if (flightOperationManager.value) {
+            query = `&flight_operations_staff_id=${flightOperationManager.value}`
+        }
+        else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+            query = `&flight_operations_staff_id=${user.id}`
+        }
+        else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+            query = `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
+        }
+
+        if (airline.value) {
+            query += `&airline_id=${airline.value}`
+        }
+        const res: any = await callFetchAircraft(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label:
+                        item.model,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
+    async function fetchDepartureAirportList(): Promise<ICitySelect[]> {
+        const query = ``
+        const res: any = await callFetchAirport(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label:
+                        item.name,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
+    async function fetchArrivalAirportList(): Promise<ICitySelect[]> {
+        const query = ``
+        const res: any = await callFetchAirport(`current=1&pageSize=1000${query}`);
+        if (res?.isSuccess) {
+            const list = res.data;
+            const temp = list.map((item: any) => {
+                return {
+                    label:
+                        item.name,
+                    value: item.id
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
     const handleGetFlight = async (query: string) => {
         setLoading(true)
         const res: any = await callFetchFlight(query)
@@ -147,16 +224,25 @@ const FlightTimetable = () => {
         let bossQuery = ``
         let serviceQuery = ``
 
-        if ((flightOperationManager.value || airline.value) && firstVisibleDay && lastVisibleDay) {
+        if ((flightOperationManager.value || airline.value || aircraft.value || departureAirport.value || arrivalAirport.value) && firstVisibleDay && lastVisibleDay) {
             if (flightOperationManager.value) {
-                bossQuery = `&flight_operations_staff_id=${flightOperationManager.value}`
+                bossQuery += `&flight_operations_staff_id=${flightOperationManager.value}`
             }
             if (airline.value) {
-                serviceQuery = `&airline_id=${airline.value}`
+                serviceQuery += `&airline_id=${airline.value}`
+            }
+            if (aircraft.value) {
+                serviceQuery += `&aircraft_id=${aircraft.value}`
+            }
+            if (departureAirport.value) {
+                serviceQuery += `&departure_airport_id=${departureAirport.value}`
+            }
+            if (arrivalAirport.value) {
+                serviceQuery += `&arrival_airport_id=${arrivalAirport.value}`
             }
             handleGetFlight(`current=1&pageSize=1000&${bossQuery}${serviceQuery}&min_flight_leg_departure=${firstVisibleDay.format("YYYY-MM-DD")}&max_flight_leg_departure=${lastVisibleDay.format("YYYY-MM-DD")}`)
         }
-    }, [flightOperationManager, airline, firstVisibleDay, lastVisibleDay])
+    }, [flightOperationManager, airline, aircraft, departureAirport, arrivalAirport, firstVisibleDay, lastVisibleDay])
 
     // 🔥 LẦN ĐẦU VÀO MÀN HÌNH
     useEffect(() => {
@@ -317,7 +403,7 @@ const FlightTimetable = () => {
 
     return (
         <div>
-            <div className="mt-3 grid grid-cols-2 gap-4">
+            <div className="mt-3 grid grid-cols-4 gap-4">
                 <div>
                     <label>Người vận hành chuyến bay</label>
                     <div className="mt-2">
@@ -350,6 +436,66 @@ const FlightTimetable = () => {
                             fetchOptions={fetchAirlineList}
                             onChange={(newValue: any) => {
                                 setAirline({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            className="w-full !h-[60px]"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label>Mẫu máy bay</label>
+                    <div className="mt-2">
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={aircraft}
+                            value={aircraft}
+                            placeholder={<span>Chọn mẫu máy bay</span>}
+                            fetchOptions={fetchAircraftList}
+                            onChange={(newValue: any) => {
+                                setAircraft({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            className="w-full !h-[60px]"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label>Địa điểm khởi hành</label>
+                    <div className="mt-2">
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={departureAirport}
+                            value={departureAirport}
+                            placeholder={<span>Chọn địa điểm khởi hành</span>}
+                            fetchOptions={fetchDepartureAirportList}
+                            onChange={(newValue: any) => {
+                                setDepartureAirport({
+                                    key: newValue?.key,
+                                    label: newValue?.label,
+                                    value: newValue?.value
+                                });
+                            }}
+                            className="w-full !h-[60px]"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label>Địa điểm hạ cánh</label>
+                    <div className="mt-2">
+                        <DebounceSelect
+                            allowClear
+                            defaultValue={arrivalAirport}
+                            value={arrivalAirport}
+                            placeholder={<span>Chọn địa điểm hạ cánh</span>}
+                            fetchOptions={fetchArrivalAirportList}
+                            onChange={(newValue: any) => {
+                                setArrivalAirport({
                                     key: newValue?.key,
                                     label: newValue?.label,
                                     value: newValue?.value

@@ -11,6 +11,8 @@ import vi_VN from 'antd/locale/vi_VN';
 import { getImage } from "@/utils/imageUrl";
 import { formatCurrency } from "@/utils/formatCurrency";
 import ModalActivityPromotionUpsert from "./ModalActivityPromotionUpsert";
+import { HiOutlineCursorClick } from "react-icons/hi";
+import ModalActivityDateDetail from "@/components/dashboard/activity-date/ModalActivityDateDetail";
 // import ModalFlightLegUpsert from "./ModalFlightLegUpsert";
 
 interface IProps {
@@ -39,6 +41,7 @@ const ActivityPromotionTable = (props: IProps) => {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
     const [dataInit, setDataInit] = useState({});
 
     const handleDeleteActivityPromotion = async (id: number | undefined) => {
@@ -98,9 +101,18 @@ const ActivityPromotionTable = (props: IProps) => {
             dataIndex: 'activity_date',
             render: (_text, record) => {
                 return (
-                    <div className="flex items-center gap-[10px]">
-                        <div>
-                            <p className="leading-[20px]">{`${dayjs(record?.activity_date?.date_launch).format("YYYY-MM-DD")}`}</p>
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <div className="flex items-center gap-[10px]">
+                            <div>
+                                <p className="leading-[20px]">{`${dayjs(record?.activity_date?.date_launch).format("YYYY-MM-DD")}`}</p>
+                            </div>
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
                         </div>
                     </div>
                 )
@@ -258,6 +270,7 @@ const ActivityPromotionTable = (props: IProps) => {
                 handleGetActivityPromotion={handleGetActivityPromotion}
                 meta={meta}
             />
+            <ModalActivityDateDetail activityDate={(dataInit as any)?.activity_date} isModalOpen={isModalDetailOpen} setIsModalOpen={setIsModalDetailOpen} />
         </div>
     )
 }

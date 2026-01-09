@@ -10,6 +10,7 @@ import { getImage } from "@/utils/imageUrl";
 import { HomeOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { STAY_TYPE, STAY_TYPE_VI } from "@/constants/hotel";
+import RoomStatistic from "./RoomStatistic";
 
 interface IProps {
     room?: any | null;
@@ -164,7 +165,7 @@ const ModalRoomDetail = (props: IProps) => {
                             </div>
                         </div>
                     </div>
-
+                    <RoomStatistic room={room} />
                     <RoomAmenityTable room={room} />
                 </div>
             </Modal>

@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import FlightLegTable from "@/components/dashboard/flight-leg/FlightLegTable";
-import TableCustomerBooking from "@/components/dashboard/flight/TableCustomerBooking";
 import SeatClassPricingTable from "@/components/dashboard/seat-class-pricing/SeatClassPricingTable";
-import { SERVICE_TYPE } from "@/constants/booking";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDuration } from "@/utils/getDatesBetween";
 import { getImage } from "@/utils/imageUrl";
 import { Button, ConfigProvider, Modal } from "antd";
 import vi_VN from 'antd/locale/vi_VN';
 import dayjs from "dayjs";
+import FlightStatistic from "./FlightStatistic";
 
 interface IProps {
     flight?: any | null;
@@ -69,7 +68,9 @@ const ModalFlightDetail = (props: IProps) => {
                 </div>
                 <FlightLegTable flight={flight} />
                 <SeatClassPricingTable flight={flight} />
-                <TableCustomerBooking serviceType={SERVICE_TYPE.FLIGHT} flightId={flight?.id} />
+                <div className="mt-[20px]">
+                    <FlightStatistic flight={flight} />
+                </div>
             </Modal>
         </ConfigProvider>
     );

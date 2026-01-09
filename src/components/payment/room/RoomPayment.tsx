@@ -87,8 +87,20 @@ export default function RoomPayment() {
 
     useEffect(() => {
         handleGetUser(`current=1&pageSize=1000`)
-        handleGetHotel(`current=1&pageSize=1000`)
-        handleGetRoom(`current=1&pageSize=1000`)
+        if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+            handleGetHotel(`current=1&pageSize=1000`)
+            handleGetRoom(`current=1&pageSize=1000`)
+        }
+        else if (user.role === ROLE.OWNER) {
+            handleGetHotel(`current=1&pageSize=1000&ownerId=${user.id}`)
+            handleGetRoom(`current=1&pageSize=1000&owner_id=${user.id}`)
+        }
+        else if (user.role === ROLE.HOTEL_STAFF) {
+            if (user.manager?.id) {
+                handleGetHotel(`current=1&pageSize=1000&ownerId=${user.manager.id}`)
+                handleGetRoom(`current=1&pageSize=1000&owner_id=${user.manager.id}`)
+            }
+        }
     }, [])
 
     const reloadTable = () => {
@@ -278,7 +290,18 @@ export default function RoomPayment() {
                                     await handleGetRoom(`current=1&pageSize=1000&hotel_id=${val}`)
                                 }
                                 else {
-                                    await handleGetRoom(`current=1&pageSize=1000`)
+                                    if (user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) {
+                                        await handleGetRoom(`current=1&pageSize=1000`)
+                                    }
+                                    else if (user.role === ROLE.OWNER) {
+                                        await handleGetRoom(`current=1&pageSize=1000&owner_id=${user.id}`)
+                                    }
+                                    else if (user.role === ROLE.HOTEL_STAFF) {
+                                        if (user.manager?.id) {
+                                            await handleGetRoom(`current=1&pageSize=1000&owner_id=${user.manager.id}`)
+                                        }
+                                    }
+
                                 }
 
                             }}
@@ -376,9 +399,9 @@ export default function RoomPayment() {
                             {PAYMENT_STATUS_VI[record.status]}
                         </Tag>
                         <p>- Phương thức: <span className="font-bold">{PAYMENT_METHOD_VI[record.method]}</span></p>
-                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount)}đ</span></p>
-                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount)}đ</span></p>
-                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price)}đ</span></p>
+                        <p>- Tổng tiền: <span className="text-blue-600 font-bold">{formatCurrency(record?.amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Giảm giá: <span className="text-red-600 font-bold">{formatCurrency(record?.booking?.discount_amount?.toFixed(0) || 0)}đ</span></p>
+                        <p>- Thành tiền: <span className="text-green-600 font-bold">{formatCurrency(record?.booking?.final_price?.toFixed(0) || 0)}đ</span></p>
                     </div>
                 )
             },

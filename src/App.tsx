@@ -107,37 +107,37 @@ export default function App() {
       element: <CityPage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF) ? [{
       path: "/hotel",
       element: <HotelPage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.OWNER) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.OWNER || user.role === ROLE.HOTEL_STAFF) ? [{
       path: "/room",
       element: <RoomPage />,
       index: true
     }] : []),
-    ...(user.role === ROLE.ADMIN ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER) ? [{
       path: "/airport",
       element: <AirportPage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF) ? [{
       path: "/airline",
       element: <AirlinePage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF) ? [{
       path: "/aircraft",
       element: <AircraftPage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.FLIGHT_OPERATION_STAFF || user.role === ROLE.AIRLINE_TICKETING_STAFF) ? [{
       path: "/flight",
       element: <FlightPage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.DRIVER) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.DRIVER) ? [{
       path: "/car",
       element: <CarPage />,
       index: true
@@ -147,17 +147,17 @@ export default function App() {
       element: <CarJourneyPage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.EVENT_ORGANIZER) ? [{
       path: "/activity",
       element: <ActivityPage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.EVENT_ORGANIZER) ? [{
       path: "/activity-package",
       element: <ActivityPackagePage />,
       index: true
     }] : []),
-    ...((user.role === ROLE.ADMIN || user.role === ROLE.EVENT_ORGANIZER) ? [{
+    ...((user.role === ROLE.ADMIN || user.role === ROLE.MARKETING_MANAGER || user.role === ROLE.EVENT_ORGANIZER) ? [{
       path: "/activity-date",
       element: <ActivityDatePage />,
       index: true

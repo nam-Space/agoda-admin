@@ -11,6 +11,8 @@ import vi_VN from 'antd/locale/vi_VN';
 import { getImage } from "@/utils/imageUrl";
 import { formatCurrency } from "@/utils/formatCurrency";
 import ModalCarPromotionUpsert from "./ModalCarPromotionUpsert";
+import { HiOutlineCursorClick } from "react-icons/hi";
+import ModalCarDetail from "@/components/dashboard/car/ModalCarDetail";
 // import ModalFlightLegUpsert from "./ModalFlightLegUpsert";
 
 interface IProps {
@@ -39,6 +41,7 @@ const CarPromotionTable = (props: IProps) => {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
     const [dataInit, setDataInit] = useState({});
 
     const handleDeleteCarPromotion = async (id: number | undefined) => {
@@ -68,13 +71,22 @@ const CarPromotionTable = (props: IProps) => {
             dataIndex: 'car',
             render: (_, record) => {
                 return (
-                    <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getImage(record?.car?.image)}
-                            className="w-[70px] h-[50px] object-cover"
-                        />
-                        <div>
-                            <p className="leading-[20px]">{`${record?.car?.name}`}</p>
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getImage(record?.car?.image)}
+                                className="w-[70px] h-[50px] object-cover"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${record?.car?.name}`}</p>
+                            </div>
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
                         </div>
                     </div>
                 )
@@ -232,6 +244,7 @@ const CarPromotionTable = (props: IProps) => {
                 handleGetCarPromotion={handleGetCarPromotion}
                 meta={meta}
             />
+            <ModalCarDetail car={(dataInit as any)?.car} isModalOpen={isModalDetailOpen} setIsModalOpen={setIsModalDetailOpen} />
         </div>
     )
 }

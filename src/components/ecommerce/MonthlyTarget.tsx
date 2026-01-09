@@ -87,7 +87,7 @@ export default function MonthlyTarget({ statistic, serviceType }: any) {
           </span> */}
         </div>
         <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          Bạn đã thu về {formatCurrency(statistic.total_revenue)}₫. {statistic.revenue_growth > 0 ? 'Cao hơn' : (statistic.revenue_growth === 0 ? 'Cao bằng' : 'Thấp hơn')} {TIME_STATISTIC_VI[statistic.statistic_by]?.toLowerCase()} trước
+          Bạn đã thu về {formatCurrency(statistic.total_revenue || 0)}₫. {statistic.revenue_growth > 0 ? 'Cao hơn' : (statistic.revenue_growth === 0 ? 'Cao bằng' : 'Thấp hơn')} {TIME_STATISTIC_VI[statistic.statistic_by]?.toLowerCase()} trước
         </p>
       </div>
     </div>

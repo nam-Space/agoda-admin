@@ -3,7 +3,7 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
-import { callFetchActivity, callFetchAirline, callFetchCar, callFetchFlight, callFetchHotel, callFetchPaymentOverview, callFetchRoomAdmin, callFetchUser } from "@/config/api";
+import { callFetchActivity, callFetchActivityPackage, callFetchAircraft, callFetchAirline, callFetchAirport, callFetchCar, callFetchFlight, callFetchHotel, callFetchPaymentOverview, callFetchRoomAdmin, callFetchUser } from "@/config/api";
 import { SERVICE_TYPE, SERVICE_TYPE_VI } from "@/constants/booking";
 import { useAppSelector } from "@/redux/hooks";
 import { ROLE } from "@/constants/role";
@@ -14,6 +14,11 @@ import ChartTab from "../common/ChartTab";
 import EcommerceMetrics from "./EcommerceMetrics";
 import { TIME_STATISTIC } from "@/constants/time";
 import dayjs from "dayjs";
+import { ConfigProvider, DatePicker } from "antd";
+import vi_VN from 'antd/locale/vi_VN';
+
+const { RangePicker } = DatePicker;
+
 export interface ICitySelect {
 	label?: any;
 	value?: number;
@@ -37,6 +42,12 @@ export default function MonthlySalesChart({ serviceType }: any) {
 	})
 
 	const [selectedTime, setSelectedTime] = useState(TIME_STATISTIC.DAY);
+	const [selectedRangeTime, setSelectedRangeTime] = useState({
+		room: [null, null],
+		activity: [null, null],
+		car: [null, null],
+		flight: [null, null],
+	})
 
 	const [owner, setOwner] = useState<ICitySelect>({
 		label: user.role === ROLE.OWNER ? <div className="flex items-center gap-[10px]">
@@ -95,6 +106,12 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		key: 0,
 	});
 
+	const [activityPackage, setActivityPackage] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
 	const [driver, setDriver] = useState<ICitySelect>({
 		label: user.role === ROLE.DRIVER ? <div className="flex items-center gap-[10px]">
 			<img
@@ -141,6 +158,24 @@ export default function MonthlySalesChart({ serviceType }: any) {
 	});
 
 	const [airline, setAirline] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [aircraft, setAircraft] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [departureAirport, setDepartureAirport] = useState<ICitySelect>({
+		label: "",
+		value: 0,
+		key: 0,
+	});
+
+	const [arrivalAirport, setArrivalAirport] = useState<ICitySelect>({
 		label: "",
 		value: 0,
 		key: 0,
@@ -486,6 +521,38 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		} else return [];
 	}
 
+	async function fetchActivityPackageList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (eventOrganizer.value) {
+			query = `&event_organizer_id=${eventOrganizer.value}`
+		}
+		else if (user.role === ROLE.EVENT_ORGANIZER) {
+			query = `&event_organizer_id=${user.id}`
+		}
+
+		if (activity.value) {
+			query += `&activity_id=${activity.value}`
+		}
+		const res: any = await callFetchActivityPackage(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label:
+						<div className="flex gap-3">
+							<h4>
+								{
+									item?.name
+								}
+							</h4>
+						</div>,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
 	async function fetchCarList(): Promise<ICitySelect[]> {
 		let query = ``
 		if (driver.value) {
@@ -569,6 +636,67 @@ export default function MonthlySalesChart({ serviceType }: any) {
 		} else return [];
 	}
 
+	async function fetchAircraftList(): Promise<ICitySelect[]> {
+		let query = ``
+		if (flightOperationManager.value) {
+			query = `&flight_operations_staff_id=${flightOperationManager.value}`
+		}
+		else if (user.role === ROLE.FLIGHT_OPERATION_STAFF) {
+			query = `&flight_operations_staff_id=${user.id}`
+		}
+		else if (user.role === ROLE.AIRLINE_TICKETING_STAFF) {
+			query = `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
+		}
+
+		if (airline.value) {
+			query += `&airline_id=${airline.value}`
+		}
+		const res: any = await callFetchAircraft(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label:
+						item.model,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	async function fetchDepartureAirportList(): Promise<ICitySelect[]> {
+		const query = ``
+		const res: any = await callFetchAirport(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label:
+						item.name,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
+	async function fetchArrivalAirportList(): Promise<ICitySelect[]> {
+		const query = ``
+		const res: any = await callFetchAirport(`current=1&pageSize=1000${query}`);
+		if (res?.isSuccess) {
+			const list = res.data;
+			const temp = list.map((item: any) => {
+				return {
+					label:
+						item.name,
+					value: item.id
+				}
+			})
+			return temp;
+		} else return [];
+	}
+
 	async function fetchFlightList(): Promise<ICitySelect[]> {
 		let query = ``
 		if (flightOperationManager.value) {
@@ -581,7 +709,16 @@ export default function MonthlySalesChart({ serviceType }: any) {
 			query = `&flight_operations_staff_id=${user.flight_operation_manager?.id}`
 		}
 		if (airline.value) {
-			query = `&airline_id=${airline.value}`
+			query += `&airline_id=${airline.value}`
+		}
+		if (aircraft.value) {
+			query += `&aircraft_id=${aircraft.value}`
+		}
+		if (departureAirport.value) {
+			query += `&departure_airport_id=${departureAirport.value}`
+		}
+		if (arrivalAirport.value) {
+			query += `&arrival_airport_id=${arrivalAirport.value}`
 		}
 		const res: any = await callFetchFlight(`current=1&pageSize=1000${query}`);
 		if (res?.isSuccess) {
@@ -641,35 +778,71 @@ export default function MonthlySalesChart({ serviceType }: any) {
 
 		if (serviceType === SERVICE_TYPE.HOTEL) {
 			if (hotel.value) {
-				serviceQuery = `&hotel_id=${hotel.value}`
+				serviceQuery += `&hotel_id=${hotel.value}`
 			}
 			if (room.value) {
-				serviceQuery = `&room_id=${room.value}`
+				serviceQuery += `&room_id=${room.value}`
+			}
+			if (selectedRangeTime.room[0]) {
+				serviceQuery += `&min_date=${dayjs(selectedRangeTime.room[0]).format("YYYY-MM-DD HH:mm:ss")}`
+			}
+			if (selectedRangeTime.room[1]) {
+				serviceQuery += `&max_date=${dayjs(selectedRangeTime.room[1]).format("YYYY-MM-DD HH:mm:ss")}`
 			}
 		}
 		else if (serviceType === SERVICE_TYPE.ACTIVITY) {
 			if (activity.value) {
-				serviceQuery = `&activity_id=${activity.value}`
+				serviceQuery += `&activity_id=${activity.value}`
+			}
+			if (activityPackage.value) {
+				serviceQuery += `&activity_package_id=${activityPackage.value}`
+			}
+			if (selectedRangeTime.activity[0]) {
+				serviceQuery += `&min_date=${dayjs(selectedRangeTime.activity[0]).format("YYYY-MM-DD HH:mm:ss")}`
+			}
+			if (selectedRangeTime.activity[1]) {
+				serviceQuery += `&max_date=${dayjs(selectedRangeTime.activity[1]).format("YYYY-MM-DD HH:mm:ss")}`
 			}
 		}
 		else if (serviceType === SERVICE_TYPE.CAR) {
 			if (car.value) {
-				serviceQuery = `&car_id=${car.value}`
+				serviceQuery += `&car_id=${car.value}`
+			}
+			if (selectedRangeTime.car[0]) {
+				serviceQuery += `&min_date=${dayjs(selectedRangeTime.car[0]).format("YYYY-MM-DD HH:mm:ss")}`
+			}
+			if (selectedRangeTime.car[1]) {
+				serviceQuery += `&max_date=${dayjs(selectedRangeTime.car[1]).format("YYYY-MM-DD HH:mm:ss")}`
 			}
 		}
 		else if (serviceType === SERVICE_TYPE.FLIGHT) {
 			if (airline.value) {
-				serviceQuery = `&airline_id=${airline.value}`
+				serviceQuery += `&airline_id=${airline.value}`
+			}
+			if (aircraft.value) {
+				serviceQuery += `&aircraft_id=${aircraft.value}`
+			}
+			if (departureAirport.value) {
+				serviceQuery += `&departure_airport_id=${departureAirport.value}`
+			}
+			if (arrivalAirport.value) {
+				serviceQuery += `&arrival_airport_id=${arrivalAirport.value}`
 			}
 			if (flight.value) {
-				serviceQuery = `&flight_id=${flight.value}`
+				serviceQuery += `&flight_id=${flight.value}`
+			}
+			if (selectedRangeTime.flight[0]) {
+				serviceQuery += `&min_date=${dayjs(selectedRangeTime.flight[0]).format("YYYY-MM-DD HH:mm:ss")}`
+			}
+			if (selectedRangeTime.flight[1]) {
+				serviceQuery += `&max_date=${dayjs(selectedRangeTime.flight[1]).format("YYYY-MM-DD HH:mm:ss")}`
 			}
 		}
 
 
 		handleGetPaymentOverview(`booking__service_type=${serviceType}${bossQuery}${serviceQuery}&statistic_by=${selectedTime}`)
 
-	}, [owner, eventOrganizer, driver, flightOperationManager, serviceType, hotel, room, activity, car, airline, flight, selectedTime])
+	}, [owner, eventOrganizer, driver, flightOperationManager, serviceType, hotel, room, activity, activityPackage, car, airline, aircraft, departureAirport, arrivalAirport, flight, selectedTime, JSON.stringify(selectedRangeTime)])
 	return (
 		<div>
 			<EcommerceMetrics statistic={statistic} serviceType={serviceType} />
@@ -745,6 +918,33 @@ export default function MonthlySalesChart({ serviceType }: any) {
 										/>
 									</div>
 								</div>
+								<div>
+									<label>Bắt đầu từ → Bắt đầu đến</label>
+									<div className="mt-2">
+										<ConfigProvider locale={vi_VN}>
+											<RangePicker
+												showTime
+												onChange={(dates: any, _dateStrings: [string, string]) => {
+													if (!dates) {
+														setSelectedRangeTime({
+															...selectedRangeTime,
+															room: [null, null]
+														});
+														return;
+													}
+													setSelectedRangeTime({
+														...selectedRangeTime,
+														room: [dates[0].format("YYYY-MM-DD HH:mm:ss"), dates[1].format("YYYY-MM-DD HH:mm:ss")]
+													});
+												}}
+												value={selectedRangeTime.room[0] && selectedRangeTime.room[1]
+													? [dayjs(selectedRangeTime.room[0]), dayjs(selectedRangeTime.room[1])]
+													: null}
+												className="w-full h-[60px]"
+											/>
+										</ConfigProvider>
+									</div>
+								</div>
 							</>
 						}
 
@@ -789,6 +989,53 @@ export default function MonthlySalesChart({ serviceType }: any) {
 											}}
 											className="w-full !h-[60px]"
 										/>
+									</div>
+								</div>
+								<div>
+									<label>Gói của hoạt động</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={activityPackage}
+											value={activityPackage}
+											placeholder={<span>Chọn gói của hoạt động</span>}
+											fetchOptions={fetchActivityPackageList}
+											onChange={(newValue: any) => {
+												setActivityPackage({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Bắt đầu từ → Bắt đầu đến</label>
+									<div className="mt-2">
+										<ConfigProvider locale={vi_VN}>
+											<RangePicker
+												showTime
+												onChange={(dates: any, _dateStrings: [string, string]) => {
+													if (!dates) {
+														setSelectedRangeTime({
+															...selectedRangeTime,
+															activity: [null, null]
+														});
+														return;
+													}
+													setSelectedRangeTime({
+														...selectedRangeTime,
+														activity: [dates[0].format("YYYY-MM-DD HH:mm:ss"), dates[1].format("YYYY-MM-DD HH:mm:ss")]
+													});
+												}}
+												value={selectedRangeTime.activity[0] && selectedRangeTime.activity[1]
+													? [dayjs(selectedRangeTime.activity[0]), dayjs(selectedRangeTime.activity[1])]
+													: null}
+												className="w-full h-[60px]"
+											/>
+										</ConfigProvider>
 									</div>
 								</div>
 							</>
@@ -837,6 +1084,33 @@ export default function MonthlySalesChart({ serviceType }: any) {
 										/>
 									</div>
 								</div>
+								<div>
+									<label>Bắt đầu từ → Bắt đầu đến</label>
+									<div className="mt-2">
+										<ConfigProvider locale={vi_VN}>
+											<RangePicker
+												showTime
+												onChange={(dates: any, _dateStrings: [string, string]) => {
+													if (!dates) {
+														setSelectedRangeTime({
+															...selectedRangeTime,
+															car: [null, null]
+														});
+														return;
+													}
+													setSelectedRangeTime({
+														...selectedRangeTime,
+														car: [dates[0].format("YYYY-MM-DD HH:mm:ss"), dates[1].format("YYYY-MM-DD HH:mm:ss")]
+													});
+												}}
+												value={selectedRangeTime.car[0] && selectedRangeTime.car[1]
+													? [dayjs(selectedRangeTime.car[0]), dayjs(selectedRangeTime.car[1])]
+													: null}
+												className="w-full h-[60px]"
+											/>
+										</ConfigProvider>
+									</div>
+								</div>
 							</>}
 
 						{serviceType === SERVICE_TYPE.FLIGHT &&
@@ -883,6 +1157,66 @@ export default function MonthlySalesChart({ serviceType }: any) {
 									</div>
 								</div>
 								<div>
+									<label>Mẫu máy bay</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={aircraft}
+											value={aircraft}
+											placeholder={<span>Chọn mẫu máy bay</span>}
+											fetchOptions={fetchAircraftList}
+											onChange={(newValue: any) => {
+												setAircraft({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Địa điểm khởi hành</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={departureAirport}
+											value={departureAirport}
+											placeholder={<span>Chọn địa điểm khởi hành</span>}
+											fetchOptions={fetchDepartureAirportList}
+											onChange={(newValue: any) => {
+												setDepartureAirport({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
+									<label>Địa điểm hạ cánh</label>
+									<div className="mt-2">
+										<DebounceSelect
+											allowClear
+											defaultValue={arrivalAirport}
+											value={arrivalAirport}
+											placeholder={<span>Chọn địa điểm hạ cánh</span>}
+											fetchOptions={fetchArrivalAirportList}
+											onChange={(newValue: any) => {
+												setArrivalAirport({
+													key: newValue?.key,
+													label: newValue?.label,
+													value: newValue?.value
+												});
+											}}
+											className="w-full !h-[60px]"
+										/>
+									</div>
+								</div>
+								<div>
 									<label>Chuyến bay</label>
 									<div className="mt-2">
 										<DebounceSelect
@@ -900,6 +1234,33 @@ export default function MonthlySalesChart({ serviceType }: any) {
 											}}
 											className="w-full !h-[140px]"
 										/>
+									</div>
+								</div>
+								<div>
+									<label>Bắt đầu từ → Bắt đầu đến</label>
+									<div className="mt-2">
+										<ConfigProvider locale={vi_VN}>
+											<RangePicker
+												showTime
+												onChange={(dates: any, _dateStrings: [string, string]) => {
+													if (!dates) {
+														setSelectedRangeTime({
+															...selectedRangeTime,
+															flight: [null, null]
+														});
+														return;
+													}
+													setSelectedRangeTime({
+														...selectedRangeTime,
+														flight: [dates[0].format("YYYY-MM-DD HH:mm:ss"), dates[1].format("YYYY-MM-DD HH:mm:ss")]
+													});
+												}}
+												value={selectedRangeTime.flight[0] && selectedRangeTime.flight[1]
+													? [dayjs(selectedRangeTime.flight[0]), dayjs(selectedRangeTime.flight[1])]
+													: null}
+												className="w-full h-[60px]"
+											/>
+										</ConfigProvider>
 									</div>
 								</div>
 							</>

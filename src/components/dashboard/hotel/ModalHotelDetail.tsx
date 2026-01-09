@@ -7,6 +7,7 @@ import { Navigation } from "swiper/modules";
 import RoomTable from "../room/RoomTable";
 import { FaHotel } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import HotelStatistic from "./HotelStatistic";
 
 interface IProps {
     hotel?: any | null;
@@ -275,7 +276,7 @@ const ModalHotelDetail = (props: IProps) => {
                             </div>
                         </div>
                     </div>
-
+                    <HotelStatistic hotel={hotel} />
                     <RoomTable hotel={hotel} />
                 </div>
             </Modal>

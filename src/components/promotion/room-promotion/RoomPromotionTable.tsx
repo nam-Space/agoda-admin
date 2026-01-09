@@ -11,6 +11,8 @@ import vi_VN from 'antd/locale/vi_VN';
 import { getImage } from "@/utils/imageUrl";
 import { formatCurrency } from "@/utils/formatCurrency";
 import ModalRoomPromotionUpsert from "./ModalRoomPromotionUpsert";
+import ModalRoomDetail from "@/components/dashboard/room/ModalRoomDetail";
+import { HiOutlineCursorClick } from "react-icons/hi";
 // import ModalFlightLegUpsert from "./ModalFlightLegUpsert";
 
 interface IProps {
@@ -39,6 +41,7 @@ const RoomPromotionTable = (props: IProps) => {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
     const [dataInit, setDataInit] = useState({});
 
     const handleDeleteRoomPromotion = async (id: number | undefined) => {
@@ -85,17 +88,27 @@ const RoomPromotionTable = (props: IProps) => {
             dataIndex: 'room',
             render: (_, record) => {
                 return (
-                    <div className="flex items-center gap-[10px]">
-                        <img
-                            src={getImage(record?.room?.images?.[0]?.image)}
-                            className="w-[70px] h-[50px] object-cover"
-                        />
-                        <div>
-                            <p className="leading-[20px]">{`${record?.room?.room_type}`}</p>
+                    <div onClick={() => {
+                        setDataInit(record)
+                        setIsModalDetailOpen(true)
+                    }} className="bg-gray-200 p-[10px] rounded-[10px] cursor-pointer hover:bg-gray-300 transition-all duration-150">
+                        <div className="flex items-center gap-[10px]">
+                            <img
+                                src={getImage(record?.room?.images?.[0]?.image)}
+                                className="w-[70px] h-[50px] object-cover"
+                            />
+                            <div>
+                                <p className="leading-[20px]">{`${record?.room?.room_type}`}</p>
+                            </div>
+                        </div>
+                        <div className="mt-[10px] flex items-center justify-center gap-[5px] text-[12px] italic">
+                            <HiOutlineCursorClick />
+                            <span>Click để xem chi tiết</span>
                         </div>
                     </div>
                 )
             },
+            width: 300
         },
         {
             title: "Giảm giá",
@@ -251,6 +264,7 @@ const RoomPromotionTable = (props: IProps) => {
                 handleGetRoomPromotion={handleGetRoomPromotion}
                 meta={meta}
             />
+            <ModalRoomDetail room={(dataInit as any)?.room} isModalOpen={isModalDetailOpen} setIsModalOpen={setIsModalDetailOpen} />
         </div>
     )
 }

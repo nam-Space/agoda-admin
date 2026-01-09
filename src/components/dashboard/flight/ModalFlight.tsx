@@ -123,10 +123,34 @@ const ModalFlight = (props: IProps) => {
     } else return [];
   }
 
+  // async function fetchAircraftList(): Promise<IActivitySelect[]> {
+  //   let query = ``;
+  //   if (!airline?.value) return [];
+  //   query += `&airline_id=${airline.value}`;
+  //   query += `&is_active=${1}`;
+  //   const res: any = await callFetchAircraft(`current=1&pageSize=1000${query}`);
+  //   if (res?.isSuccess) {
+  //     const list = res.data;
+  //     const temp = list.map((item: any) => {
+  //       return {
+  //         label: (
+  //           <div className="flex items-center gap-[10px]">
+  //             <div>
+  //               <p className="leading-[20px]">{`${item.model}`}</p>
+  //             </div>
+  //           </div>
+  //         ),
+  //         value: item.id,
+  //       };
+  //     });
+  //     return temp;
+  //   } else return [];
+  // }
   async function fetchAircraftList(): Promise<IActivitySelect[]> {
     let query = ``;
     if (!airline?.value) return [];
     query += `&airline_id=${airline.value}`;
+    query += `&is_active=${1}`;
     const res: any = await callFetchAircraft(`current=1&pageSize=1000${query}`);
     if (res?.isSuccess) {
       const list = res.data;
