@@ -218,7 +218,53 @@ http://localhost:3001
 
 ---
 
-## 11. Kết nối Backend
+## 11. Giao diện
+### 11.1 Giao diện dashboard
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/222ec985-c952-44e2-a369-a53a75249acb" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c667fd53-b5f5-415c-bb2b-ca53be6d8d94" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/ea0d877a-c558-4e68-9d1e-1ba218fc6563" />
+
+### 11.2 Giao diện người dùng
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/f514e0fa-4f18-4cb6-9954-985bb6bae3bb" />
+
+### 11.3 Giao diện khách sạn
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/5e6afe71-35a5-41c8-abab-475657a7d481" />
+
+### 11.4 Giao diện phòng
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/b50451d6-1d8f-4155-a85a-b90b17ab95ab" />
+
+### 11.5 Giao diện chuyến bay
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/eb975746-3048-44b9-affc-f058692389a0" />
+
+### 11.6 Giao diện xe taxi
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/5e987df7-1f94-4d84-aea5-b51768516c27" />
+
+### 11.7 Giao diện hoạt động
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/bc129b25-6866-45ef-a965-529868244c9d" />
+
+### 11.8 Giao diện cẩm nang
+<img width="1919" height="1076" alt="image" src="https://github.com/user-attachments/assets/6c95e128-06ef-41b5-bbaf-c4528a764c63" />
+
+### 11.9 Giao diện thanh toán
+<img width="1917" height="1077" alt="image" src="https://github.com/user-attachments/assets/289a5752-1d24-426e-834c-fa877877c440" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/97bddaf6-b20d-41ad-a792-9a8dec556a6d" />
+<img width="1914" height="1075" alt="image" src="https://github.com/user-attachments/assets/78641c5f-85c4-42b0-a2aa-b55b1d4a5f5f" />
+<img width="1916" height="1073" alt="image" src="https://github.com/user-attachments/assets/0c02a9aa-ad84-44af-8b34-f86bf4da2534" />
+
+### 11.10 Giao diện khuyến mãi
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/1f7031ff-a624-4854-83c2-5c58194446d3" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/1c2712f0-e0f0-4898-8f9c-305dfccd3cf0" />
+<img width="1915" height="1076" alt="image" src="https://github.com/user-attachments/assets/11831f29-1d18-4e01-b97b-00628490e279" />
+<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/1f92ec13-9b37-4699-ad1c-5c934a81cb5f" />
+
+### 11.11 Giao diện thời khóa biểu
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/9c73c618-2e24-4ba5-a22f-ff8aea78e4a8" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/1a750736-61d2-4870-84e1-4e0845b7fb94" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/e7e3f49b-3b96-424e-b162-80240fa3c69b" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/e4ef901f-8837-4760-a2eb-ec75a80e54cc" />
+
+
+## 12. Kết nối Backend
 
 Admin Dashboard giao tiếp với:
 
@@ -234,7 +280,7 @@ VITE_WS_URL=ws://localhost:8000/ws
 
 ---
 
-## 12. Bảo mật
+## 13. Bảo mật
 
 * JWT Authentication
 * Kiểm soát quyền theo role
@@ -242,7 +288,7 @@ VITE_WS_URL=ws://localhost:8000/ws
 
 ---
 
-## 13. Hiệu năng & khả năng mở rộng
+## 14. Hiệu năng & khả năng mở rộng
 
 * Pagination cho bảng dữ liệu lớn
 * Lazy loading
@@ -250,7 +296,7 @@ VITE_WS_URL=ws://localhost:8000/ws
 
 ---
 
-## 14. Định hướng phát triển
+## 15. Định hướng phát triển
 
 * Thêm dashboard BI nâng cao
 * Export báo cáo
@@ -259,7 +305,7 @@ VITE_WS_URL=ws://localhost:8000/ws
 
 ---
 
-## 15. Mục đích & giá trị dự án
+## 16. Mục đích & giá trị dự án
 
 Dự án giúp:
 
@@ -270,13 +316,13 @@ Dự án giúp:
 
 ---
 
-## 16. Tác giả
+## 17. Tác giả
 
 **Nam Nguyen**
 GitHub: [https://github.com/nam-Space](https://github.com/nam-Space)
 
 ---
 
-## 17. License
+## 18. License
 
 Project phục vụ mục đích **học tập & portfolio**, không sử dụng thương mại.
